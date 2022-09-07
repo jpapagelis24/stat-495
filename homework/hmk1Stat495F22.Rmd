@@ -1,0 +1,199 @@
+---
+title: "Homework 1 - Stat 495"
+author: "YourNameGoesHere"
+date: "Due Monday, Sept. 12th by midnight"
+output:
+  pdf_document:
+    fig_height: 3
+    fig_width: 5
+  html_document:
+    fig_height: 3
+    fig_width: 5
+  word_document:
+    fig_height: 3
+    fig_width: 5
+---
+
+```{r, include = FALSE}
+library(mosaic)
+library(broom)
+options(digits = 6)
+```
+
+# Practicing Academic Integrity
+
+If you worked with others or used resources outside of provided course material (anything besides our textbook(s), course materials in Moodle, R help menu) to complete this assignment, please acknowledge them below using a bulleted list. 
+
+<!-- ~~~~~~~~~~~~~~~~ YOU MAY BEGIN EDITING BELOW THIS LINE ~~~~~~~~~~~~~~~~ -->
+
+*I acknowledge the following individuals with whom I worked on this assignment:*
+
+Name(s) and corresponding problem(s)
+
+*
+
+*I used the following sources to help complete this assignment:*
+
+Source(s) and corresponding problem(s)
+
+* 
+
+\newpage
+
+
+
+# PROBLEMS TO TURN IN:  Vis 1, Vis 2, CASI 1.1, CASI 1.4, Portfolio Reflection 
+
+## Visualization Problems (Adapted from an assignment by Prof. Horton)
+
+The first two ``problems'' require you to find two visuals to discuss, and incorporate them in a .Rmd file. To find these visuals, we will practice finding journal articles from two sources - the JSTOR database and Google Scholar. 
+
+Your task is to select two visual displays from journal articles that apply statistics (they do not need to be in statistics research journals, but could be). One should be selected as a visual display that you find compelling. The other should be a visual display that you believe is suboptimal or could be improved. 
+
+One visual must come from JSTOR and the other from Google Scholar. You must include the article citation and figure information (which figure is it in the article) with each figure. (Citations are more than a URL.)
+
+You should include both images below and a brief commentary for each on why you picked them and why they are compelling or suboptimal, respectively. 
+
+Instructions for accessing and using JSTOR and Google Scholar:
+
+Google Scholar can be found at the link here [Google Scholar](https://scholar.google.com/).
+
+JSTOR is one of the journal databases available through the College. To get to it, you can:
+
+* Head to the [Library](https://www.amherst.edu/library) page. 
+* Click the link (roughly in middle of page) to Browse 'A-Z Databases'.
+* Head to the J's and click JSTOR.
+
+What should you search for in these two places to find visuals for this assignment? 
+
+* Think of a statistical method you are comfortable reading about. Examples - regression, ANOVA, etc.
+* Think of an application area you'd like to find an article in. 
+* Put the application area in a search field (or in JSTOR, select journals from that field - left menu) and the topic in another field
+* Look at the search results this generates and pick an article to look at.
+* See if any of the figures in the article strike you. If not, go look at another article. 
+
+Instructions to include visuals in a .Rmd:
+
+Once you identify appropriate visuals, you need to save them in a format that can be put in RMarkdown. .png files work, but other file formats can work as well. 
+
+Below are two examples of how visuals can be included in a .Rmd. Part of the purpose of this assignment is so that you learn how to add images to .Rmds looking ahead to the final paper. The image file should be in the current directory (see the output of "getwd()"). See http://rmarkdown.rstudio.com/authoring_basics.html for more details. DELETE these examples before submission. 
+
+ 
+![Visual of Tukey Transform Suggestions - Method 1](tukey_bulge.png)
+
+\begin{figure}[htbp] 
+\centering 
+\includegraphics[width=4in]{tukey_bulge.png} 
+\caption{Visual of Tukey Transform Suggestions - Method 2}
+\end{figure} 
+
+
+## Vis 1 - Compelling
+
+```{r, include = FALSE}
+#Be sure to add your commentary!
+
+#And the citation information. 
+
+#Was this from JSTOR or Google Scholar?
+```
+
+## Vis 2 - Suboptimal
+
+```{r, include = FALSE}
+#Be sure to add your commentary!
+
+#And the citation information. 
+
+#Was this from JSTOR or Google Scholar?
+```
+
+\newpage
+
+
+## CASI 1.1
+
+```{r}
+kidney <- read.table("http://web.stanford.edu/~hastie/CASI_files/DATA/kidney.txt", header = TRUE)
+```
+
+> (a) Fit a cubic regression, as a function of age, to the kidney data of Figures 1.1 and 1.2, calculating estimates and standard errors at ages 20, 30, 40, 50, 60, 70, 80.
+
+SOLUTION:
+
+```{r}
+# Hint, augment is likely to be useful here (loaded in broom package above)
+# Do you remember how to add powers to a regression? You can also use mutate. 
+# Be sure you actually get a cubic regression! 
+# The model must show the appropriate terms.
+```
+
+
+> (b) How do the results compare with those in Table 1.1?
+
+SOLUTION:
+
+
+\newpage
+
+## CASI 1.4 - Slightly Modified
+
+```{r, cache = TRUE}
+# Load and format data
+leukemia_big <- read.csv("http://web.stanford.edu/~hastie/CASI_files/DATA/leukemia_big.csv")
+# says pictures from row 136
+gene136 <- t(leukemia_big[136, ]) #says pictures from row 136
+# Need to get ALL and AML tags in
+type <- c(rep("ALL", 20), rep("AML", 14), rep("ALL", 27), rep("AML", 11))
+
+# Set up dataset
+leukemia <- data.frame(gene136, type)
+leukemia <- rename(leukemia, gene136 = X136)
+favstats(~ gene136 | type, data = leukemia)
+```
+
+We want to see if there is a significant difference in mean gene expression for gene 136 for the ALL and AML groups. 
+
+> (a) Record the means of the ALL and AML groups for the gene 136 data available for reference.
+
+SOLUTION:
+
+
+> (b) Perform 1000 nonparametric bootstrap replications for the mean of ALL for gene 136. Describe the distribution of the resulting means. You can perform the bootstrap in any way you see fit (the functions do and resample might prove useful).
+
+SOLUTION:
+
+
+> (c) Repeat (b) for AML.
+
+SOLUTION:
+
+
+> (d) Suggest an inference. In other words, what do your results in (b) and (c) suggest about whether there is a difference in means for the ALL and AML groups for gene 136?
+
+SOLUTION:
+
+
+
+> (e) Brainstorm an alternative way to approach the problem via a randomization/permutation test. Describe what you would do in a way that someone else could code it up. (You do not need to actually code this up, but you can if you want to see what the result is.)
+
+SOLUTION:
+
+
+\newpage
+
+## Portfolio Reflection
+
+Look at our portfolio review and in-class activities. In a separate word or pdf document, in a few paragraphs, reflect on how the items in your portfolio demonstrate:
+
+* how your statistical analytical skills have developed over time
+* how your statistical writing skills have developed over time
+* skills you have a solid grasp of (such as R code or visuals or regression)
+* skills you would like to improve on
+
+Then, set some goals for what you'd like to work on improving in future statistical reports. (Yes, you brainstormed some before, this is asking you to pick some to really focus on!)
+
+Upload this portfolio reflection and goals document for future reports to your portfolio folder in your personal class repo. 
+
+Given what you are asked to include, I expect the document to have at least 3 paragraphs and contain at least 3 goals for future work. 
+

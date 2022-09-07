@@ -19,6 +19,10 @@ output:
 library(mosaic)
 library(readr)
 library(broom)
+library(mosaic)
+library(Stat2Data)
+library(lmtest)
+library("DescTools")
 ```
 
 
@@ -37,4 +41,51 @@ Another student wants to play the game and win the encounter, and is looking for
 Your task is to examine the data set and perform a relevant analysis to assist the students (predict the outcome using the input variables).  Provide relevant interpretations of your findings for the student who wants to win the encounter as well as for the student who has written the game. 
 
 ### Analysis
+
+```{r}
+glimpse(csgame)
+```
+
+```{r}
+ggplot(csgame, aes(x = as.factor(OutcomeNum), y = BaseAttack)) + geom_boxplot() + labs(x = "Outcome Num")
+ggplot(csgame, aes(x = as.factor(OutcomeNum), y = Charisma)) + geom_boxplot() + labs(x = "Outcome Num")
+ggplot(csgame, aes(x = as.factor(OutcomeNum), y = MonsterMagic)) + geom_boxplot() + labs(x = "Outcome Num")
+ggplot(csgame, aes(x = as.factor(OutcomeNum), y = Dexterity)) + geom_boxplot() + labs(x = "Outcome Num")
+ggplot(csgame, aes(x = as.factor(OutcomeNum), y = Intelligence)) + geom_boxplot() + labs(x = "Outcome Num")
+ggplot(csgame, aes(x = as.factor(OutcomeNum), y = Constitution)) + geom_boxplot() + labs(x = "Outcome Num")
+ggplot(csgame, aes(x = as.factor(OutcomeNum), y = MonsterAttack)) + geom_boxplot() + labs(x = "Outcome Num")
+ggplot(csgame, aes(x = as.factor(OutcomeNum), y = BaseDefense)) + geom_boxplot() + labs(x = "Outcome Num")
+ggplot(csgame, aes(x = as.factor(OutcomeNum), y = ZoneLevel)) + geom_boxplot() + labs(x = "Outcome Num")
+ggplot(csgame, aes(x = as.factor(OutcomeNum), y = MagicDefense)) + geom_boxplot() + labs(x = "Outcome Num")
+```
+
+
+```{r}
+# Add log Price
+csgame <- mutate(csgame, logBaseDefense = log(BaseDefense))
+csgame <- mutate(csgame, logMagicDefense = log(MagicDefense))
+#Fit model and get basic output
+logm <- glm(OutcomeNum ~ logBaseDefense + logMagicDefense,
+            data = csgame, family = binomial(logit))
+msummary(logm)
+```
+
+```{r}
+lrtest(logm)
+```
+```{r}
+exp(confint(logm))
+```
+```{r}
+logmaugment <- logm %>% augment(type.predict = "response")
+names(logmaugment)
+```
+
+```{r}
+logmaugment <- mutate(logmaugment, binprediction = round(.fitted, 0))
+tally(~ binprediction, data = logmaugment)
+
+tally(~ OutcomeNum, data = csgame)
+```
+
 
