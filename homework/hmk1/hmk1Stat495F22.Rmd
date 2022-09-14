@@ -1,6 +1,6 @@
 ---
 title: "Homework 1 - Stat 495"
-author: "YourNameGoesHere"
+author: "Justin Papagelis"
 date: "Due Monday, Sept. 12th by midnight"
 output:
   pdf_document:
@@ -17,6 +17,10 @@ output:
 ```{r, include = FALSE}
 library(mosaic)
 library(broom)
+library(tidyverse)
+library(ggplot2)
+
+
 options(digits = 6)
 ```
 
@@ -123,6 +127,19 @@ SOLUTION:
 
 ```{r}
 # Hint, augment is likely to be useful here (loaded in broom package above)
+lm2 = lm(tot ~ poly(age, degree = 3), data = kidney)
+
+ggplot(data = kidney, aes(x = age, y = tot)) +
+  geom_point()
+
+msummary(lm2)
+
+ages = data.frame(age = c(20, 30, 40, 50, 60, 70, 80))
+
+pred = augment(x = lm2, data = kidney, newdata = ages, se_fit = TRUE) %>%
+  rename("Age" = age, "Estimation" = .fitted, "Standard Errors"= .se.fit)
+
+pred %>% knitr::kable(bookends = TRUE)
 # Do you remember how to add powers to a regression? You can also use mutate. 
 # Be sure you actually get a cubic regression! 
 # The model must show the appropriate terms.
@@ -131,7 +148,7 @@ SOLUTION:
 
 > (b) How do the results compare with those in Table 1.1?
 
-SOLUTION:
+SOLUTION: Compared to the results in Table 1.1, the estimates using the cubic model are similar to the ones in Table 1.1. It does seem that the estimates tend to be lower than the other estimates for smaller ages using the cubic model. But as the ages increase, the estimated overall function of the kidneys is closer to the estimates of the first model. In general, the standard errors of the cubic model are higher than the standard errors of the estimates using the previous model.
 
 
 \newpage
@@ -156,28 +173,70 @@ We want to see if there is a significant difference in mean gene expression for 
 
 > (a) Record the means of the ALL and AML groups for the gene 136 data available for reference.
 
-SOLUTION:
+SOLUTION: The mean of the ALL group for the gene 136 is 0.752 and the mean of the AML group for the gene 136 is 0.950.
 
 
 > (b) Perform 1000 nonparametric bootstrap replications for the mean of ALL for gene 136. Describe the distribution of the resulting means. You can perform the bootstrap in any way you see fit (the functions do and resample might prove useful).
 
-SOLUTION:
+```{r}
+leukemia_ALL <- leukemia %>%
+  filter(type == "ALL")
+
+# resample(filter(leukemia, type == "ALL"))
+
+set.seed = 0
+results_ALL <- do(1000)*mean(~gene136, data = mosaic::resample(leukemia_ALL, replace = T))
+
+ggplot(data = results_ALL, aes(x = mean)) +
+  geom_density()
+  
+```
+
+SOLUTION: The distribution of the means is unimodal and symmetric while centered around 0.76. The distribution appears to be relatively Normal.
 
 
 > (c) Repeat (b) for AML.
 
-SOLUTION:
+```{r}
+leukemia_AML <- leukemia %>%
+  filter(type == "AML")
+
+set.seed = 0
+results_AML <- do(1000)*mean(~gene136, data = mosaic::resample(leukemia_AML, replace = T))
+
+ggplot(data = results_AML, aes(x = mean)) +
+  geom_density()
+```
+
+
+SOLUTION: The distribution of the means of AML is unimodal and relatively symmetric. The distribution is centered around approximately 0.95.
 
 
 > (d) Suggest an inference. In other words, what do your results in (b) and (c) suggest about whether there is a difference in means for the ALL and AML groups for gene 136?
 
-SOLUTION:
+```{r}
+results_ALL <- results_ALL %>%
+  mutate(type = "ALL")
+
+results_AML <- results_AML %>%
+  mutate(type = "AML")
+
+results_both <- rbind(results_ALL, results_AML)
+
+ggplot(data = results_both, aes(x = mean, color = type)) +
+  geom_density()
+```
+
+
+SOLUTION: From the density plots above, it appears that there is a difference in means for the ALL and the AML groups for gene 136. Specifically, a hypothesis could be that the mean of the AML group is greater than the mean of the ALL group for gene 136.
 
 
 
 > (e) Brainstorm an alternative way to approach the problem via a randomization/permutation test. Describe what you would do in a way that someone else could code it up. (You do not need to actually code this up, but you can if you want to see what the result is.)
 
-SOLUTION:
+SOLUTION: some sort of randomization procedure that compares the two groups directly
+
+2-sample permuation test --> describe it good.
 
 
 \newpage
@@ -196,4 +255,5 @@ Then, set some goals for what you'd like to work on improving in future statisti
 Upload this portfolio reflection and goals document for future reports to your portfolio folder in your personal class repo. 
 
 Given what you are asked to include, I expect the document to have at least 3 paragraphs and contain at least 3 goals for future work. 
+
 
