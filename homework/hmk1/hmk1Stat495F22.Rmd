@@ -1,7 +1,7 @@
 ---
 title: "Homework 1 - Stat 495"
 author: "Justin Papagelis"
-date: "Due Monday, Sept. 12th by midnight"
+date: "Due Weds, Sept. 14th by midnight"
 output:
   pdf_document:
     fig_height: 3
@@ -19,7 +19,6 @@ library(mosaic)
 library(broom)
 library(tidyverse)
 library(ggplot2)
-
 
 options(digits = 6)
 ```
@@ -40,7 +39,10 @@ Name(s) and corresponding problem(s)
 
 Source(s) and corresponding problem(s)
 
-* 
+* https://www.rdocumentation.org/packages/broom/versions/0.4.1/topics/augment, CASI 1.1
+* https://rdrr.io/cran/mosaic/man/resample.html, CASI 1.4
+* https://datascienceplus.com/fitting-polynomial-regression-r/, CASI 1.1
+* https://en.wikipedia.org/wiki/Permutation_test, CASI 1.4
 
 \newpage
 
@@ -50,59 +52,36 @@ Source(s) and corresponding problem(s)
 
 ## Visualization Problems (Adapted from an assignment by Prof. Horton)
 
-The first two ``problems'' require you to find two visuals to discuss, and incorporate them in a .Rmd file. To find these visuals, we will practice finding journal articles from two sources - the JSTOR database and Google Scholar. 
-
-Your task is to select two visual displays from journal articles that apply statistics (they do not need to be in statistics research journals, but could be). One should be selected as a visual display that you find compelling. The other should be a visual display that you believe is suboptimal or could be improved. 
-
-One visual must come from JSTOR and the other from Google Scholar. You must include the article citation and figure information (which figure is it in the article) with each figure. (Citations are more than a URL.)
-
-You should include both images below and a brief commentary for each on why you picked them and why they are compelling or suboptimal, respectively. 
-
-Instructions for accessing and using JSTOR and Google Scholar:
-
-Google Scholar can be found at the link here [Google Scholar](https://scholar.google.com/).
-
-JSTOR is one of the journal databases available through the College. To get to it, you can:
-
-* Head to the [Library](https://www.amherst.edu/library) page. 
-* Click the link (roughly in middle of page) to Browse 'A-Z Databases'.
-* Head to the J's and click JSTOR.
-
-What should you search for in these two places to find visuals for this assignment? 
-
-* Think of a statistical method you are comfortable reading about. Examples - regression, ANOVA, etc.
-* Think of an application area you'd like to find an article in. 
-* Put the application area in a search field (or in JSTOR, select journals from that field - left menu) and the topic in another field
-* Look at the search results this generates and pick an article to look at.
-* See if any of the figures in the article strike you. If not, go look at another article. 
-
-Instructions to include visuals in a .Rmd:
-
-Once you identify appropriate visuals, you need to save them in a format that can be put in RMarkdown. .png files work, but other file formats can work as well. 
-
-Below are two examples of how visuals can be included in a .Rmd. Part of the purpose of this assignment is so that you learn how to add images to .Rmds looking ahead to the final paper. The image file should be in the current directory (see the output of "getwd()"). See http://rmarkdown.rstudio.com/authoring_basics.html for more details. DELETE these examples before submission. 
-
- 
-![Visual of Tukey Transform Suggestions - Method 1](tukey_bulge.png)
-
-\begin{figure}[htbp] 
-\centering 
-\includegraphics[width=4in]{tukey_bulge.png} 
-\caption{Visual of Tukey Transform Suggestions - Method 2}
-\end{figure} 
-
 
 ## Vis 1 - Compelling
+
+![Compelling Graphic](images/good.png){#id .class width=50% height=50%}
+
+
+Frey, Carl Benedikt, and Michael Osborne. "The future of employment." (2013). Accessed 15 Sep. 2022.
+This graphic was found through Google Scholar
+
+I found this graphic to be compelling because right from the start, it pops off of the page with lots of different colors. The graph contains many different components and is interesting to take in. In particular, I found it interesting how the different industries vary with the probability of computerization. Overall, this graphic combines a lot of different perspectives to look at while being visually appealing.
+
+
 
 ```{r, include = FALSE}
 #Be sure to add your commentary!
 
 #And the citation information. 
 
+
 #Was this from JSTOR or Google Scholar?
 ```
 
 ## Vis 2 - Suboptimal
+
+![Suboptimal Graphic](images/improvement.png){#id .class width=50% height=50%}
+\newline Vega-Camarena, José Pablo, et al. “Contrasting Rainfall Behavior between the Pacific Coast and the Mexican Altiplano.” Climate Research, vol. 76, no. 3, 2018, pp. 225–40. JSTOR, https://www.jstor.org/stable/26626182. Accessed 15 Sep. 2022.
+
+This graphic was found through JSTOR
+
+I found this graphic to be suboptimal because it didn't really stand out to me as a reader and could definitely use some improvements. The type of graph that was used is not that helpful when compare the years because they do not all lie along a common axis. It is also difficult to see how distict the peaks are because there are not many axis labels. 
 
 ```{r, include = FALSE}
 #Be sure to add your commentary!
@@ -126,11 +105,12 @@ kidney <- read.table("http://web.stanford.edu/~hastie/CASI_files/DATA/kidney.txt
 SOLUTION:
 
 ```{r}
-# Hint, augment is likely to be useful here (loaded in broom package above)
 lm2 = lm(tot ~ poly(age, degree = 3), data = kidney)
 
 ggplot(data = kidney, aes(x = age, y = tot)) +
-  geom_point()
+  geom_point() +
+  labs(title = "Scatterplot of Age and Total Kidney Function", x = "Age",
+       y = "Total Kidney Function")
 
 msummary(lm2)
 
@@ -140,9 +120,6 @@ pred = augment(x = lm2, data = kidney, newdata = ages, se_fit = TRUE) %>%
   rename("Age" = age, "Estimation" = .fitted, "Standard Errors"= .se.fit)
 
 pred %>% knitr::kable(bookends = TRUE)
-# Do you remember how to add powers to a regression? You can also use mutate. 
-# Be sure you actually get a cubic regression! 
-# The model must show the appropriate terms.
 ```
 
 
@@ -182,17 +159,15 @@ SOLUTION: The mean of the ALL group for the gene 136 is 0.752 and the mean of th
 leukemia_ALL <- leukemia %>%
   filter(type == "ALL")
 
-# resample(filter(leukemia, type == "ALL"))
-
 set.seed = 0
 results_ALL <- do(1000)*mean(~gene136, data = mosaic::resample(leukemia_ALL, replace = T))
 
 ggplot(data = results_ALL, aes(x = mean)) +
-  geom_density()
-  
+  geom_density() +
+  labs(title = "Bootstrap Distribution of means of ALL")
 ```
 
-SOLUTION: The distribution of the means is unimodal and symmetric while centered around 0.76. The distribution appears to be relatively Normal.
+SOLUTION: The distribution of the means is unimodal and symmetric while centered around 0.76. The distribution appears to be relatively normal.
 
 
 > (c) Repeat (b) for AML.
@@ -205,11 +180,12 @@ set.seed = 0
 results_AML <- do(1000)*mean(~gene136, data = mosaic::resample(leukemia_AML, replace = T))
 
 ggplot(data = results_AML, aes(x = mean)) +
-  geom_density()
+  geom_density() +
+  labs(title = "Bootstrap Distribution of means of AML")
 ```
 
 
-SOLUTION: The distribution of the means of AML is unimodal and relatively symmetric. The distribution is centered around approximately 0.95.
+SOLUTION: The distribution of the means of AML is unimodal and relatively symmetric. It appears to be relatively normal. The distribution is centered around approximately 0.95.
 
 
 > (d) Suggest an inference. In other words, what do your results in (b) and (c) suggest about whether there is a difference in means for the ALL and AML groups for gene 136?
@@ -224,19 +200,16 @@ results_AML <- results_AML %>%
 results_both <- rbind(results_ALL, results_AML)
 
 ggplot(data = results_both, aes(x = mean, color = type)) +
-  geom_density()
+  geom_density()  +
+  labs(title = "Bootstrap Distribution of means of ALL and AML")
 ```
 
 
 SOLUTION: From the density plots above, it appears that there is a difference in means for the ALL and the AML groups for gene 136. Specifically, a hypothesis could be that the mean of the AML group is greater than the mean of the ALL group for gene 136.
 
-
-
 > (e) Brainstorm an alternative way to approach the problem via a randomization/permutation test. Describe what you would do in a way that someone else could code it up. (You do not need to actually code this up, but you can if you want to see what the result is.)
 
-SOLUTION: some sort of randomization procedure that compares the two groups directly
-
-2-sample permuation test --> describe it good.
+SOLUTION: In order to compare the two groups directly, you could perform a 2-sample permutation test. First, we would calculate the difference in means between the two sample of gene 136 for AML and ALL. Next, we woudl combine the two samples into a single dataset. Then, we randomly assign the observations from the pooled dataset into either either AML or ALL. Then we calculate the difference in these means. We would repeat this until we have sufficient number of statistics (around 1000). This way, we can have lots of different permutations of ALL and AML for gene 136. The means we collected would be the distribution of of possible differences under a null hypothesis that the groups AML and ALL are the same. Then, a p-value can be calculated by finding the proportion of sampled permutations where the absolute value of the difference was greater than the difference in sample means from our original dataset. If we reject the null hypothesis, then we have significant evidence that the two groups, ALL and AML are not the same.
 
 
 \newpage
