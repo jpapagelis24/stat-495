@@ -1,0 +1,359 @@
+---
+title: "Homework 3 - Stat 495"
+author: "Justin Papagelis"
+date: "Due Friday, Sept. 30th by midnight"
+output:
+  pdf_document:
+    fig_height: 3
+    fig_width: 5
+  html_document:
+    fig_height: 3
+    fig_width: 5
+  word_document:
+    fig_height: 3
+    fig_width: 5
+---
+
+```{r, include = FALSE}
+library(mosaic)
+library(ISLR)
+library(glmnet)
+
+library(lars)    # you may need to install some of these (one time only)
+library(leaps)   # to use variable selection methods if desired
+options(digits = 6)
+```
+
+# Practicing Academic Integrity
+
+If you worked with others or used resources outside of provided course material (anything besides our textbook(s), course materials in Moodle/Git repo, R help menu) to complete this assignment, please acknowledge them below using a bulleted list. 
+
+<!-- ~~~~~~~~~~~~~~~~ YOU MAY BEGIN EDITING BELOW THIS LINE ~~~~~~~~~~~~~~~~ -->
+
+*I acknowledge the following individuals with whom I worked on this assignment:*
+
+Name(s) and corresponding problem(s)
+
+*
+
+*I used the following sources to help complete this assignment:*
+
+Source(s) and corresponding problem(s)
+
+* https://glmnet.stanford.edu/articles/glmnet.html, 2. (g)
+
+\newpage
+
+# PROBLEMS TO TURN IN: Add(itional) 1-2
+
+## Add 1 - Applications to College
+
+Adapted from ISLR
+
+```{r}
+data(College)
+```
+
+This data set contains information from 1995 on US Colleges from US News and World Report (see help file for details). Our goal is to predict the number of applications received (Apps) using the other variables as potential predictors. 
+
+> part a: Split the data into training and test data sets. (2/3 - 1/3 split is fine.)
+
+SOLUTION:
+```{r}
+set.seed(1)
+n <- nrow(College)
+train_index <- sample(1:n, 2/3 * n)
+test_index <- setdiff(1:n, train_index)
+
+train <- College[train_index, ]
+test <- College[test_index, ]
+
+xColl <- model.matrix(Apps ~ ., College)[, -1]
+yColl <- College$Apps
+
+yColl.test <- yColl[test_index]
+#n
+
+```
+
+\newpage
+> part b: Fit a "kitchen sink" linear regression model on the training set. Report the test error obtained, and comment on any issues with the model (such as conditions, etc.).
+
+SOLUTION:
+
+The test error that is obtained from this model is 1218487. From the residuals vs fitted plot, there appears to be some issues with linearity because the residuals are clumped to the left of the graph and fan out towards the right. There also appears to be some issues with the Normality condition because the Q-Q Plot deviates from a linear relationship.
+
+
+```{r}
+mod1 <- lm(Apps ~ ., data = train)
+summary(mod1)
+
+plot(mod1, 1)
+plot(mod1, 2)
+
+full_pred <- predict.lm(mod1, test)
+
+mean((full_pred - yColl.test)^2)
+
+```
+
+\newpage
+> part c: Fit a linear regression model using an automated variable selection method of your choice (from Stat 230) on the training set. Report the test error obtained, and comment on any issues with the model (such as conditions, etc.).
+
+SOLUTION: The test error that is obtained from this model is 1200584. There appears to be similar issues with this model as the previous one with Linearity and Normality.
+
+```{r}
+intercept_only <- lm(Apps ~ 1, data = train)
+
+all <- lm(Apps ~ ., data = train)
+
+both <- MASS::stepAIC(intercept_only, direction = 'both', scope = list(upper = all, lower = ~1), trace = FALSE)
+
+both$anova
+#both$coefficients
+
+summary(both)
+plot(both, 1)
+plot(both, 2)
+
+selection_pred <- predict.lm(both, test)
+mean((selection_pred - yColl.test)^2)
+```
+
+
+
+\newpage
+> part d: Fit a ridge regression model on the training set, with lambda chosen by cross-validation. Report the lambda chosen and the test error obtained.
+
+SOLUTION:
+
+```{r}
+xColl <- model.matrix(Apps ~ ., College)[, -1]
+yColl <- College$Apps
+
+x_train <- model.matrix(Apps ~ ., train)[, -1]
+x_test <- model.matrix(Apps ~ ., test)[, -1]
+
+
+y_train <- train %>%
+  select(Apps) %>%
+  unlist() %>%
+  as.numeric()
+
+y_test <- test %>%
+  select(Apps) %>%
+  unlist() %>%
+  as.numeric()
+
+grid <- 10^seq(10, -2, length = 100)
+
+ridge_mod <- glmnet(x_train, y_train, alpha = 0, lambda = grid)
+
+plot(ridge_mod, label = TRUE)
+#ridge_pred <- predict(ridge_mod, s = 4, newx = x_test)
+#mean((ridge_pred - y_test)^2)
+
+set.seed(1)
+
+cv.out <- cv.glmnet(x_train, y_train, alpha = 0)
+bestlam <- cv.out$lambda.min
+bestlam
+
+plot(cv.out)
+
+predict(cv.out, type = "coefficients", s = bestlam)[1:18,]
+
+ridge_pred <- predict(ridge_mod, s = bestlam, newx = x_test)
+mean((ridge_pred - y_test)^2)
+
+```
+The lambda that was chosen by cross-validation is 369.655 and the test error obtained was 1111300.
+
+\newpage
+> part e: Fit a lasso model on the training set, with lambda chosen by cross-validation. Report the lambda chosen and the test error obtained.
+
+SOLUTION: The lambda that was chosen was 1.97274 and the test error obtained was 1210193.
+
+```{r}
+set.seed(1)
+cvlassoCol.mod <- cv.glmnet(xColl[train_index,], yColl[train_index], alpha = 1)
+
+plot(cvlassoCol.mod)
+
+bestlamColl <- cvlassoCol.mod$lambda.min
+bestlamColl
+
+predict(cvlassoCol.mod, type = "coefficients", s = bestlamColl)[1:18,]
+```
+```{r}
+lassoCol.pred <- predict(cvlassoCol.mod, s = bestlamColl, newx = xColl[test_index,])
+mean((lassoCol.pred - yColl.test)^2)
+```
+
+\newpage
+> part f: Comment on the results obtained across the four models. Address the following questions as part of your response. Do the test errors differ much? Do the coefficients differ greatly? In particular, if any variables were left out of the model in (c) or (e), is there any insight that they might have been removed based on the models in (b) or (d)? Which final model would you select here? Why?
+
+SOLUTION:
+
+The MSE for the "kitchen sink" model is 1,218,487. The MSE for the model that was obtained using Stepwise Regression has an MSE of 
+1,200,584 which is a slight decrease from the kitchen sink model. The MSE for the ridge model is 1,111,300 which is a greater improvement on the Stepwise Regression model. Finally, the MSE for the lasso model is 1,210,193 which is worse than the ridge model. Relatively, the test MSEs were similar except for the ridge model which was lower than the rest. It appears the the coefficients for the linear regression models are similar, but the coefficients for the ridge and lasso models are different.
+
+The variables that were left out of the model in (c) were `PrivateYes, F.Undergrad, Outstate, Books, Personal, Terminal, S.F.Ratio, perc.alumni` which are many of the predictors that are not significant in the kitchen sink model. In the ridge regression model, none of the coefficients are made too small, which might be why none of the predictors are removed in the lasso model. We would select the ridge regression model in this case because since it had the smallest MSE for the test set, the model had the best predictions. 
+
+
+
+
+\newpage
+
+## Add 2 - Soil predictions
+
+The data comes from a Kaggle competition: https://www.kaggle.com/c/afsis-soil-properties. The original data set contained 3600 variables, 3599 possible predictors (really, 3578 and some other variables) and a response, Sand. The 3599 predictors were reduced to 106 (methods to be taught later this semester) that can "best" distinguish between the two levels of Depth (another variable in the data set). The resulting data set of 107 variables (106 predictors and the response, Sand) was saved in the data set "newsoil". The row numbers should be removed as demonstrated below.
+
+```{r}
+newsoil <- read.csv("https://awagaman.people.amherst.edu/stat495/newsoil.csv",
+                    header = T)
+newsoil <- select(newsoil, -X)
+#names(newsoil)
+```
+
+Our focus is on predicting the response variable Sand, using the selected variables from previous work. 
+
+\newpage
+
+> part a: Split the data set into a training and test set (75/25), with a seed of your choice. (Hint: see lab for code.) You may also wish to create appropriate x and y matrices for future function inputs at the same time. 
+
+SOLUTION:
+
+```{r}
+set.seed(1)
+n <- nrow(newsoil)
+train_index_soil <- sample(1:n, 3/4 * n)
+test_index_soil <- setdiff(1:n, train_index_soil)
+
+train_soil <- newsoil[train_index_soil, ]
+test_soil <- newsoil[test_index_soil, ]
+
+
+xSoil <- model.matrix(Sand ~ ., newsoil)[, -1]
+ySoil <- newsoil$Sand
+
+ySoil.test <- ySoil[test_index_soil]
+
+```
+
+\newpage
+> part b: Fit lasso models to predict Sand using all the possible predictors. Choose two lasso models - one that has a "best" lambda determined in some appropriate way, and another model with a different non-zero lambda of your choice. How many slope coefficients are set to 0 in each of your chosen lasso models?
+
+SOLUTION: There are 37 coefficients set to 0 in the model with the "best" lambda of 0.000119548 which was found using cross-validation. We made another lasso model with a lambda of 0.001 which 79 of the coefficients were set to 0.
+
+FINSIH ANSWER
+
+```{r}
+set.seed(1)
+cvlassoSoil.mod <- cv.glmnet(xSoil[train_index_soil,], ySoil[train_index_soil], alpha = 1)
+
+plot(cvlassoSoil.mod)
+
+bestlamSoil <- cvlassoSoil.mod$lambda.min
+bestlamSoil
+
+predict(cvlassoSoil.mod, type = "coefficients", s = bestlamSoil)[1:107,]
+
+```
+
+```{r}
+set.seed(1)
+lassoSoil.mod <- glmnet(xSoil[train_index_soil,], ySoil[train_index_soil], alpha = 1, lambda = 0.001)
+
+plot(lassoSoil.mod)
+
+predict(lassoSoil.mod, type = "coefficients", s = 0.001)[1:107,]
+
+```
+\newpage
+> part c: Fit a ridge model to predict Sand using all the possible predictors. How many slope coefficients are set to 0 in your ridge model?
+
+SOLUTION: None of the slope coefficients are set to 0 in the ridge model.
+
+```{r, fig.height = 4, fig.width = 6}
+
+x_train_soil <- model.matrix(Sand ~ ., train_soil)[, -1]
+x_test_soil <- model.matrix(Sand ~ ., test_soil)[, -1]
+
+
+y_train_soil <- train_soil %>%
+  select(Sand) %>%
+  unlist() %>%
+  as.numeric()
+
+y_test_soil <- test_soil %>%
+  select(Sand) %>%
+  unlist() %>%
+  as.numeric()
+
+grid <- 10^seq(10, -2, length = 100)
+
+ridge_mod_soil <- glmnet(x_train_soil, y_train_soil, alpha = 0, lambda = grid)
+
+plot(ridge_mod_soil, label = TRUE)
+```
+
+```{r}
+set.seed(1)
+
+cv.out <- cv.glmnet(x_train_soil, y_train_soil, alpha = 0)
+bestlam <- cv.out$lambda.min
+bestlam
+
+predict(cv.out, type = "coefficients", s = bestlam)[1:107,]
+
+plot(cv.out)
+
+```
+
+\newpage
+> part d: Compute test MSEs for both of your lasso models and your ridge model. 
+
+SOLUTION:
+
+The test MSE for the Cross-Validated Lasso Model was 0.262755. The test MSE for the Lasso Model with a lambda of 0.001 is 0.30326. The test MSE for the ridge model is 0.349251.
+
+```{r}
+# test MSE for CV Lasso
+cvlassoSoil.pred <- predict(cvlassoSoil.mod, s = bestlamSoil, newx = xSoil[test_index_soil,])
+mean((cvlassoSoil.pred - ySoil.test)^2)
+
+# test MSE for Lasso
+lassoSoil.pred <- predict(lassoSoil.mod, s = 0.001, newx = xSoil[test_index_soil,])
+mean((lassoSoil.pred - ySoil.test)^2)
+
+# test MSE for ridge model
+ridge_pred_soil <- predict(ridge_mod_soil, s = bestlam, newx = xSoil[test_index_soil,])
+mean((ridge_pred_soil - ySoil.test)^2)
+```
+
+
+\newpage
+> part e: Write a few sentences to address the following questions. Does the test MSE from the model with the "best" lambda suggest it is in fact a better predictive model than your other lasso model? Is ridge better than the lasso models? Which final model would you choose here from these three models? Why?
+
+SOLUTION:
+The test MSE for the model with the "best" lambda appears to be a better predictive model than the other lasso model because the test MSE for the cross-validated lambda model is 0.262755 whereas the test MSE for the other lasso model is 0.30326. It also appears that the lasso models are better predictive models than the ridge model because the test MSE of the ridge model is 0.349251 which is greater than that of both lasso models. The final model that we would choose is the cross-validated lasso model with a lambda of 0.000119548 because it did the best predictions.
+
+
+
+> part f: What is the default setting for the normalize option in lars and the standardize option in glmnet? Why is this setting important to the model fit?
+
+SOLUTION: The default setting for the normalize option in lars and the standardize option in glmnet is TRUE. This standardizes the variables so that they are on the same scale. This is important because id we did not standardize, then the variables that are on larger scales would cause their coefficient estimates to have a much larger impact on the model and potentially over influence the model. 
+
+
+> part g: Explain what option you would change in order to fit an elastic net penalty (not OLS or ridge) using glmnet.
+
+SOLUTION: In order to fit an elastic net penalty, we would have to adjust $\alpha$. Since lasso regression has an $\alpha = 1$ and ridge regression has $\alpha = 0$, an $0 < \alpha < 1$ would cause a different behavior than both in selecting and removing predictors.
+
+
+
+
+
+
+
+

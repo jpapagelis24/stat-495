@@ -1,0 +1,333 @@
+---
+title: "Homework 4 - Stat 495"
+author: "Justin Papagelis"
+date: "Due Wednesday, Oct. 5th by midnight"
+output:
+  pdf_document:
+    fig_height: 3
+    fig_width: 5
+  html_document:
+    fig_height: 3
+    fig_width: 5
+  word_document:
+    fig_height: 3
+    fig_width: 5
+---
+
+```{r, include = FALSE}
+library(mosaic)
+options(digits = 6)
+library(rpart)
+library(partykit)
+library(GGally)
+library(broom)
+library(lmtest) # for likelihood ratio tests
+```
+
+# Practicing Academic Integrity
+
+If you worked with others or used resources outside of provided course material (anything besides our textbook(s), course materials in Moodle/Git repo, R help menu) to complete this assignment, please acknowledge them below using a bulleted list. 
+
+<!-- ~~~~~~~~~~~~~~~~ YOU MAY BEGIN EDITING BELOW THIS LINE ~~~~~~~~~~~~~~~~ -->
+
+*I acknowledge the following individuals with whom I worked on this assignment:*
+
+Name(s) and corresponding problem(s)
+
+*
+
+*I used the following sources to help complete this assignment:*
+
+Source(s) and corresponding problem(s)
+
+* 
+
+\newpage
+
+# Homework 4 and 5 Purpose
+
+Homework 4 allows you to practice the two new methods from class recently - GLMs and regression/classification trees. Homework 5 serves as a way to practice our write-up of analyses.
+
+In short, you will be performing some analysis in Homework 4 and then writing it up formally for Homework 5. You will receive some general feedback on Homework 4 as a class, and can use it to refine your models for the write-up in Homework 5. In other words, you may change your models between the two assignments, particularly if you find an issue as you review your work from Homework 4. However, you must submit Homework 4 with potential models for the write-up for both a GLM and tree as discussed below. 
+
+# Homework 4 - Analysis 
+
+For our analysis, we will use the King County, Washington (State) house sales data set, which I am re-hosting from Kaggle. The Kaggle reference is: https://www.kaggle.com/swathiachath/kc-housesales-data/version/1
+
+```{r}
+kchouse <- read.csv("https://awagaman.people.amherst.edu/stat495/kc_house_data.csv", header = T)
+```
+
+A data dictionary taken from Kaggle is provided for your use (separate file). 
+
+## Motivation to predict when Price is greater than $500,000
+
+A real estate developer is interested in understanding the features that are predictive of homes selling for more than half a million dollars, and has turned to you, a statistical consultant for help. He wants a model that can be applied to make predictions in this setting and wants to understand how the variables in the model are impacting it.
+
+To practice new techniques from class, in your analysis, you are required to use both an appropriate generalized linear model and tree to address the developer's questions of interest, including a model comparison. 
+
+## Instructions for your Homework 4 submission
+
+The outline for Homework 4 is next, but I want to include information here for you about what you'll need in Homework 5 so that you can include extra information for yourself in your Homework 4 submission, as desired. Look at the end of the assignment for this, and be sure to read it! 
+
+Homework 4 requires the following pieces:
+
+* Exploratory Analysis
+* GLM - at least 2 models fit with output and assessment
+* Tree - at least 2 models fit with output and assessment
+
+It doesn't matter which you tackle first, the GLMs or the trees. 
+
+Be sure you understand how to read output for both GLMs and trees, as this is material covered on the midterm. 
+
+\newpage
+
+# Exploratory Analysis 
+
+```{r}
+# explore the data 
+# you need to do this before fitting anything!
+
+# submission should demonstrate you explored the data somewhat before 
+# fitting the models below
+
+# If there is anything else you should do before fitting models,
+# do it here
+
+# we are only looking at prices greater than 500,00 and change date to a 
+# date format
+kchouse <- kchouse %>%
+  filter(price > 500000) %>%
+  mutate(date = lubridate::mdy(date))
+
+# create a histogram
+gf_dhistogram(~ price, data = kchouse) %>%
+  gf_labs(title = "Histogram of Prices Greater than $500,000")
+
+gf_boxplot(~ price, data = kchouse)%>%
+  gf_labs(title = "Boxplot of Prices Greater than $500,000")
+
+favstats(~ price, data = kchouse)
+
+```
+
+
+The distribution of `price` is right-skewed with a median of \$690,000 and an IQR is \$294,000. There appears to be many outliers on the high end for `price`. We are only interested in predicting when `price` is greater than \$500,000, `price` is bounded on the lower end at \$500,000. Since the distribution is right-skewed, a log-transformation could be useful.
+
+
+```{r}
+# create the training and test set for price
+set.seed(1)
+n <- nrow(kchouse)
+train_index <- sample(1:n, 3/4 * n)
+test_index <- setdiff(1:n, train_index)
+
+train <- kchouse[train_index, ]
+test <- kchouse[test_index, ]
+
+```
+
+\newpage
+
+# GLM Model Fitting
+
+```{r}
+# choose and fit at least 2 different models for your GLM
+# include appropriate output and assessment of their performance
+
+# think ahead: what does a reader need to know to follow your model fitting process?
+# you may want to jot down notes for yourself that you'll need later!
+```
+
+We are going to first use Poisson Regression to predict `price`.
+
+```{r}
+# creating a poisson GLM 
+poismod <- glm(price ~ ., data = train, family = poisson(link = log))
+msummary(poismod)
+```
+
+```{r}
+# likelihood ratio test
+lrtest(poismod)
+```
+
+Using the Likelihood Ratio Test, it appears that the overall model is significant.
+
+```{r, warning=FALSE}
+# get MSE of training set
+augprice1 <- augment(poismod, type.predict = "response")
+mean((augprice1$.fitted - augprice1$price)^2)
+
+#get MSE of test set
+test4 <- mutate(test, fitted = predict(poismod, newdata = test, type = "response"))
+test4 <-filter(test4, fitted != "NA")
+mean((test4$fitted - test4$price)^2)
+
+```
+The MSE for the training set is 53,394,691,617 and the MSE for the test set is 49,118,687,275.
+
+Next, we are going to use a Gamma Regression to predict `price`.
+
+```{r}
+# fit the gamma regression
+gammamod <- glm(price ~ ., data = train, family = Gamma(link = log))
+msummary(gammamod)
+```
+```{r}
+# likelihood ratio test
+lrtest(gammamod)
+```
+
+It appears the the overall model is significant as well.
+
+```{r, warning=FALSE}
+# get MSE of training set
+augprice2 <- augment(gammamod, type.predict = "response")
+mean((augprice2$.fitted - augprice2$price)^2)
+
+#get MSE of test set
+test5 <- mutate(test, fitted = predict(gammamod, newdata = test, type = "response"))
+test5 <-filter(test5, fitted != "NA")
+mean((test5$fitted - test5$price)^2)
+
+```
+
+The MSE for the training set is 55,085,101,906 and the MSE for the test set is 49,965,056,470 which are both higher than the respective values for the Poisson Regression so that model is better at predicting `price`.
+
+\newpage
+
+# Tree Fitting
+
+```{r}
+# choose and fit at least 2 different models for your tree
+# include appropriate output and assessment of their performance
+
+# think ahead: what does a reader need to know to follow your model fitting process?
+# you may want to jot down notes for yourself that you'll need later!
+```
+
+```{r}
+# create the regression tree
+price.rpart1 <- rpart(price ~ ., data = train, method = "anova")
+printcp(price.rpart1)
+
+# print tree to pdf
+pdf("price1.pdf", width = 14, height = 14)
+plot(as.party(price.rpart1))
+dev.off()
+
+```
+```{r}
+# plot the cp of the regression tree
+plotcp(price.rpart1)
+
+# prune the tree
+price.prune <- prune(price.rpart1, cp = 0.02)
+printcp(price.prune)
+```
+After plotting the complexity parameter of the regression tree, we attempted to prune the tree.
+
+
+```{r}
+# find the MSE of the training set for default tree
+train1 <- mutate(train, fittedtreetrain = predict(price.rpart1))
+mean((train1$fittedtreetrain - train1$price)^2)
+
+#find the MSE of the test set for default tree
+test1 <- mutate(test, fittedtreetest = predict(price.rpart1, newdata = test))
+mean((test1$fittedtreetest - test1$price)^2)
+```
+
+From the Regression Tree with default stopping criteria, we calculated the training set MSE to be 66,750,249,627 and the test set MSE to be 67,376,761,596 which are worse than the MSE's we calculated for the Generalized Linear Models.
+
+```{r}
+# find the MSE of the training set for the pruned tree
+train1 <- mutate(train, fittedtreetrain = predict(price.prune))
+mean((train1$fittedtreetrain - train1$price)^2)
+
+# find the MSE of the test set for the pruned tree
+test1 <- mutate(test, fittedtreetest = predict(price.prune, newdata = test))
+mean((test1$fittedtreetest - test1$price)^2)
+```
+The MSE for the training set and test set from the pruned tree were 77,345,573,675 and 78,691,909,765, respectively. It appears that the pruned tree is worse at predicting price than the default tree we created so we'll stick with the default one. 
+
+Next, we tried taking the log of `price` and creating a new regression tree.
+
+```{r}
+# create the tree using log of price
+price.rpart2 <- rpart(log(price) ~ ., data = train, method = "anova")
+printcp(price.rpart2)
+
+pdf("price2.pdf", width = 14, height = 14)
+plot(as.party(price.rpart2))
+dev.off()
+```
+
+```{r}
+# calculate the MSE of the traning set using log price
+train2 <- mutate(train, fittedtreetrain2 = predict(price.rpart2),
+  traintree2pred = exp(fittedtreetrain2))
+ 
+mean((train2$traintree2pred - train2$price)^2)
+```
+However, it appears that the MSE found from predicting the training set is much worse (83,573,000,000), so we will stick with the untransformed `price`.
+
+
+Next, we will use some stopping critera.
+
+```{r}
+# create a regression tree using stopping criteria
+price.control <- rpart.control(minbucket = 200, xval = 20, cp = 0.02)
+price.rpart3 <- rpart(price ~ ., data = train, method = "anova", control = price.control)
+printcp(price.rpart3)
+
+pdf("price3.pdf", width = 14, height = 14)
+plot(as.party(price.rpart3))
+dev.off()
+```
+
+```{r}
+# get the MSE of the training set
+train3 <- mutate(train, fittedtreetrain = predict(price.rpart3))
+mean((train3$fittedtreetrain - train3$price)^2)
+
+# get the MSE of the test set
+test3 <- mutate(test, fittedtreetest = predict(price.rpart3, newdata = test))
+mean((test3$fittedtreetest - test3$price)^2)
+```
+The MSE of training set was 101,123,300,000 and the MSE of the test set was 96,700,246,800 which are both worse than the corresponding MSE values of the default regression tree so we would use that tree rather than this one.
+
+\newpage
+
+# Thinking about Homework 5
+
+The eventual Homework 5 submission will include the following sections (along with all code necessary to reproduce your results):
+
+* Introduction and Exploratory Data Analysis - could be two separate sections
+* Your GLM and relevant details
+* Your Tree and relevant details (can be before or after your GLM)
+* Your Model Comparison (can be woven in sections above)
+* Your Conclusion
+
+Descriptions of the purpose for each section follow. The idea here is to explain why you'd write each section, and you can work out what needs to be in each in order to fulfill that purpose. 
+
+* Introduction - The real estate developer has interests, but will you be able to address them? How do you understand the tasks you are presented with? It's important to state what you will be doing in the analysis, so the reader can make sure their understanding lines up with what you will be doing. The reader also needs an introduction to your data, either in this section, or below. They need enough detail to be able to determine if your actions later in the analysis are reasonable. 
+
+* Exploratory Data Analysis - You are the analyst here. That means you can use variable re-expressions, subsets of observations, and employ other analytic practices (e.g. training/testing data sets) at your discretion to aid in your analysis, so long as you explain your rationale for them. The reader needs to know what you found and what you decided to do about it, because this has impacts on the rest of your analysis. Remember our lessons from the first classes - be sure you look at the data! Here's your chance to share what you found based on how it impacts your analysis. 
+
+* GLM and Tree sections - These are new techniques. By having each in their own section, you can focus on your explanation for them one at a time. The reader doesn't know when to use these methods or what they do. You have options that you need to pick for the different techniques (various tuning parameters) - for example, are you using a classification or a regression tree? What tree stopping options are being used? What input variables are you using and why? What type of GLM are you using? How will you be measuring performance? Be sure you discuss what options you are selecting and what made you choose those values. Helping explain this shows your understanding of the techniques (remember the class example that minbucket of 30 was nonsensical for the iris data). 
+
+You also want these sections to show off your ability to build models. It is not appropriate to just fit kitchen sink models (as your only model) or accept all default settings without exploring to see if that is really what is best for the task at hand. Your write-up should make it clear what you explored, but you don't have to show every model you considered. 
+
+Finally, remember to check out your "best" model for each technique. Did you check reasonable diagnostics? Does the model make sense? Are variables behaving as you expect? If you focus solely on model performance, that's missing the point. For example, you might find a model has very little error because a variant of the response was accidentally included as a predictor. You are responsible for checking over the model before reporting it. Your write-up should convey that you've done this (the reader can't read your mind to know you did it).
+
+* Model Comparison - There are several ways to compare the models - performance, interpretability, variables involved, etc. Remember you are trying to address the real estate developer's questions of interest, so you probably need to focus on just one model, or maybe you found a way to combine results from a "best" GLM and a "best" tree. The idea for this section is that you need to convey the process used to pick a final model(s) to use to answer those questions, with justification for your choices.  
+
+* Conclusion - This section should be a stand alone summary of your analysis. It is where you get to state your final model and a quick summary of the process used to get there. You also need to address the developer's questions, and this is your last place to do that! Remember to flush out the details here. If your final sentence is "Model 5 is the model I choose and it answers your questions", does it? Are you doing your job as the analyst to leave things at that? For that matter, what is Model 5? 
+
+* Printing Trees - It is fine to print your trees out to separate .pdfs (just be sure to include them in your submission!). Remember if you want to include the .pdf as an image, you have example code for that. Please do show your code though (so no echo = FALSE), and remember that your work should be reproducible. 
+
+* Audience - For purposes of this submission, remember that the audience is the real estate developer, so you'll probably need to include some explanations that you'd leave out of a normal homework. For example, the developer isn't going to know what a GLM is, or what type you are using, or why you'd use it. You should think about where that information should go, and do your best to explain what you need in order to report your findings. Similarly, assume that you found this data to assist the developer and they need basic details about it to understand the variables. They didn't hand it over to you. 
+
+
