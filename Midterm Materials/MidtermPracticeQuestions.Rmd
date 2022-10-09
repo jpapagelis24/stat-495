@@ -38,19 +38,22 @@ Verify that the Binomial distribution is an exponential family. Note, $X ~ Bin(n
 P(X=x|p) =(n \; \mbox{choose} \; x)p^x(1-p)^{n-x}. 
 \]
 
+\newpage
 ## Add 2
 
 Describe how to obtain a bootstrap distribution for a chosen statistic and obtain a (say) 95 percent confidence interval for its related parameter of interest. 
 
+\newpage
 ## Add 3
 
 Explain the plug-in principle in relation to obtaining the standard error of a sample proportion.
 
+\newpage
 ## Add 4
 
 Explain what a Bayesian conjugate family is and what its benefits are. 
 
-
+\newpage
 ## Add 5
 
 Using the Chapter 8 Lab data set for context, explain how to perform a permutation test to see whether the mean age differs for individuals with monthly income > 7500 versus individuals with less than that monthly income. 
@@ -59,7 +62,7 @@ Using the Chapter 8 Lab data set for context, explain how to perform a permutati
 credit <- read.csv("https://awagaman.people.amherst.edu/stat495/creditsample.csv", header = T)
 ```
 
-
+\newpage
 ## Add 6
 
 The diabetes data set (loaded below) is used to demonstrate ridge regression in Chapter 7.
@@ -97,14 +100,78 @@ diag(S)
 Note that while you'd usually want a training/test set here, the book used the entire data set, so you should do that to try to verify their work. 
 
 (a) Use OLS to predict *prog* using *diabetes2* and verify you obtain the results in Table 7.3.
+
+```{r}
+mod1 <- lm(prog ~ ., data = diabetes2)
+msummary(mod1)
+round(coef(mod1), 2)
+```
+
 (b) Use ridge regression with lambda = 0.1 and verify you obtain the results in Table 7.3.
 (c) Explain what cross-validation is (generally), and how it can be used to help choose a lambda in ridge regression.
 (d) Use CV with ridge regression to select your lambda running the default grid through glmnet (i.e. don't specify a grid). What lambda is selected?
+
+```{r}
+x2 <- model.matrix(prog ~ ., diabetes)[, -1]
+y2 <- diabetes %>% 
+  select(prog) %>%
+  unlist() %>%
+  as.numeric()
+
+set.seed(1)
+cv.out <- cv.glmnet(x2, y2, alpha = 0)
+bestlam <- cv.out$lambda.min
+bestlam
+
+ridge_mod <- glmnet(x2,y2, alpha = 0)
+round(coefficients(ridge_mod, s = bestlam), 3)
+```
+
+
+
 (e) Implement LASSO with CV to select your lambda running the default grid through glmnet. What lambda is selected? 
+
+```{r}
+set.seed(1)
+cv.out1 <- cv.glmnet(x2, y2, alpha = 1)
+bestlam1 <- cv.out1$lambda.min
+bestlam1
+
+lasso_mod <- glmnet(x2,y2, alpha = 1)
+round(coefficients(lasso_mod, s = bestlam1), 3)
+```
+
+
 (f) Implement a regression tree to predict *prog*. What cp corresponds to the default tree? 
+```{r}
+set.seed(1)
+prog.rpart <- rpart(prog ~ ., data = diabetes2, method = "anova")
+printcp(prog.rpart)
+```
 (g) Explain why we don't need a *glm* here to predict *prog*. 
+`prog` is a continuous, numeric variable so OLS is fine. GLMs are used when there is logistic, poisson for counts, etc.
+
 (h) Which model of these do you prefer? How do the fits differ? (Hint: Besides comparing coefficients/involved variables, you can compare MSEs.)
 
+```{r}
+# for OLS
+54.16^2
+
+# for ridge
+ridge_pred <- predict(ridge_mod, s = bestlam, newx = x2)
+mean((ridge_pred - y2)^2)
+
+# for lasso
+lasso_pred <- predict(lasso_mod, s = bestlam1, newx = x2)
+mean((lasso_pred - y2)^2)
+
+# for tree
+fittedtree <- predict(prog.rpart)
+mean((fittedtree - diabetes2$prog)^2)
+```
+
+
+\newpage
 ## Add 7
 
 The Spam email data set (loaded below) is used to demonstrate logistic regression and classification trees in Chapter 8. Note that while you'd usually want a training/test set here, the book used the entire data set, so you should do that to try to verify their work. 
@@ -114,12 +181,56 @@ spam <- read.csv("http://web.stanford.edu/~hastie/CASI_files/DATA/SPAM.csv", hea
 ```
 
 (a) Why does it not make sense to use OLS to predict *spam*?
+It doesn't make sense to use OLS to predict spam because `spam` is a 0/1 variable and OLS doesn't have a way to constrain the response variable to be 0/1.
 (b) Use logistic regression to predict *spam*. Verify you obtain the results in Table 8.3.
+```{r}
+spamdata <- select(spam, -spam, -testid)
+spamdata <- data.frame(scale(spamdata))
+spamdata <- mutate(spamdata, spam = spam$spam)
+```
+
+```{r}
+loglm <- glm(spam ~ ., data = spamdata, family = "binomial")
+summary(loglm)
+```
+
+```{r}
+tally(~ spam, data = spamdata)
+1813/4601
+```
+
+```{r}
+logaug <- loglm %>%
+  broom::augment(type.predict = "response")
+logaug <- mutate(logaug, binprediction = round(.fitted,0))
+tally(~binprediction, data = logaug)
+```
+```{r}
+with(logaug, table(spam, binprediction))
+```
+
+
+
 (c) Obtain a confusion matrix for the logistic regression. How well is the model doing?
 (d) Use a classification tree to predict *spam*. Attempt to obtain the tree in Figure 8.7. Note that you may need to prune or adjust control parameters to obtain this tree. If you cannot obtain the tree, obtain one you want to work with for part e below.
-(e) Obtain a confusion matrix for your classification tree. How do your error rates compare to those reported in Figure 8.7? 
-(f) Which method do you prefer for predicting *spam*?
+```{r}
+set.seed(495)
+spam.rpart <- rpart(factor(spam) ~ ., method = "class", data = spamdata)
+printcp(spam.rpart)
+#rplot.plot(spam.rpart)
+```
 
+
+(e) Obtain a confusion matrix for your classification tree. How do your error rates compare to those reported in Figure 8.7? 
+
+```{r}
+spampredict <- predict(spam.rpart, type = "class")
+table(spampredict, spamdata$spam)
+```
+
+(f) Which method do you prefer for predicting *spam*?
+The tree has a little worse performance, but is much easier to understand so we would probably use thr tree.
+\newpage
 ## CASI 8.6
 
 ```{r}
@@ -132,7 +243,22 @@ Fit the Poisson regression model (8.39) to the galaxy data.
 
 (Note that some data wrangling is required based on how the data is provided.)
 
+```{r}
+galaxy2 <- mutate(galaxy, m = 18:1)
 
+galaxydata <- galaxy2 %>%
+  tidyr::pivot_longer(-m, names_to = "log_r", values_to = "count")
+
+galaxydata <- mutate(galaxydata, r = c(rep(1:15, 18)))
+```
+
+```{r}
+myglm <- glm(count ~ r*m + I(r^2) + I(m^2), data = galaxydata, family = poisson)
+lmtest::lrtest(myglm)
+```
+
+
+\newpage
 ## Add 8
 
 ```{r}
@@ -143,12 +269,16 @@ Credit <- select(Credit, -ID)
 You may want to look over the help file for this data set. Note that the number of observations stated there is inaccurate. Our goal is to predict Balance. Do not worry about transforming Balance or any of the other predictors here.
 
 (a) Create an appropriate training/test split using a 75/25 percent split. 
+
+
+
 (b) Perform best subsets and choose a model based on an appropriate descriptive statistic. Compute the test MSE.  
 (c) Perform forward selection and choose a model based on an appropriate descriptive statistic. Compute the test MSE.  
 (d) Perform the lasso and choose a model based on an appropriate descriptive statistic. Compute the test MSE.  
 (e) Fit an elastic-net penalty with alpha = 0.5, and choose a model based on an appropriate descriptive statistic. Compute the test MSE.  
 (f) How do your models compare? Which model do you prefer? Why? (Should be able to compare coefficients.)
 
+\newpage
 ## Add 9 
 
 ```{r, fig.width = 6, fig.height = 4}

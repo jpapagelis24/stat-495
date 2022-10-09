@@ -94,25 +94,29 @@ Be sure you understand how to read output for both GLMs and trees, as this is ma
 # If there is anything else you should do before fitting models,
 # do it here
 
-# we are only looking at prices greater than 500,00 and change date to a 
+# change date to a 
 # date format
+
 kchouse <- kchouse %>%
-  filter(price > 500000) %>%
   mutate(date = lubridate::mdy(date))
 
 # create a histogram
 gf_dhistogram(~ price, data = kchouse) %>%
-  gf_labs(title = "Histogram of Prices Greater than $500,000")
+  gf_labs(title = "Histogram of Prices")
 
 gf_boxplot(~ price, data = kchouse)%>%
-  gf_labs(title = "Boxplot of Prices Greater than $500,000")
+  gf_labs(title = "Boxplot of Prices")
 
 favstats(~ price, data = kchouse)
 
 ```
 
+```{r}
+645000-322000
+```
 
-The distribution of `price` is right-skewed with a median of \$690,000 and an IQR is \$294,000. There appears to be many outliers on the high end for `price`. We are only interested in predicting when `price` is greater than \$500,000, `price` is bounded on the lower end at \$500,000. Since the distribution is right-skewed, a log-transformation could be useful.
+
+The distribution of `price` is right-skewed with a median of \$450,000 and an IQR is \$323,000. There appears to be many outliers on the high end for `price`. The minimum of `price` is \$78,000 and the maximum is \$7,700,000. Since the distribution is right-skewed, a log-transformation could be useful.
 
 
 ```{r}
