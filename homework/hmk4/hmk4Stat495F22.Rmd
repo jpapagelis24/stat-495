@@ -21,7 +21,17 @@ library(rpart)
 library(partykit)
 library(GGally)
 library(broom)
+library(ggplot2)
 library(lmtest) # for likelihood ratio tests
+
+
+
+library(ISLR)
+library(glmnet)
+
+library(lars)    # you may need to install some of these (one time only)
+library(leaps)   # to use variable selection methods if desired
+
 ```
 
 # Practicing Academic Integrity
@@ -84,6 +94,37 @@ Be sure you understand how to read output for both GLMs and trees, as this is ma
 
 # Exploratory Analysis 
 
+For this analysis, we used the King County, Washington (State) house sales data set (`kchouse`). Reference for data: https://www.kaggle.com/swathiachath/kc-housesales-data/version/1. There is no information on the source of the data. 
+The data set contains the following variables:
+\begin{itemize}
+\item id - notation for a specific house - Numeric
+\item date - date the house was sold - String
+\item price - price the house sold for in dollars - Numeric
+\item bedrooms - number of bedrooms in house - Numeric
+\item bathrooms- number of bathrooms per bedroom - Numeric
+\item sqft\textunderscore living - square footage of the home - Numeric
+\item sqft\textunderscore lot - square footage of the lot - Numeric
+\item floors - total floors (levels) in house - Numeric
+\item waterfront - house has a waterfront view - Y/N
+\item view - house has been viewed - Numeric
+\item condition - How good the condition is (overall) - Numeric
+\item grade - overall grade given to housing unit (based on King County grading system: 1 poor, 13 excellent) - Numeric
+\item sqft\textunderscore above - square footage of house apart from basement - Numeric
+\item yr\textunderscore built - the year the house was built - Numeric
+\item yr\textunderscore renovated - the year when the house was generated
+\item zipcode - the zipcode the house is in - Numeric
+\item lat - Latitude coordinate of house - Numeric
+\item long - Longitude coordinate of house - Numeric
+\item sqft\textunderscore living15 - living room area in 2015 (may or may not have been affected the lot size area) - Numeric
+\item sqft\textunderscore lot15 - lot size area in 2015 - Numeric
+\end{itemize}
+
+```{r}
+sum(is.na(kchouse$yr_renovated))
+```
+
+Before we fit any models, we need to make some adjustments to how the data is being treated by R. 
+
 ```{r}
 # explore the data 
 # you need to do this before fitting anything!
@@ -97,9 +138,25 @@ Be sure you understand how to read output for both GLMs and trees, as this is ma
 # change date to a 
 # date format
 
-kchouse <- kchouse %>%
-  mutate(date = lubridate::mdy(date))
+# create a histogram
+gf_dhistogram(~ bedrooms, data = kchouse) %>%
+  gf_labs(title = "Histogram of Prices")
 
+kchouse <- kchouse %>%
+  mutate(date = lubridate::mdy(date),
+         waterfront = as.factor(waterfront),
+  #       view = as.factor(view),
+  #       condition = as.factor(condition),
+  #       grade = as.factor(grade),
+         zipcode = as.numeric(as.factor(zipcode)))
+kchouse <- kchouse %>%
+  mutate_at(c('yr_renovated', 'sqft_basement'), ~na_if(.,0))
+
+sum(is.na(kchouse$yr_renovated))/nrow(kchouse)
+
+```
+
+```{r}
 # create a histogram
 gf_dhistogram(~ price, data = kchouse) %>%
   gf_labs(title = "Histogram of Prices")
@@ -109,11 +166,24 @@ gf_boxplot(~ price, data = kchouse)%>%
 
 favstats(~ price, data = kchouse)
 
+ggplot(data = kchouse, aes(x = lat, y = long)) +
+  geom_point()
+
+ggplot(data = kchouse, aes(x = lat, y = long)) +
+  geom_point()
+
+kchouse1 <- mutate(kchouse, price = ifelse(price > 500000, 1, 0))
+
+kchouse1 <- kchouse1 %>%
+  filter(id != 2402100895) %>%
+  select(-c(id,zipcode, yr_renovated,date, sqft_basement))
+
 ```
 
 ```{r}
 645000-322000
 ```
+
 
 
 The distribution of `price` is right-skewed with a median of \$450,000 and an IQR is \$323,000. There appears to be many outliers on the high end for `price`. The minimum of `price` is \$78,000 and the maximum is \$7,700,000. Since the distribution is right-skewed, a log-transformation could be useful.
@@ -122,12 +192,12 @@ The distribution of `price` is right-skewed with a median of \$450,000 and an IQ
 ```{r}
 # create the training and test set for price
 set.seed(1)
-n <- nrow(kchouse)
+n <- nrow(kchouse1)
 train_index <- sample(1:n, 3/4 * n)
 test_index <- setdiff(1:n, train_index)
 
-train <- kchouse[train_index, ]
-test <- kchouse[test_index, ]
+train <- kchouse1[train_index, ]
+test <- kchouse1[test_index, ]
 
 ```
 
@@ -146,58 +216,115 @@ test <- kchouse[test_index, ]
 We are going to first use Poisson Regression to predict `price`.
 
 ```{r}
-# creating a poisson GLM 
-poismod <- glm(price ~ ., data = train, family = poisson(link = log))
-msummary(poismod)
+
+logmod <- glm(price ~ ., data = train, family = "binomial")
+msummary(logmod)
+lrtest(logmod)
+```
+
+
+```{r}
+augprice1 <- augment(logmod, type.predict = "response")
+favstats(~ .fitted, data = augprice1)
+
 ```
 
 ```{r}
-# likelihood ratio test
-lrtest(poismod)
+augprice1 <- mutate(augprice1, binprediction = round(.fitted, 0))
+tally(~ binprediction, data = augprice1)
+9787/(9787+6410)
 ```
 
-Using the Likelihood Ratio Test, it appears that the overall model is significant.
+
+
+```{r}
+tally(~ price, data = augprice1)
+9415/(9415+6782)
+with(augprice1, quantile(.fitted, 0.58128))
+```
+
+```{r}
+augprice1 <- mutate(augprice1, binprediction2 = as.numeric(.fitted > 0.454465))
+tally(~ binprediction2, data = augprice1)
+```
+
+
+```{r}
+with(augprice1, table(price, binprediction2))
+```
+
+```{r}
+(8131+5498)/(8131+5498+1284+1284)
+```
+
+
 
 ```{r, warning=FALSE}
 # get MSE of training set
-augprice1 <- augment(poismod, type.predict = "response")
+augprice1 <- augment(logmod, type.predict = "response")
 mean((augprice1$.fitted - augprice1$price)^2)
 
 #get MSE of test set
-test4 <- mutate(test, fitted = predict(poismod, newdata = test, type = "response"))
+test4 <- mutate(test, fitted = predict(logmod, newdata = test, type = "response"))
 test4 <-filter(test4, fitted != "NA")
 mean((test4$fitted - test4$price)^2)
 
 ```
-The MSE for the training set is 53,394,691,617 and the MSE for the test set is 49,118,687,275.
 
-Next, we are going to use a Gamma Regression to predict `price`.
 
+
+
+
+
+*******************************
 ```{r}
-# fit the gamma regression
-gammamod <- glm(price ~ ., data = train, family = Gamma(link = log))
-msummary(gammamod)
+xPrice <- model.matrix(price ~ ., kchouse1)[, -1]
+yPrice <- kchouse1$price
+
+x_train <- model.matrix(price ~ ., train)[, -1]
+x_test <- model.matrix(price ~ ., test)[, -1]
+
+
+y_train <- train %>%
+  select(price) %>%
+  unlist() %>%
+  as.numeric()
+
+y_test <- test %>%
+  select(price) %>%
+  unlist() %>%
+  as.numeric()
+
+grid <- 10^seq(10, -2, length = 100)
+
+ridge_mod <- glmnet(x_train, y_train, family = "binomial", alpha = 0, lambda = grid)
+
+plot(ridge_mod, label = TRUE)
+#ridge_pred <- predict(ridge_mod, s = 4, newx = x_test)
+#mean((ridge_pred - y_test)^2)
+
+set.seed(1)
+
+cv.out <- cv.glmnet(x_train, y_train, alpha = 0)
+bestlam <- cv.out$lambda.min
+bestlam
+
+plot(cv.out)
+
+predict(cv.out, type = "coefficients", s = bestlam)
+
+ridge_pred <- predict(ridge_mod, s = bestlam, newx = x_test)
+mean((ridge_pred - y_test)^2)
+
+#augprice2 <- augment(ridge_mod, type.predict = "response")
+#favstats(~ .fitted, data = augprice2)
+
 ```
-```{r}
-# likelihood ratio test
-lrtest(gammamod)
-```
 
-It appears the the overall model is significant as well.
 
-```{r, warning=FALSE}
-# get MSE of training set
-augprice2 <- augment(gammamod, type.predict = "response")
-mean((augprice2$.fitted - augprice2$price)^2)
 
-#get MSE of test set
-test5 <- mutate(test, fitted = predict(gammamod, newdata = test, type = "response"))
-test5 <-filter(test5, fitted != "NA")
-mean((test5$fitted - test5$price)^2)
 
-```
 
-The MSE for the training set is 55,085,101,906 and the MSE for the test set is 49,965,056,470 which are both higher than the respective values for the Poisson Regression so that model is better at predicting `price`.
 
 \newpage
 
@@ -211,96 +338,56 @@ The MSE for the training set is 55,085,101,906 and the MSE for the test set is 4
 # you may want to jot down notes for yourself that you'll need later!
 ```
 
+
+
 ```{r}
-# create the regression tree
-price.rpart1 <- rpart(price ~ ., data = train, method = "anova")
+price.rpart1 <- rpart(price ~ ., data = train, method = "class")
 printcp(price.rpart1)
 
-# print tree to pdf
-pdf("price1.pdf", width = 14, height = 14)
-plot(as.party(price.rpart1))
-dev.off()
-
-```
-```{r}
-# plot the cp of the regression tree
-plotcp(price.rpart1)
-
-# prune the tree
-price.prune <- prune(price.rpart1, cp = 0.02)
-printcp(price.prune)
-```
-After plotting the complexity parameter of the regression tree, we attempted to prune the tree.
 
 
-```{r}
 # find the MSE of the training set for default tree
-train1 <- mutate(train, fittedtreetrain = predict(price.rpart1))
-mean((train1$fittedtreetrain - train1$price)^2)
+train1 <- mutate(train, predprice = predict(price.rpart1, type = "class"))
+tally(predprice ~ price, data = train1)
+tally(~ price, data = train1)
 
 #find the MSE of the test set for default tree
-test1 <- mutate(test, fittedtreetest = predict(price.rpart1, newdata = test))
-mean((test1$fittedtreetest - test1$price)^2)
+test1 <- mutate(test, predprice = predict(price.rpart1, type = "class", newdata = test))
+tally(predprice ~ price, data = test1)
+tally(~ price, data = test1)
+```
+```{r}
+(8283+5728)/(8283+5728+1132+1054)
+
+(2754+1881)/(2754+1881+377+387)
+(3131)/(3131+2268)
 ```
 
-From the Regression Tree with default stopping criteria, we calculated the training set MSE to be 66,750,249,627 and the test set MSE to be 67,376,761,596 which are worse than the MSE's we calculated for the Generalized Linear Models.
-
 ```{r}
-# find the MSE of the training set for the pruned tree
-train1 <- mutate(train, fittedtreetrain = predict(price.prune))
-mean((train1$fittedtreetrain - train1$price)^2)
+# perhaps make a less complicated one
+# see how much you lose
+plotcp(price.rpart1)
 
-# find the MSE of the test set for the pruned tree
-test1 <- mutate(test, fittedtreetest = predict(price.prune, newdata = test))
-mean((test1$fittedtreetest - test1$price)^2)
-```
-The MSE for the training set and test set from the pruned tree were 77,345,573,675 and 78,691,909,765, respectively. It appears that the pruned tree is worse at predicting price than the default tree we created so we'll stick with the default one. 
-
-Next, we tried taking the log of `price` and creating a new regression tree.
-
-```{r}
-# create the tree using log of price
-price.rpart2 <- rpart(log(price) ~ ., data = train, method = "anova")
+price.control <- rpart.control(minsplit = 10, cp = 0.017)
+price.rpart2 <- rpart(price ~ ., data = train, method = "class", control = price.control)
 printcp(price.rpart2)
 
-pdf("price2.pdf", width = 14, height = 14)
-plot(as.party(price.rpart2))
-dev.off()
+
+
+# find the MSE of the training set for default tree
+train1 <- mutate(train, predprice = predict(price.rpart2, type = "class"))
+tally(predprice ~ price, data = train1)
+tally(~ price, data = train1)
+
+#find the MSE of the test set for default tree
+test1 <- mutate(test, predprice = predict(price.rpart2, type = "class", newdata = test))
+tally(predprice ~ price, data = test1)
+tally(~ price, data = test1)
 ```
 
 ```{r}
-# calculate the MSE of the traning set using log price
-train2 <- mutate(train, fittedtreetrain2 = predict(price.rpart2),
-  traintree2pred = exp(fittedtreetrain2))
- 
-mean((train2$traintree2pred - train2$price)^2)
+
 ```
-However, it appears that the MSE found from predicting the training set is much worse (83,573,000,000), so we will stick with the untransformed `price`.
-
-
-Next, we will use some stopping critera.
-
-```{r}
-# create a regression tree using stopping criteria
-price.control <- rpart.control(minbucket = 200, xval = 20, cp = 0.02)
-price.rpart3 <- rpart(price ~ ., data = train, method = "anova", control = price.control)
-printcp(price.rpart3)
-
-pdf("price3.pdf", width = 14, height = 14)
-plot(as.party(price.rpart3))
-dev.off()
-```
-
-```{r}
-# get the MSE of the training set
-train3 <- mutate(train, fittedtreetrain = predict(price.rpart3))
-mean((train3$fittedtreetrain - train3$price)^2)
-
-# get the MSE of the test set
-test3 <- mutate(test, fittedtreetest = predict(price.rpart3, newdata = test))
-mean((test3$fittedtreetest - test3$price)^2)
-```
-The MSE of training set was 101,123,300,000 and the MSE of the test set was 96,700,246,800 which are both worse than the corresponding MSE values of the default regression tree so we would use that tree rather than this one.
 
 \newpage
 

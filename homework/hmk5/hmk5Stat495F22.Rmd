@@ -1,0 +1,143 @@
+---
+title: "Homework 5 - Stat 495"
+author: "YourNameGoesHere"
+date: "Due Wednesday, October 19th by midnight"
+output:
+  pdf_document:
+    fig_height: 3
+    fig_width: 5
+  html_document:
+    fig_height: 3
+    fig_width: 5
+  word_document:
+    fig_height: 3
+    fig_width: 5
+---
+
+```{r, include = FALSE}
+library(mosaic)
+options(digits = 6)
+```
+
+# Practicing Academic Integrity
+
+If you worked with others or used resources outside of provided course material (anything besides our textbook(s), course materials in Moodle/Git repo, R help menu) to complete this assignment, please acknowledge them below using a bulleted list. 
+
+<!-- ~~~~~~~~~~~~~~~~ YOU MAY BEGIN EDITING BELOW THIS LINE ~~~~~~~~~~~~~~~~ -->
+
+*I acknowledge the following individuals with whom I worked on this assignment:*
+
+Name(s) and corresponding problem(s)
+
+*
+
+*I used the following sources to help complete this assignment:*
+
+Source(s) and corresponding problem(s)
+
+* 
+
+\newpage
+
+# Homework 5 - Prompt - Write-up for Homework 4
+
+```{r}
+kchouse <- read.csv("https://awagaman.people.amherst.edu/stat495/kc_house_data.csv", header = T)
+```
+
+## Motivation to predict when Price is greater than $500,000
+
+A real estate developer is interested in understanding the features that are predictive of homes selling for more than half a million dollars, and has turned to you, a statistical consultant for help. He wants a model that can be applied to make predictions in this setting and wants to understand how the variables in the model are impacting it. 
+
+To practice new techniques from class, in your analysis, you are required to use both an appropriate generalized linear model and tree to address the developer's questions of interest, including a model comparison. 
+
+## Write-up Purpose and some Guidance
+
+We want to practice reporting our analyses. You have been contracted to do an analysis, and you prepared some potential models in Homework 4, and now need to report your process and subsequent findings to the client. 
+
+Things to think about: 
+
+* Your report should be well-organized and proofread.
+* Your code should be readable and not run off pages. Employ good commenting practices.
+* The entire process must be reproducible.
+* Review the class feedback on Homework 4 and adjust your models/thinking as necessary before diving in to the write-up. 
+* Think carefully about the organization of the report. Is it useful to have pages of output and THEN a description of what to look for in that output?
+* Should you assume the reader knows where values in the R output are?
+* If you compute a number, and then write a sentence that says, the MSE is small, will the reader associate that number with being the MSE? What would a better sentence look like? 
+* Thinking back to the Tibshirani Writing activity may help you think about ways to improve as well. (Does each of your sections have a purpose? Do you have appropriate signposts, etc.)
+
+## Instructions for your submission
+
+Your submission should include the following sections (along with all code necessary to reproduce your results):
+
+* Introduction and Exploratory Data Analysis - could be two separate sections
+* Your GLM and relevant details
+* Your Tree and relevant details (can be before or after your GLM)
+* Your Model Comparison (can be woven in sections above)
+* Your Conclusion
+
+Descriptions of the purpose for each section follow. Do not use this as a set of check boxes for the assignment. Instead, the idea here is to explain why you'd write each section, and you can work out what needs to be in each in order to fulfill that purpose. 
+
+* Introduction - The real estate developer has interests, but will you be able to address them? How do you understand the tasks you are presented with? It's important to state what you will be doing in the analysis, so the reader can make sure their understanding lines up with what you will be doing. The reader also needs an introduction to your data, either in this section, or below. They need enough detail to be able to determine if your actions later in the analysis are reasonable. 
+
+* Exploratory Data Analysis - You are the analyst here. That means you can use variable transformations, subsets of observations, and employ other analytic practices (e.g. training/testing data sets) at your discretion to aid in your analysis, so long as you explain your rationale for them. The reader needs to know what you found and what you decided to do about it, because this has impacts on the rest of your analysis. Remember our lessons from the first classes - be sure you look at the data! Here's your chance to share what you found based on how it impacts your analysis. 
+
+* GLM and Tree sections - These are new techniques. By having each in their own section, you can focus on your explanation for them one at a time. The developer does not know what these are - you need to explain them at least enough they can follow your discussion. You have options that you need to pick for the different techniques (various tuning parameters) - for example, are you using a classification or a regression tree? What tree stopping options are being used? What input variables are you using and why? What type of GLM are you using? How will you be measuring performance? Be sure you discuss what options you are selecting and what made you choose those values. Helping explain this shows your understanding of the techniques (remember the class example that minbucket of 30 was nonsensical for the iris data). 
+
+You also want these sections to show off your ability to build models. It is not appropriate to only fit kitchen sink models or accept all default settings without exploring to see if that is really what is best for the task at hand. Your write-up should make it clear what you explored, but you don't have to show every model you considered. You can do a lot in sentences discussing your process. 
+
+Finally, remember to check out your "best" model for each technique. Did you check reasonable diagnostics? Does the model make sense? Are variables behaving as you expect? If you focus solely on model performance, that's missing the point. For example, you might find a model has very little error because a variant of the response was accidentally included as a predictor. You are responsible for checking over the model before reporting it. Your write-up should convey that you've done this (the reader can't read your mind to know you did it).
+
+* Model Comparison - There are several ways to compare the models - performance, interpretability, variables involved, etc. Remember you are trying to address the real estate developer's questions of interest. You may do that with a focus on just one model, or maybe you found a way to combine results from a "best" GLM and a "best" tree. The idea for this section is that you need to convey the process used to pick a final model(s) to use to answer those questions, with justification for your choices.  
+
+* Conclusion - This section should be a stand alone summary of your analysis. It is where you get to state your final model and a quick summary of the process used to get there. You also need to address the developer's questions (if not done before), and this is your last place to do that! Remember to flush out the details here. If your final sentence is "Model 5 is the model I choose and it answers your questions", does it? Are you doing your job as the analyst to leave things at that? For that matter, what is Model 5? 
+
+* Printing Trees - It is fine to print your trees out to separate .pdfs (just be sure to include them in your submission!). Remember if you want to include the .pdf as an image, you have example code for that. Please do show your code though (so no echo = FALSE), and remember that your work should be reproducible. The chapter 8 lab solution shows alternatives to *partykit* to make the trees look nice. You can try out *rpart.plot* yourself to see.  
+
+* Length - Your submission should be as long as it needs to be, but not unnecessarily long. Plots, etc. are encouraged to help illustrate points, but don't include output that isn't needed. For example, a histogram or densityplot and favstats for each variable is something good to explore, but you shouldn't put that in your submission for every variable. You might need plots to point out outliers you are removing, or maybe you show one plot and then say others were similar. I encourage you to do any additional work in a separate .Rmd from your submission (like, back in your Homework 4 .Rmd). 
+
+* Audience - For purposes of this submission, remember that the audience is the real estate developer, so you'll probably need to include some explanations that you'd leave out of a normal homework. For example, the developer isn't going to know what a GLM is, or what type you are using, or why you'd use it. You should think about where that information should go, and do your best to explain what you need in order to report your findings.  Similarly, assume that you found this data to assist the developer and they need basic details about it to understand the variables. They didn't hand it over to you. 
+
+You may remove these instructions if desired for your submission, but must leave the page on Academic Integrity.
+
+\newpage
+
+# Introduction 
+
+
+\newpage 
+
+# Exploratory Data Analysis 
+
+```{r, include = FALSE}
+# Can be included with the introduction
+```
+
+
+\newpage
+
+# GLM and Results
+
+
+\newpage
+
+# Tree and Results
+
+```{r, include = FALSE}
+# Can be before or after your GLM
+```
+
+
+\newpage
+
+# Model Comparison
+
+```{r, include = FALSE}
+# Can be woven in above
+```
+
+
+\newpage
+
+# Conclusion
+
