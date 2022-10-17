@@ -394,8 +394,113 @@ Use bagging, random forests, and boosting to explore models for predicting salar
 > SOLUTION
 
 ```{r}
+set.seed(495)
+n <- nrow(Hitters)
+train_index <- sample(1:n, 0.5 * n)
+test_index <- setdiff(1:n, train_index)
+
+hitters_train <- Hitters[train_index, ] 
+hitters_test <- Hitters[test_index, ]
 
 ```
+```{r}
+tree_hitters <- tree(Salary ~ ., hitters_train)
+
+summary(tree_hitters)
+
+single_tree_estimate <- predict(tree_hitters, 
+                               newdata = hitters_test)
+ggplot() + 
+    geom_point(aes(x = hitters_test$Salary, y = single_tree_estimate)) +
+    geom_abline()
+
+mean((single_tree_estimate - hitters_test$Salary)^2)
+```
+The MSE for a single tree is 142,426.9.
+
+
+
+```{r}
+# bagging
+
+set.seed(495)
+bag_hitters <- randomForest(Salary ~ ., 
+                          data = hitters_train, 
+                          mtry = 13, 
+                          importance = TRUE)
+bag_hitters
+
+bagged_estimate <- predict(bag_hitters, 
+                          newdata = hitters_test)
+
+ggplot() + 
+    geom_point(aes(x = hitters_test$Salary, y = bagged_estimate)) +
+    geom_abline()
+
+mean((bagged_estimate - hitters_test$Salary)^2)
+
+```
+Once we fit a model with bagging, the MSE decreased to 102,961.4 which is much lower than the single tree.
+
+```{r}
+# random forest
+
+set.seed(495)
+rf_hitters <- randomForest(Salary ~ ., 
+                         data = hitters_train, 
+                         mtry = 6, 
+                         importance = TRUE)
+
+random_forest_estimate <- predict(rf_hitters, 
+                                 newdata = hitters_test)
+
+mean((random_forest_estimate - hitters_test$Salary)^2)
+
+varImpPlot(rf_hitters)
+```
+The MSE of the random forest model with `mtry` = 6 is 105,432.7 which is a bit higher than the bagging model.
+
+```{r}
+# boosting
+
+set.seed(495)
+boost_hitters <- gbm(Salary ~ ., 
+                   data = hitters_train, 
+                   distribution = "gaussian", 
+                   n.trees = 5000, 
+                   interaction.depth = 4)
+
+summary(boost_hitters)
+
+boost_estimate <- predict(boost_hitters, 
+                         newdata = hitters_test, 
+                         n.trees = 5000)
+
+mean((boost_estimate - hitters_test$Salary)^2)
+```
+```{r}
+set.seed(495)
+boost_hitters2 <- gbm(Salary ~ ., 
+                   data = hitters_train, 
+                   distribution = "gaussian", 
+                   n.trees = 5000, 
+                   interaction.depth = 4,
+                   shrinkage = 0.01, 
+                   verbose = F)
+
+summary(boost_hitters2)
+
+boost_estimate2 <- predict(boost_hitters2, 
+                         newdata = hitters_test, 
+                         n.trees = 5000)
+
+mean((boost_estimate2 - hitters_test$Salary)^2)
+
+```
+The boosting model has an MSE of 107,212.3 which is a bit higher than the other models
+
+
+
 
 
 
