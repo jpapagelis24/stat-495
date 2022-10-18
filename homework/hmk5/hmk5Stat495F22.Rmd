@@ -113,6 +113,141 @@ You may remove these instructions if desired for your submission, but must leave
 # Can be included with the introduction
 ```
 
+For this analysis, we used the King County, Washington (State) house sales data set (`kchouse`). Reference for data: https://www.kaggle.com/swathiachath/kc-housesales-data/version/1. There is no information on the source of the data. 
+The data set contains the following variables:
+\begin{itemize}
+\item id - notation for a specific house - Numeric
+\item date - date the house was sold - String
+\item price - price the house sold for in dollars - Numeric
+\item bedrooms - number of bedrooms in house - Numeric
+\item bathrooms- number of bathrooms per bedroom - Numeric
+\item sqft\textunderscore living - square footage of the home - Numeric
+\item sqft\textunderscore lot - square footage of the lot - Numeric
+\item floors - total floors (levels) in house - Numeric
+\item waterfront - house has a waterfront view - Y/N
+\item view - house has been viewed - Numeric
+\item condition - How good the condition is (overall) - Numeric
+\item grade - overall grade given to housing unit (based on King County grading system: 1 poor, 13 excellent) - Numeric
+\item sqft\textunderscore above - square footage of house apart from basement - Numeric
+\item yr\textunderscore built - the year the house was built - Numeric
+\item yr\textunderscore renovated - the year when the house was generated
+\item zipcode - the zipcode the house is in - Numeric
+\item lat - Latitude coordinate of house - Numeric
+\item long - Longitude coordinate of house - Numeric
+\item sqft\textunderscore living15 - living room area in 2015 (may or may not have been affected the lot size area) - Numeric
+\item sqft\textunderscore lot15 - lot size area in 2015 - Numeric
+\end{itemize}
+
+Before we fit any models, we need to make some adjustments to how the data is being treated by R. For example, we need to change the `date` to a date format and change `waterfront` and `zipcode` to be treated as categorical variables instead of numeric variables. We also changed the missing values from `yr_renovated` and `sqft_basement` to be "na" instead of 0.
+
+```{r}
+kchouse <- kchouse %>%
+  mutate(date = lubridate::mdy(date),
+         waterfront = as.factor(waterfront),
+         zipcode = as.numeric(as.factor(zipcode)))
+kchouse <- kchouse %>%
+  mutate_at(c('yr_renovated', 'sqft_basement'), ~na_if(.,0))
+```
+
+After examining `yr_renovated` and `sqft_basement`, it appears that 95.8% and 60.7% of the values, respectively, are missing. From the scatterplots below, there does not seem to be any clear relationship between `yr_renovated` and `price` as well as `sqft_basement` and `price`. Therefore, we will drop these predictors when creating our models.
+
+```{r}
+sum(is.na(kchouse$yr_renovated))/nrow(kchouse)
+sum(is.na(kchouse$sqft_basement))/nrow(kchouse)
+```
+
+
+```{r, warning = FALSE}
+ggplot(data = kchouse, aes(x = yr_renovated, y = price)) + 
+  geom_point() + 
+  labs(title = "Scatterplot of Year Renovated and Price", x = "Year Renovated",
+       y = "Price")
+ggplot(data = kchouse, aes(x = sqft_basement, y = price)) + 
+  geom_point() + 
+  labs(title = "Scatterplot of Sq Ft Basement and Price", 
+       x = "Square Feet Basement", y = "Price")
+```
+Additionally, from the Scatterplot of Bedrooms and Price, there appears to be an outlier so we will remove that observation.
+
+```{r}
+ggplot(data = kchouse, aes(x = bedrooms, y = price)) + 
+  geom_point() + 
+  labs(title = "Scatterplot of Bedrooms and Price", 
+       x = "Bedrooms", y = "Price")
+```
+Since there are a couple variables such as `date`, `id` that do not have a relationship with `price` as seen in the scatterplots below, we will remove those predictors as well. 
+
+```{r}
+ggplot(data = kchouse, aes(x = date, y = price)) + 
+  geom_point() + 
+  labs(title = "Scatterplot of Date and Price", 
+       x = "Date", y = "Price")
+```
+
+```{r}
+ggplot(data = kchouse, aes(x = id, y = price)) + 
+  geom_point() + 
+  labs(title = "Scatterplot of ID and Price", 
+       x = "ID", y = "Price")
+```
+Additionally, it appears that there are some concerns with multicollinearity between `sqft_living` and other variables such as `sqft_living15` and `sqft_above` so we are going to remove `sqft_living` as well. 
+
+```{r}
+
+ggplot(data = kchouse, aes(x = sqft_living, y = sqft_above)) + 
+  geom_point() + 
+  labs(title = "Scatterplot of SqFt Living and SqFt Above", 
+       x = "Sq Ft Living", y = "SqFt Living in 2015")
+
+```
+
+```{r}
+ggplot(data = kchouse, aes(x = sqft_living, y = sqft_living15)) + 
+  geom_point() + 
+  labs(title = "Scatterplot of SqFt Living and SqFt Living in 2015", 
+       x = "Sq Ft Living", y = "SqFt Living in 2015")
+```
+```{r}
+kchouse1 <- kchouse %>%
+  filter(id != 2402100895) %>%
+  select(-c(id,zipcode, yr_renovated, date, sqft_basement, sqft_living))
+```
+
+From the scatterplot below of the latitude and the longitude, it seems like the houses are all bunched together in near each other (near Seattle) so the results of this analysis can only be generalized to that region of the state.
+
+```{r}
+ggplot(data = kchouse, aes(x = lat, y = long)) +
+  geom_point()
+```
+
+From the histogram below, the distribution of `price` is right-skewed with a median of \$450,000 and an IQR is \$323,000. There appears to be many outliers on the high end for `price`. The minimum of `price` is \$78,000 and the maximum is \$7,700,000. Since the distribution is right-skewed, if we were predicting price, a log-transformation could be useful.
+
+```{r}
+gf_dhistogram(~ price, data = kchouse) %>%
+  gf_labs(title = "Histogram of Prices")
+
+favstats(~ price, data = kchouse)
+```
+
+Next, since we want to know if the price of the house is greater or less than \$500,000, we will transform the price variable so that it is an binary predictor that is `1` if the price of the house is greater than \$500,000 and `0` if the price of the house is less than \$500,000.
+
+```{r}
+kchouse1 <- mutate(kchouse1, price = ifelse(price > 500000, 1, 0))
+```
+
+The last thing that we will do before creating the models is create a training and test set. The training set is used to create a model and then the test set is used to see how the model performs in making predictions. We will randomly create a 75%/25% split for the training/test set. 
+
+```{r}
+# create the training and test set for price
+set.seed(1)
+n <- nrow(kchouse1)
+train_index <- sample(1:n, 3/4 * n)
+test_index <- setdiff(1:n, train_index)
+
+train <- kchouse1[train_index, ]
+test <- kchouse1[test_index, ]
+```
+
 
 \newpage
 
