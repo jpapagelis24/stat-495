@@ -17,6 +17,20 @@ output:
 ```{r, include = FALSE}
 library(mosaic)
 options(digits = 6)
+library(rpart)
+library(partykit)
+library(GGally)
+library(broom)
+library(ggplot2)
+library(lmtest) # for likelihood ratio tests
+
+require(gridExtra) 
+
+library(ISLR)
+library(glmnet)
+
+library(lars)    # you may need to install some of these (one time only)
+library(leaps)   # to use variable selection methods if desired
 ```
 
 # Practicing Academic Integrity
@@ -158,15 +172,21 @@ sum(is.na(kchouse$sqft_basement))/nrow(kchouse)
 
 
 ```{r, warning = FALSE}
-ggplot(data = kchouse, aes(x = yr_renovated, y = price)) + 
+fig1 <- ggplot(data = kchouse, aes(x = yr_renovated, y = price)) + 
   geom_point() + 
   labs(title = "Scatterplot of Year Renovated and Price", x = "Year Renovated",
        y = "Price")
-ggplot(data = kchouse, aes(x = sqft_basement, y = price)) + 
+fig2 <- ggplot(data = kchouse, aes(x = sqft_basement, y = price)) + 
   geom_point() + 
   labs(title = "Scatterplot of Sq Ft Basement and Price", 
        x = "Square Feet Basement", y = "Price")
+
 ```
+
+```{r, include = TRUE, fig.width=9, fig.height=4, warning=FALSE}
+grid.arrange(fig1, fig2, ncol = 2)
+```
+
 Additionally, from the Scatterplot of Bedrooms and Price, there appears to be an outlier so we will remove that observation.
 
 ```{r}
@@ -175,38 +195,45 @@ ggplot(data = kchouse, aes(x = bedrooms, y = price)) +
   labs(title = "Scatterplot of Bedrooms and Price", 
        x = "Bedrooms", y = "Price")
 ```
+
 Since there are a couple variables such as `date`, `id` that do not have a relationship with `price` as seen in the scatterplots below, we will remove those predictors as well. 
 
 ```{r}
-ggplot(data = kchouse, aes(x = date, y = price)) + 
+fig3 <- ggplot(data = kchouse, aes(x = date, y = price)) + 
   geom_point() + 
   labs(title = "Scatterplot of Date and Price", 
        x = "Date", y = "Price")
-```
 
-```{r}
-ggplot(data = kchouse, aes(x = id, y = price)) + 
+fig4 <- ggplot(data = kchouse, aes(x = id, y = price)) + 
   geom_point() + 
   labs(title = "Scatterplot of ID and Price", 
        x = "ID", y = "Price")
 ```
+
+```{r, include = TRUE, fig.width=9, fig.height=4, message=FALSE}
+grid.arrange(fig3, fig4, ncol = 2)
+```
+
+
 Additionally, it appears that there are some concerns with multicollinearity between `sqft_living` and other variables such as `sqft_living15` and `sqft_above` so we are going to remove `sqft_living` as well. 
 
 ```{r}
 
-ggplot(data = kchouse, aes(x = sqft_living, y = sqft_above)) + 
+fig5 <- ggplot(data = kchouse, aes(x = sqft_living, y = sqft_above)) + 
   geom_point() + 
   labs(title = "Scatterplot of SqFt Living and SqFt Above", 
        x = "Sq Ft Living", y = "SqFt Living in 2015")
 
-```
-
-```{r}
-ggplot(data = kchouse, aes(x = sqft_living, y = sqft_living15)) + 
+fig6 <- ggplot(data = kchouse, aes(x = sqft_living, y = sqft_living15)) + 
   geom_point() + 
   labs(title = "Scatterplot of SqFt Living and SqFt Living in 2015", 
        x = "Sq Ft Living", y = "SqFt Living in 2015")
 ```
+
+```{r, include = TRUE, fig.width=9, fig.height=4, message=FALSE}
+grid.arrange(fig5, fig6, ncol = 2)
+```
+
 ```{r}
 kchouse1 <- kchouse %>%
   filter(id != 2402100895) %>%
@@ -247,7 +274,6 @@ test_index <- setdiff(1:n, train_index)
 train <- kchouse1[train_index, ]
 test <- kchouse1[test_index, ]
 ```
-
 
 \newpage
 

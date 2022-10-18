@@ -24,7 +24,7 @@ library(broom)
 library(ggplot2)
 library(lmtest) # for likelihood ratio tests
 
-
+require(gridExtra) 
 
 library(ISLR)
 library(glmnet)
@@ -139,15 +139,22 @@ sum(is.na(kchouse$sqft_basement))/nrow(kchouse)
 
 
 ```{r, warning = FALSE}
-ggplot(data = kchouse, aes(x = yr_renovated, y = price)) + 
+fig1 <- ggplot(data = kchouse, aes(x = yr_renovated, y = price)) + 
   geom_point() + 
   labs(title = "Scatterplot of Year Renovated and Price", x = "Year Renovated",
        y = "Price")
-ggplot(data = kchouse, aes(x = sqft_basement, y = price)) + 
+fig2 <- ggplot(data = kchouse, aes(x = sqft_basement, y = price)) + 
   geom_point() + 
   labs(title = "Scatterplot of Sq Ft Basement and Price", 
        x = "Square Feet Basement", y = "Price")
+
 ```
+
+```{r, include = TRUE, fig.width=9, fig.height=4, message=FALSE}
+grid.arrange(fig1, fig2, ncol = 2)
+```
+
+
 Additionally, from the Scatterplot of Bedrooms and Price, there appears to be an outlier so we will remove that observation.
 
 ```{r}
@@ -156,38 +163,44 @@ ggplot(data = kchouse, aes(x = bedrooms, y = price)) +
   labs(title = "Scatterplot of Bedrooms and Price", 
        x = "Bedrooms", y = "Price")
 ```
+
 Since there are a couple variables such as `date`, `id` that do not have a relationship with `price` as seen in the scatterplots below, we will remove those predictors as well. 
 
 ```{r}
-ggplot(data = kchouse, aes(x = date, y = price)) + 
+fig3 <- ggplot(data = kchouse, aes(x = date, y = price)) + 
   geom_point() + 
   labs(title = "Scatterplot of Date and Price", 
        x = "Date", y = "Price")
-```
 
-```{r}
-ggplot(data = kchouse, aes(x = id, y = price)) + 
+fig4 <- ggplot(data = kchouse, aes(x = id, y = price)) + 
   geom_point() + 
   labs(title = "Scatterplot of ID and Price", 
        x = "ID", y = "Price")
 ```
+
+```{r, include = TRUE, fig.width=9, fig.height=4, message=FALSE}
+grid.arrange(fig3, fig4, ncol = 2)
+```
+
+
 Additionally, it appears that there are some concerns with multicollinearity between `sqft_living` and other variables such as `sqft_living15` and `sqft_above` so we are going to remove `sqft_living` as well. 
 
 ```{r}
 
-ggplot(data = kchouse, aes(x = sqft_living, y = sqft_above)) + 
+fig5 <- ggplot(data = kchouse, aes(x = sqft_living, y = sqft_above)) +
   geom_point() + 
   labs(title = "Scatterplot of SqFt Living and SqFt Above", 
        x = "Sq Ft Living", y = "SqFt Living in 2015")
 
-```
-
-```{r}
-ggplot(data = kchouse, aes(x = sqft_living, y = sqft_living15)) + 
+fig6 <- ggplot(data = kchouse, aes(x = sqft_living, y = sqft_living15)) + 
   geom_point() + 
   labs(title = "Scatterplot of SqFt Living and SqFt Living in 2015", 
        x = "Sq Ft Living", y = "SqFt Living in 2015")
 ```
+```{r, include = TRUE, fig.width=9, fig.height=8, message=FALSE}
+grid.arrange(fig5, fig6, ncol = 2)
+```
+
 ```{r}
 kchouse1 <- kchouse %>%
   filter(id != 2402100895) %>%
@@ -200,6 +213,28 @@ From the scatterplot below of the latitude and the longitude, it seems like the 
 ggplot(data = kchouse, aes(x = lat, y = long)) +
   geom_point()
 ```
+
+It also appears that many of the predictors are right-skewed which means that a log transformation could be helpful for a model. For example, as seen below, `sqft_living15` and `sqft_lot15` before and after a  log transformation. This is the same for additional variables as well.
+
+```{r}
+fig7 <- gf_dhistogram(~ sqft_living15, data = kchouse) %>%
+  gf_labs(title = "Histogram of SqFt Living in 2015")
+
+fig8 <- gf_dhistogram(~ sqft_lot, data = kchouse) %>%
+  gf_labs(title = "Histogram of SqFt Lot in 2015")
+
+fig9 <- gf_dhistogram(~ log(sqft_living15), data = kchouse) %>%
+  gf_labs(title = "Histogram of SqFt Living in 2015")
+
+fig10 <- gf_dhistogram(~ log(sqft_lot), data = kchouse) %>%
+  gf_labs(title = "Histogram of SqFt Lot in 2015")
+
+```
+
+```{r, include = TRUE, fig.width=9, fig.height=4, message=FALSE}
+grid.arrange(fig7, fig8, fig9, fig10, ncol = 2)
+```
+
 
 From the histogram below, the distribution of `price` is right-skewed with a median of \$450,000 and an IQR is \$323,000. There appears to be many outliers on the high end for `price`. The minimum of `price` is \$78,000 and the maximum is \$7,700,000. Since the distribution is right-skewed, if we were predicting price, a log-transformation could be useful.
 
@@ -216,7 +251,7 @@ Next, since we want to know if the price of the house is greater or less than \$
 kchouse1 <- mutate(kchouse1, price = ifelse(price > 500000, 1, 0))
 ```
 
-The last thing that we will do before creating the models is create a training and test set. The training set is used to create a model and then the test set is used to see how the model performs in making predictions. We will randomly create a 75%/25% split for the training/test set. 
+The last thing that we will do before creating the models is create a training and test set. The training set is used to create a model and then the test set is used to see how the model performs in making predictions. We will randomly create a 75/25 split for the training/test set. 
 
 ```{r}
 # create the training and test set for price
@@ -233,61 +268,73 @@ test <- kchouse1[test_index, ]
 
 # GLM Model Fitting
 
-```{r}
-# choose and fit at least 2 different models for your GLM
-# include appropriate output and assessment of their performance
+The first models that we are going to be fitting are GLMs (or Generalized Linear Models) which are extensions of ordinary linear regression (fitting a least-squares curve) to cases where the response variables are in an exponential family form. This can be response variables that are binomial, Poisson, gamma, or beta. Since we transformed `price` into a binary variable, it can now be modeled as a binomial distribution. 
 
-# think ahead: what does a reader need to know to follow your model fitting process?
-# you may want to jot down notes for yourself that you'll need later!
-```
-
-We are going to first use Poisson Regression to predict `price`.
+First, we are going to fit a logistic model using all of the variables that we have not removed from the data set. We use the training set to create the model. 
 
 ```{r}
-
 logmod <- glm(price ~ ., data = train, family = "binomial")
 msummary(logmod)
+```
+
+It appears from the model that we have 9 significant predictors and we can perform a likelihood ratio test to determine if the overall model is significant.
+
+```{r}
 lrtest(logmod)
 ```
 
+Since we have a significant p-value, it appears that the overall model is significant. Now in order to make predictions using this model, we need to bin the fitted values which we will do below.
 
 ```{r}
 augprice1 <- augment(logmod, type.predict = "response")
-favstats(~ .fitted, data = augprice1)
-
-```
-
-```{r}
 augprice1 <- mutate(augprice1, binprediction = round(.fitted, 0))
 tally(~ binprediction, data = augprice1)
-9787/(9787+6410)
+9826/(9826+6371)
+
 ```
 
-
+After using 0.5 as a default cutoff, the model classifies 60.7% of the prices as below \$500,000. This is close to the actual percentage of the training data that is classified as below \$500,000 which is 58.1% of the observations. We can try to match this a little better by adjusting the cutoff to which we round the numbers. Finding, the appropriate quantile, we now see that the percentage of the binned fitted values for prices below \$500,000 is 58.4% which is much closer than before.
 
 ```{r}
+# find out the actual percentage in training set
 tally(~ price, data = augprice1)
 9415/(9415+6782)
-with(augprice1, quantile(.fitted, 0.58128))
-```
 
-```{r}
+# find the appropriate quantile
+with(augprice1, quantile(.fitted, 0.58128))
+
+# re-bin the values and find out the percentage
 augprice1 <- mutate(augprice1, binprediction2 = as.numeric(.fitted > 0.454465))
 tally(~ binprediction2, data = augprice1)
+9455/(9455+6742)
 ```
 
+Next, we can create a confusion matrix and determine how many of the predictions were correct. From the matrix and calculation below, it appears that 84.0% of the predictions for the training set were correct.
 
 ```{r}
 with(augprice1, table(price, binprediction2))
+(8138+5465)/(8138+5465+1277+1317)
 ```
+
+We will do the same on the test set to see how the model performs. We follow the same process as above to calculate the predicted values and then bin them using our previous cutoff. The model classifies 58.9% of the prices below \$500,000. 
 
 ```{r}
-(8131+5498)/(8131+5498+1284+1284)
+augprice2 <- mutate(test, fitted = predict(logmod, newdata = test, type = "response"))
+augprice2 <- mutate(augprice2, binprediction = as.numeric(fitted > 0.454465))
+tally(~ binprediction, data = augprice2)
+(3181)/(3181+2218)
 ```
 
+Next, we generate a confusion matrix and it appears that 83.8% of the predictions were correct.
 
+```{r}
+with(augprice2, table(price, binprediction))
+(2719+1806)/(2719+1806+462+412)
+```
 
 ```{r, warning=FALSE}
+
+# dDELETE I THINK
 # get MSE of training set
 augprice1 <- augment(logmod, type.predict = "response")
 mean((augprice1$.fitted - augprice1$price)^2)
@@ -299,59 +346,61 @@ mean((test4$fitted - test4$price)^2)
 
 ```
 
+Next, we will try creating a smaller model by removing some of the predictors that were not significant in our previous model. We are going to remove `bedrooms`, `long`, and `sqft_lot15`. After creating this model, we then repeated the process and removed other variables that were significant, but did not seem to have much of an impact on the predictions because the other variables were much more influential. The other variables we removed were `sqft_lot`, `floors`, `waterfront`, `view`, `condition`, and  `sqft_above`. 
 
-
-
-
-
-*******************************
 ```{r}
-xPrice <- model.matrix(price ~ ., kchouse1)[, -1]
-yPrice <- kchouse1$price
+logmod2 <- glm(price ~ bathrooms + grade + yr_built + lat + sqft_living15, 
+  data = train, family = "binomial")
+msummary(logmod2)
+lrtest(logmod2)
+```
 
-x_train <- model.matrix(price ~ ., train)[, -1]
-x_test <- model.matrix(price ~ ., test)[, -1]
+All of the variables in our reduced model are significant and the model overall is significant as well. Now, we can create some predictions following the same process as above.
 
-
-y_train <- train %>%
-  select(price) %>%
-  unlist() %>%
-  as.numeric()
-
-y_test <- test %>%
-  select(price) %>%
-  unlist() %>%
-  as.numeric()
-
-grid <- 10^seq(10, -2, length = 100)
-
-ridge_mod <- glmnet(x_train, y_train, family = "binomial", alpha = 0, lambda = grid)
-
-plot(ridge_mod, label = TRUE)
-#ridge_pred <- predict(ridge_mod, s = 4, newx = x_test)
-#mean((ridge_pred - y_test)^2)
-
-set.seed(1)
-
-cv.out <- cv.glmnet(x_train, y_train, alpha = 0)
-bestlam <- cv.out$lambda.min
-bestlam
-
-plot(cv.out)
-
-predict(cv.out, type = "coefficients", s = bestlam)
-
-ridge_pred <- predict(ridge_mod, s = bestlam, newx = x_test)
-mean((ridge_pred - y_test)^2)
-
-#augprice2 <- augment(ridge_mod, type.predict = "response")
-#favstats(~ .fitted, data = augprice2)
+```{r}
+augprice3 <- augment(logmod2, type.predict = "response")
+augprice3 <- mutate(augprice3, binprediction = round(.fitted, 0))
+tally(~ binprediction, data = augprice3)
+9829/(9829+6386)
 
 ```
 
+After using 0.5 as a default cutoff, the model classifies 60.6% of the prices as below \$500,000. After adjusting the quantile, we now see that the percentage of the binned fitted values for prices below \$500,000 is 58.1% which is much closer than before.
 
+```{r}
+# find the appropriate quantile
+with(augprice3, quantile(.fitted, 0.58128))
 
+# re-bin the values and find out the percentage
+augprice3 <- mutate(augprice3, binprediction2 = as.numeric(.fitted > 0.451563))
+tally(~ binprediction2, data = augprice3)
+9414/(9414+6783)
+```
 
+Next, we can create a confusion matrix and determine how many of the predictions were correct. From the matrix and calculation below, it appears that 84.0% of the predictions for the training set were correct.
+
+```{r}
+with(augprice3, table(price, binprediction2))
+(8119+5486)/(8119+5486+1296+1296)
+```
+
+We will do the same on the test set to see how the model performs. We follow the same process as above to calculate the predicted values and then bin them using our previous cutoff. The model classifies 58.6% of the prices below \$500,000. 
+
+```{r}
+augprice4 <- mutate(test, fitted = predict(logmod2, newdata = test, type = "response"))
+augprice4 <- mutate(augprice4, binprediction3 = as.numeric(fitted > 0.451563))
+tally(~ binprediction3, data = augprice4)
+(3164)/(3164+2235)
+```
+
+Next, we generate a confusion matrix and it appears that 83.1% of the predictions were correct.
+
+```{r}
+with(augprice4, table(price, binprediction3))
+(2690+1794)/(2690+1794+474+441)
+```
+
+Although this model has a slightly lower correct prediction percentage, this model is much simpler than the first model and has many less predictors.
 
 
 \newpage
