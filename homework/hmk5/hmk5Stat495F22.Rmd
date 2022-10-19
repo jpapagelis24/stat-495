@@ -279,23 +279,210 @@ test <- kchouse1[test_index, ]
 
 # GLM and Results
 
+The first models that we are going to be fitting are GLMs (or Generalized Linear Models) which are extensions of ordinary linear regression (fitting a least-squares curve) to cases where the response variables are in an exponential family form. This can be response variables that are binomial, Poisson, gamma, or beta. Since we transformed `price` into a binary variable, it can now be modeled as a binomial distribution. 
+
+First, we are going to fit a logistic model using all of the variables that we have not removed from the data set. We use the training set to create the model. 
+
+```{r}
+logmod <- glm(price ~ ., data = train, family = "binomial")
+msummary(logmod)
+```
+
+It appears from the model that we have 9 significant predictors and we can perform a likelihood ratio test to determine if the overall model is significant.
+
+```{r}
+lrtest(logmod)
+```
+
+Since we have a significant p-value, it appears that the overall model is significant. Now in order to make predictions using this model, we need to bin the fitted values which we will do below.
+
+```{r}
+augprice1 <- augment(logmod, type.predict = "response")
+augprice1 <- mutate(augprice1, binprediction = round(.fitted, 0))
+tally(~ binprediction, data = augprice1)
+9826/(9826+6371)
+
+```
+
+After using 0.5 as a default cutoff, the model classifies 60.7% of the prices as below \$500,000. This is close to the actual percentage of the training data that is classified as below \$500,000 which is 58.1% of the observations. We can try to match this a little better by adjusting the cutoff to which we round the numbers. Finding, the appropriate quantile, we now see that the percentage of the binned fitted values for prices below \$500,000 is 58.4% which is much closer than before.
+
+```{r}
+# find out the actual percentage in training set
+tally(~ price, data = augprice1)
+9415/(9415+6782)
+
+# find the appropriate quantile
+with(augprice1, quantile(.fitted, 0.58128))
+
+# re-bin the values and find out the percentage
+augprice1 <- mutate(augprice1, binprediction2 = as.numeric(.fitted > 0.454465))
+tally(~ binprediction2, data = augprice1)
+9455/(9455+6742)
+```
+
+Next, we can create a confusion matrix and determine how many of the predictions were correct. From the matrix and calculation below, it appears that 84.0% of the predictions for the training set were correct.
+
+```{r}
+with(augprice1, table(price, binprediction2))
+(8138+5465)/(8138+5465+1277+1317)
+```
+
+We will do the same on the test set to see how the model performs. We follow the same process as above to calculate the predicted values and then bin them using our previous cutoff. The model classifies 58.9% of the prices below \$500,000. 
+
+```{r}
+augprice2 <- mutate(test, fitted = predict(logmod, newdata = test, type = "response"))
+augprice2 <- mutate(augprice2, binprediction = as.numeric(fitted > 0.454465))
+tally(~ binprediction, data = augprice2)
+(3181)/(3181+2218)
+```
+
+Next, we generate a confusion matrix and it appears that 83.8% of the predictions were correct.
+
+```{r}
+with(augprice2, table(price, binprediction))
+(2719+1806)/(2719+1806+462+412)
+```
+
+Next, we will try creating a smaller model by removing some of the predictors that were not significant in our previous model. We are going to remove `bedrooms`, `long`, and `sqft_lot15`. After creating this model, we then repeated the process and removed other variables that were significant, but did not seem to have much of an impact on the predictions because the other variables were much more influential. The other variables we removed were `sqft_lot`, `floors`, `waterfront`, `view`, `condition`, and  `sqft_above`. 
+
+```{r}
+logmod2 <- glm(price ~ bathrooms + grade + yr_built + lat + sqft_living15, 
+  data = train, family = "binomial")
+msummary(logmod2)
+lrtest(logmod2)
+```
+
+All of the variables in our reduced model are significant and the model overall is significant as well. Now, we can create some predictions following the same process as above.
+
+```{r}
+augprice3 <- augment(logmod2, type.predict = "response")
+augprice3 <- mutate(augprice3, binprediction = round(.fitted, 0))
+tally(~ binprediction, data = augprice3)
+9829/(9829+6386)
+
+```
+
+After using 0.5 as a default cutoff, the model classifies 60.6% of the prices as below \$500,000. After adjusting the quantile, we now see that the percentage of the binned fitted values for prices below \$500,000 is 58.1% which is much closer than before.
+
+```{r}
+# find the appropriate quantile
+with(augprice3, quantile(.fitted, 0.58128))
+
+# re-bin the values and find out the percentage
+augprice3 <- mutate(augprice3, binprediction2 = as.numeric(.fitted > 0.451563))
+tally(~ binprediction2, data = augprice3)
+9414/(9414+6783)
+```
+
+Next, we can create a confusion matrix and determine how many of the predictions were correct. From the matrix and calculation below, it appears that 84.0% of the predictions for the training set were correct.
+
+```{r}
+with(augprice3, table(price, binprediction2))
+(8119+5486)/(8119+5486+1296+1296)
+```
+
+We will do the same on the test set to see how the model performs. We follow the same process as above to calculate the predicted values and then bin them using our previous cutoff. The model classifies 58.6% of the prices below \$500,000. 
+
+```{r}
+augprice4 <- mutate(test, fitted = predict(logmod2, newdata = test, type = "response"))
+augprice4 <- mutate(augprice4, binprediction3 = as.numeric(fitted > 0.451563))
+tally(~ binprediction3, data = augprice4)
+(3164)/(3164+2235)
+```
+
+Next, we generate a confusion matrix and it appears that 83.1% of the predictions were correct.
+
+```{r}
+with(augprice4, table(price, binprediction3))
+(2690+1794)/(2690+1794+474+441)
+```
+
+Overall, from the two logistic regression models that were created, they both performed very similar to each other with the second one having a slightly lower correct prediction rate. However, for the second model, we removed many predictors that were not influential to the model and therefore were not helping make the predictions. After those variables were removed, the logistic model became much more simple with less predictors. The real estate developer's questions of interest is to find the variables that are indicative of houses that sell for over \$500,000 and by keeping a similar performance of the model, but removing extraneous predictors, we are able to find the predictors that are the most important. The second model contained the predictors: `bathrooms`, `grade`, `yr_built`, `lat`, and `sqft_living15`. 
 
 \newpage
 
 # Tree and Results
+The second method that we are going to be using to fit models is through classification trees. Classification trees are a nonparametric method of prediction and are easy to interpret. Classification trees are used when the response variable is binary so it is appropriate to use them in order to predict if the price is over or under \$500,000. They are created through recursive partitioning to create "splits" between observations with similar qualities.
 
-```{r, include = FALSE}
-# Can be before or after your GLM
+We will first create a tree with the default stopping criteria.
+
+```{r}
+price.rpart1 <- rpart(price ~ ., data = train, method = "class")
+printcp(price.rpart1)
+rpart.plot(price.rpart1)
 ```
 
+The classification tree above uses the predictors, `grade`, `lat`, `sqft_above`, `sqft_living15`, `sqft_lot15`, and `yr_built`. The error from this classification tree is 0.8589 which is calculated from the root node error and the relative error in the output above.
 
-\newpage
-
-# Model Comparison
-
-```{r, include = FALSE}
-# Can be woven in above
+```{r}
+1 - 0.3368*0.4187
 ```
+
+Next, we will using the classification tree that we created to see how well it predicts the training set. From the confusion matrix below, it appears that the classification tree predicts correctly for 85.9% of the observations.
+
+```{r}
+train1 <- mutate(train, predprice = predict(price.rpart1, type = "class"))
+tally(predprice ~ price, data = train1)
+(8227+5696)/(8227+5696+1188+1096)
+
+```
+
+And doing the same thing for the test we, it appears that the model predicts correctly 85.5% of the observations.
+
+```{r}
+test1 <- mutate(test, predprice = predict(price.rpart1, type = "class", newdata = test))
+tally(predprice ~ price, data = test1)
+(2748+1870)/(2748+1870+398+383)
+```
+
+Before we create the second model, we examine the cross -validation process that was used in creating the previous model. The default cross-validation is a 10-fold cross-validation. Below we can see that as the complexity parameter reaches 0.16, the relative error calculated from the cross-validation decreases only a small amount as the complexity parameter increases. Therefore, we are going to use a complexity parameter of 0.016 for our next tree. 
+
+
+```{r}
+plotcp(price.rpart1)
+```
+
+We are also going to control `minsplit = 500` which means that there needs to be 500 observations in a node before a split is attempted. This is reasonable for a tree created from our training data with a size of 16197. We also set `minbucket = 300` which means that the minimum number of observations in any terminal node is 300 observations. There controls are to try and attempt to build a smaller tree while keeping the same effectiveness of the first model.
+
+```{r}
+price.control <- rpart.control(minsplit = 500, minbucket = 300, cp = 0.016)
+price.rpart2 <- rpart(price ~ ., data = train, method = "class", control = price.control)
+printcp(price.rpart2)
+```
+
+The classification tree above uses the predictors, `grade`, `lat`, and `sqft_living15`. The error from this classification tree is 0.8303 which is calculated from the root node error and the relative error in the output above.
+
+```{r}
+1 - 0.4053*0.4187
+```
+
+From the output below, the classification tree we created is much more simple.
+
+```{r}
+rpart.plot(price.rpart2)
+```
+
+We will now see how the model performs in classifying observations.
+
+```{r}
+
+train2 <- mutate(train, predprice = predict(price.rpart2, type = "class"))
+tally(predprice ~ price, data = train2)
+(8054+5394)/(8054+5394+1361+1388)
+```
+
+It appears the the model classifies observations 83.0% correctly in the training set. We will do the same for the test set.
+
+```{r}
+
+test2 <- mutate(test, predprice = predict(price.rpart2, type = "class", newdata = test))
+tally(predprice ~ price, data = test2)
+(2710+1772)/(2710+1772+421+496)
+```
+
+It appears the the model classifies observations 83.0% correctly in the test set as well. 
+
+From these two models, the first one is more complex and predicts correctly about 2.5-3% better than the second model. However, this means that the first classification tree is less interpretable than the second one. The first tree has 11 splits whereas the second one only has 5. Because of this reason, we would choose the second model over the first one. The slight decrease in correct predictions matters less than the increase in interpretability for the model. Additionally, the error of the second classification tree is slightly less than that of the first tree. Also, since we are determining which of the variables are the best predictors if a house is above \$500,000, the second model only uses 3 predictors whereas the first model uses 6. The predictors used in the second model are `grade`, `lat`, and `sqft_living15`.
 
 
 \newpage

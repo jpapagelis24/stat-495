@@ -28,7 +28,7 @@ require(gridExtra)
 
 library(ISLR)
 library(glmnet)
-
+library(rpart.plot)
 library(lars)    # you may need to install some of these (one time only)
 library(leaps)   # to use variable selection methods if desired
 
@@ -400,7 +400,7 @@ with(augprice4, table(price, binprediction3))
 (2690+1794)/(2690+1794+474+441)
 ```
 
-Although this model has a slightly lower correct prediction percentage, this model is much simpler than the first model and has many less predictors.
+Overall, from the two logistic regression models that were created, they both performed very similar to each other with the second one having a slightly lower correct prediction rate. However, for the second model, we removed many predictors that were not influential to the model and therefore were not helping make the predictions. After those variables were removed, the logistic model became much more simple with less predictors. The real estate developer's questions of interest is to find the variables that are indicative of houses that sell for over \$500,000 and by keeping a similar performance of the model, but removing extraneous predictors, we are able to find the predictors that are the most important. The second model contained the predictors: `bathrooms`, `grade`, `yr_built`, `lat`, and `sqft_living15`. 
 
 
 \newpage
@@ -415,56 +415,88 @@ Although this model has a slightly lower correct prediction percentage, this mod
 # you may want to jot down notes for yourself that you'll need later!
 ```
 
+The second method that we are going to be using to fit models is through classification trees. Classification trees are a nonparametric method of prediction and are easy to interpret. Classification trees are used when the response variable is binary so it is appropriate to use them in order to predict if the price is over or under \$500,000. They are created through recursive partitioning to create "splits" between observations with similar qualities.
 
+We will first create a tree with the default stopping criteria.
 
 ```{r}
 price.rpart1 <- rpart(price ~ ., data = train, method = "class")
 printcp(price.rpart1)
+rpart.plot(price.rpart1)
+```
 
+The classification tree above uses the predictors, `grade`, `lat`, `sqft_above`, `sqft_living15`, `sqft_lot15`, and `yr_built`. The error from this classification tree is 0.8589 which is calculated from the root node error and the relative error in the output above.
 
+```{r}
+1 - 0.3368*0.4187
+```
 
-# find the MSE of the training set for default tree
+Next, we will using the classification tree that we created to see how well it predicts the training set. From the confusion matrix below, it appears that the classification tree predicts correctly for 85.9% of the observations.
+
+```{r}
 train1 <- mutate(train, predprice = predict(price.rpart1, type = "class"))
 tally(predprice ~ price, data = train1)
-tally(~ price, data = train1)
+(8227+5696)/(8227+5696+1188+1096)
 
-#find the MSE of the test set for default tree
+```
+
+And doing the same thing for the test we, it appears that the model predicts correctly 85.5% of the observations.
+
+```{r}
 test1 <- mutate(test, predprice = predict(price.rpart1, type = "class", newdata = test))
 tally(predprice ~ price, data = test1)
-tally(~ price, data = test1)
-```
-```{r}
-(8283+5728)/(8283+5728+1132+1054)
-
-(2754+1881)/(2754+1881+377+387)
-(3131)/(3131+2268)
+(2748+1870)/(2748+1870+398+383)
 ```
 
+Before we create the second model, we examine the cross -validation process that was used in creating the previous model. The default cross-validation is a 10-fold cross-validation. Below we can see that as the complexity parameter reaches 0.16, the relative error calculated from the cross-validation decreases only a small amount as the complexity parameter increases. Therefore, we are going to use a complexity parameter of 0.016 for our next tree. 
+
+
 ```{r}
-# perhaps make a less complicated one
-# see how much you lose
 plotcp(price.rpart1)
+```
 
-price.control <- rpart.control(minsplit = 10, cp = 0.017)
+We are also going to control `minsplit = 500` which means that there needs to be 500 observations in a node before a split is attempted. This is reasonable for a tree created from our training data with a size of 16197. We also set `minbucket = 300` which means that the minimum number of observations in any terminal node is 300 observations. There controls are to try and attempt to build a smaller tree while keeping the same effectiveness of the first model.
+
+```{r}
+price.control <- rpart.control(minsplit = 500, minbucket = 300, cp = 0.016)
 price.rpart2 <- rpart(price ~ ., data = train, method = "class", control = price.control)
 printcp(price.rpart2)
-
-
-
-# find the MSE of the training set for default tree
-train1 <- mutate(train, predprice = predict(price.rpart2, type = "class"))
-tally(predprice ~ price, data = train1)
-tally(~ price, data = train1)
-
-#find the MSE of the test set for default tree
-test1 <- mutate(test, predprice = predict(price.rpart2, type = "class", newdata = test))
-tally(predprice ~ price, data = test1)
-tally(~ price, data = test1)
 ```
+
+The classification tree above uses the predictors, `grade`, `lat`, and `sqft_living15`. The error from this classification tree is 0.8303 which is calculated from the root node error and the relative error in the output above.
+
+```{r}
+1 - 0.4053*0.4187
+```
+
+From the output below, the classification tree we created is much more simple.
+
+```{r}
+rpart.plot(price.rpart2)
+```
+
+We will now see how the model performs in classifying observations.
 
 ```{r}
 
+train2 <- mutate(train, predprice = predict(price.rpart2, type = "class"))
+tally(predprice ~ price, data = train2)
+(8054+5394)/(8054+5394+1361+1388)
 ```
+
+It appears the the model classifies observations 83.0% correctly in the training set. We will do the same for the test set.
+
+```{r}
+
+test2 <- mutate(test, predprice = predict(price.rpart2, type = "class", newdata = test))
+tally(predprice ~ price, data = test2)
+(2710+1772)/(2710+1772+421+496)
+```
+
+It appears the the model classifies observations 83.0% correctly in the test set as well. 
+
+From these two models, the first one is more complex and predicts correctly about 2.5-3% better than the second model. However, this means that the first classification tree is less interpretable than the second one. The first tree has 11 splits whereas the second one only has 5. Because of this reason, we would choose the second model over the first one. The slight decrease in correct predictions matters less than the increase in interpretability for the model. Additionally, the error of the second classification tree is slightly less than that of the first tree. Also, since we are determining which of the variables are the best predictors if a house is above \$500,000, the second model only uses 3 predictors whereas the first model uses 6. The predictors used in the second model are `grade`, `lat`, and `sqft_living15`.
+
 
 \newpage
 
