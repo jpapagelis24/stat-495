@@ -76,6 +76,7 @@ A real estate developer is interested in understanding the features that are pre
 
 To practice new techniques from class, in your analysis, you are required to use both an appropriate generalized linear model and tree to address the developer's questions of interest, including a model comparison. 
 
+
 ## Instructions for your Homework 4 submission
 
 The outline for Homework 4 is next, but I want to include information here for you about what you'll need in Homework 5 so that you can include extra information for yourself in your Homework 4 submission, as desired. Look at the end of the assignment for this, and be sure to read it! 

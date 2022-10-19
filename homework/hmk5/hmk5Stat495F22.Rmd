@@ -25,7 +25,7 @@ library(ggplot2)
 library(lmtest) # for likelihood ratio tests
 
 require(gridExtra) 
-
+library(rpart.plot)
 library(ISLR)
 library(glmnet)
 
@@ -106,6 +106,8 @@ Finally, remember to check out your "best" model for each technique. Did you che
 
 * Conclusion - This section should be a stand alone summary of your analysis. It is where you get to state your final model and a quick summary of the process used to get there. You also need to address the developer's questions (if not done before), and this is your last place to do that! Remember to flush out the details here. If your final sentence is "Model 5 is the model I choose and it answers your questions", does it? Are you doing your job as the analyst to leave things at that? For that matter, what is Model 5? 
 
+
+
 * Printing Trees - It is fine to print your trees out to separate .pdfs (just be sure to include them in your submission!). Remember if you want to include the .pdf as an image, you have example code for that. Please do show your code though (so no echo = FALSE), and remember that your work should be reproducible. The chapter 8 lab solution shows alternatives to *partykit* to make the trees look nice. You can try out *rpart.plot* yourself to see.  
 
 * Length - Your submission should be as long as it needs to be, but not unnecessarily long. Plots, etc. are encouraged to help illustrate points, but don't include output that isn't needed. For example, a histogram or densityplot and favstats for each variable is something good to explore, but you shouldn't put that in your submission for every variable. You might need plots to point out outliers you are removing, or maybe you show one plot and then say others were similar. I encourage you to do any additional work in a separate .Rmd from your submission (like, back in your Homework 4 .Rmd). 
@@ -117,7 +119,7 @@ You may remove these instructions if desired for your submission, but must leave
 \newpage
 
 # Introduction 
-
+We are interested in determining the features that are predictive of homes that are selling for more than half a million dollars. We are only interested in whether the price is over or under \$500,000, so will transform the price into a binary response variable where the the price is either over \$500,000 or it isn't. Then because the response variable is binary, we will use logistic regression to create the best model that we can. We will also perform a non-parametric analysis using classification trees in order to help visualize what predictors are best indicators of a house selling for greater than \$500,000. Finally, we will be able to compare the models to help answer the real estate developer's questions.
 
 \newpage 
 
@@ -187,7 +189,7 @@ fig2 <- ggplot(data = kchouse, aes(x = sqft_basement, y = price)) +
 grid.arrange(fig1, fig2, ncol = 2)
 ```
 
-Additionally, from the Scatterplot of Bedrooms and Price, there appears to be an outlier so we will remove that observation.
+Additionally, from the Scatterplot of Bedrooms and Price below, there appears to be an outlier so we will remove that observation.
 
 ```{r}
 ggplot(data = kchouse, aes(x = bedrooms, y = price)) + 
@@ -214,7 +216,6 @@ fig4 <- ggplot(data = kchouse, aes(x = id, y = price)) +
 grid.arrange(fig3, fig4, ncol = 2)
 ```
 
-
 Additionally, it appears that there are some concerns with multicollinearity between `sqft_living` and other variables such as `sqft_living15` and `sqft_above` so we are going to remove `sqft_living` as well. 
 
 ```{r}
@@ -226,7 +227,7 @@ fig5 <- ggplot(data = kchouse, aes(x = sqft_living, y = sqft_above)) +
 
 fig6 <- ggplot(data = kchouse, aes(x = sqft_living, y = sqft_living15)) + 
   geom_point() + 
-  labs(title = "Scatterplot of SqFt Living and SqFt Living in 2015", 
+  labs(title = "Scatterplot of SqFt Living and SqFt Living 2015", 
        x = "Sq Ft Living", y = "SqFt Living in 2015")
 ```
 
@@ -240,11 +241,13 @@ kchouse1 <- kchouse %>%
   select(-c(id,zipcode, yr_renovated, date, sqft_basement, sqft_living))
 ```
 
-From the scatterplot below of the latitude and the longitude, it seems like the houses are all bunched together in near each other (near Seattle) so the results of this analysis can only be generalized to that region of the state.
+From the scatterplot below of the latitude and the longitude, it seems like the houses are all bunched together near each other (close to Seattle) so the results of this analysis can only be generalized to that region of the state.
 
 ```{r}
 ggplot(data = kchouse, aes(x = lat, y = long)) +
-  geom_point()
+  geom_point() + 
+  labs(title = "Scatterplot of Latitude and Longitude", 
+       x = "Latitude", y = "Longitude")
 ```
 
 From the histogram below, the distribution of `price` is right-skewed with a median of \$450,000 and an IQR is \$323,000. There appears to be many outliers on the high end for `price`. The minimum of `price` is \$78,000 and the maximum is \$7,700,000. Since the distribution is right-skewed, if we were predicting price, a log-transformation could be useful.
@@ -256,13 +259,14 @@ gf_dhistogram(~ price, data = kchouse) %>%
 favstats(~ price, data = kchouse)
 ```
 
-Next, since we want to know if the price of the house is greater or less than \$500,000, we will transform the price variable so that it is an binary predictor that is `1` if the price of the house is greater than \$500,000 and `0` if the price of the house is less than \$500,000.
+Next, since we want to know if the price of the house is greater or less than \$500,000, we will transform the price variable so that it is an binary predictor that is `1` if the price of the house is greater than \$500,000 and `0` if the price of the house is less than \$500,000. It appears that there are 12,546 houses with price below \$500,000 and 9,050 houses with a price above \$500,000.
 
 ```{r}
 kchouse1 <- mutate(kchouse1, price = ifelse(price > 500000, 1, 0))
+tally(~price, data = kchouse1)
 ```
 
-The last thing that we will do before creating the models is create a training and test set. The training set is used to create a model and then the test set is used to see how the model performs in making predictions. We will randomly create a 75%/25% split for the training/test set. 
+The last thing that we will do before creating the models is create a training and test set. The training set is used to create a model and then the test set is used to see how the model performs in making predictions. We will randomly create a 75/25 split for the training/test set. 
 
 ```{r}
 # create the training and test set for price
@@ -279,9 +283,9 @@ test <- kchouse1[test_index, ]
 
 # GLM and Results
 
-The first models that we are going to be fitting are GLMs (or Generalized Linear Models) which are extensions of ordinary linear regression (fitting a least-squares curve) to cases where the response variables are in an exponential family form. This can be response variables that are binomial, Poisson, gamma, or beta. Since we transformed `price` into a binary variable, it can now be modeled as a binomial distribution. 
+The first models that we are going to be fitting are GLMs (or Generalized Linear Models) which are extensions of ordinary linear regression (fitting a least-squares curve) to cases where the response variables are in an exponential family form. This can be response variables that are binomial, Poisson, gamma, or beta. Since we transformed `price` into a binary variable, it can now be modeled as a binomial distribution. The model that we use for a binary response variable is a logistic regession model.
 
-First, we are going to fit a logistic model using all of the variables that we have not removed from the data set. We use the training set to create the model. 
+First, we are going to fit the logistic model using all of the variables that we have not removed from the data set. We use the training set to create the model. 
 
 ```{r}
 logmod <- glm(price ~ ., data = train, family = "binomial")
@@ -406,7 +410,7 @@ The second method that we are going to be using to fit models is through classif
 
 We will first create a tree with the default stopping criteria.
 
-```{r}
+```{r, fig.width = 6, fig.height = 5}
 price.rpart1 <- rpart(price ~ ., data = train, method = "class")
 printcp(price.rpart1)
 rpart.plot(price.rpart1)
@@ -488,4 +492,6 @@ From these two models, the first one is more complex and predicts correctly abou
 \newpage
 
 # Conclusion
+The goal of this analysis was to determine the variables that are most indicative of a house's price being greater than \$500,000. To accomplish this, we first created two logistic regression models and decided that the one with less predictors was better of the two due to its comparable prediction accuracy and simplicity. This model contained the predictors `bathrooms`, `grade`, `yr_built`, `lat`, and `sqft_living15` which means that for the logistic regression model, these variables contributed the most to determining if a house had a price greater than half a million dollars. Secondly, we created two classification trees which we used to predict if a price was greater than \$500,000 or not. Again, we chose the model that had a similar prediction accuracy and less predictors. This tree was also much smaller, and thus easier to interpret. The predictors used in this model are `grade`, `lat`, and `sqft_living15`. The classification tree models performed slightly better than the logistic regression trees, but they were all within a small range so they are comparable. Combining information from both of our final models, `grade`, `lat`, and `sqft_living15` appeared as significant predictors in both models so these varaibles especially, are the ones that are most predictive of a house with a price over \$500,000.
+
 
