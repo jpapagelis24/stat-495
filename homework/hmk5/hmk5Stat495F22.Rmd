@@ -1,6 +1,6 @@
 ---
 title: "Homework 5 - Stat 495"
-author: "YourNameGoesHere"
+author: "Justin Papagelis"
 date: "Due Wednesday, October 19th by midnight"
 output:
   pdf_document:
@@ -55,68 +55,6 @@ Source(s) and corresponding problem(s)
 
 \newpage
 
-# Homework 5 - Prompt - Write-up for Homework 4
-
-
-## Motivation to predict when Price is greater than $500,000
-
-A real estate developer is interested in understanding the features that are predictive of homes selling for more than half a million dollars, and has turned to you, a statistical consultant for help. He wants a model that can be applied to make predictions in this setting and wants to understand how the variables in the model are impacting it. 
-
-To practice new techniques from class, in your analysis, you are required to use both an appropriate generalized linear model and tree to address the developer's questions of interest, including a model comparison. 
-
-## Write-up Purpose and some Guidance
-
-We want to practice reporting our analyses. You have been contracted to do an analysis, and you prepared some potential models in Homework 4, and now need to report your process and subsequent findings to the client. 
-
-Things to think about: 
-
-* Your report should be well-organized and proofread.
-* Your code should be readable and not run off pages. Employ good commenting practices.
-* The entire process must be reproducible.
-* Review the class feedback on Homework 4 and adjust your models/thinking as necessary before diving in to the write-up. 
-* Think carefully about the organization of the report. Is it useful to have pages of output and THEN a description of what to look for in that output?
-* Should you assume the reader knows where values in the R output are?
-* If you compute a number, and then write a sentence that says, the MSE is small, will the reader associate that number with being the MSE? What would a better sentence look like? 
-* Thinking back to the Tibshirani Writing activity may help you think about ways to improve as well. (Does each of your sections have a purpose? Do you have appropriate signposts, etc.)
-
-## Instructions for your submission
-
-Your submission should include the following sections (along with all code necessary to reproduce your results):
-
-* Introduction and Exploratory Data Analysis - could be two separate sections
-* Your GLM and relevant details
-* Your Tree and relevant details (can be before or after your GLM)
-* Your Model Comparison (can be woven in sections above)
-* Your Conclusion
-
-Descriptions of the purpose for each section follow. Do not use this as a set of check boxes for the assignment. Instead, the idea here is to explain why you'd write each section, and you can work out what needs to be in each in order to fulfill that purpose. 
-
-* Introduction - The real estate developer has interests, but will you be able to address them? How do you understand the tasks you are presented with? It's important to state what you will be doing in the analysis, so the reader can make sure their understanding lines up with what you will be doing. The reader also needs an introduction to your data, either in this section, or below. They need enough detail to be able to determine if your actions later in the analysis are reasonable. 
-
-* Exploratory Data Analysis - You are the analyst here. That means you can use variable transformations, subsets of observations, and employ other analytic practices (e.g. training/testing data sets) at your discretion to aid in your analysis, so long as you explain your rationale for them. The reader needs to know what you found and what you decided to do about it, because this has impacts on the rest of your analysis. Remember our lessons from the first classes - be sure you look at the data! Here's your chance to share what you found based on how it impacts your analysis. 
-
-* GLM and Tree sections - These are new techniques. By having each in their own section, you can focus on your explanation for them one at a time. The developer does not know what these are - you need to explain them at least enough they can follow your discussion. You have options that you need to pick for the different techniques (various tuning parameters) - for example, are you using a classification or a regression tree? What tree stopping options are being used? What input variables are you using and why? What type of GLM are you using? How will you be measuring performance? Be sure you discuss what options you are selecting and what made you choose those values. Helping explain this shows your understanding of the techniques (remember the class example that minbucket of 30 was nonsensical for the iris data). 
-
-You also want these sections to show off your ability to build models. It is not appropriate to only fit kitchen sink models or accept all default settings without exploring to see if that is really what is best for the task at hand. Your write-up should make it clear what you explored, but you don't have to show every model you considered. You can do a lot in sentences discussing your process. 
-
-Finally, remember to check out your "best" model for each technique. Did you check reasonable diagnostics? Does the model make sense? Are variables behaving as you expect? If you focus solely on model performance, that's missing the point. For example, you might find a model has very little error because a variant of the response was accidentally included as a predictor. You are responsible for checking over the model before reporting it. Your write-up should convey that you've done this (the reader can't read your mind to know you did it).
-
-* Model Comparison - There are several ways to compare the models - performance, interpretability, variables involved, etc. Remember you are trying to address the real estate developer's questions of interest. You may do that with a focus on just one model, or maybe you found a way to combine results from a "best" GLM and a "best" tree. The idea for this section is that you need to convey the process used to pick a final model(s) to use to answer those questions, with justification for your choices.  
-
-* Conclusion - This section should be a stand alone summary of your analysis. It is where you get to state your final model and a quick summary of the process used to get there. You also need to address the developer's questions (if not done before), and this is your last place to do that! Remember to flush out the details here. If your final sentence is "Model 5 is the model I choose and it answers your questions", does it? Are you doing your job as the analyst to leave things at that? For that matter, what is Model 5? 
-
-
-
-* Printing Trees - It is fine to print your trees out to separate .pdfs (just be sure to include them in your submission!). Remember if you want to include the .pdf as an image, you have example code for that. Please do show your code though (so no echo = FALSE), and remember that your work should be reproducible. The chapter 8 lab solution shows alternatives to *partykit* to make the trees look nice. You can try out *rpart.plot* yourself to see.  
-
-* Length - Your submission should be as long as it needs to be, but not unnecessarily long. Plots, etc. are encouraged to help illustrate points, but don't include output that isn't needed. For example, a histogram or densityplot and favstats for each variable is something good to explore, but you shouldn't put that in your submission for every variable. You might need plots to point out outliers you are removing, or maybe you show one plot and then say others were similar. I encourage you to do any additional work in a separate .Rmd from your submission (like, back in your Homework 4 .Rmd). 
-
-* Audience - For purposes of this submission, remember that the audience is the real estate developer, so you'll probably need to include some explanations that you'd leave out of a normal homework. For example, the developer isn't going to know what a GLM is, or what type you are using, or why you'd use it. You should think about where that information should go, and do your best to explain what you need in order to report your findings.  Similarly, assume that you found this data to assist the developer and they need basic details about it to understand the variables. They didn't hand it over to you. 
-
-You may remove these instructions if desired for your submission, but must leave the page on Academic Integrity.
-
-\newpage
-
 # Introduction and Exploratory Data Analysis 
 We are interested in determining the features predictive of homes selling for more than half a million dollars. We are only interested in whether the price is over or under \$500,000, so we will transform it into a binary response variable where the price is either over \$500,000 or is not. Then because the response variable is binary, we will use logistic regression to create the best model we can. We will also perform a non-parametric analysis using classification trees to help visualize what predictors are best indicators of a house selling for greater than \$500,000. Finally, we can compare the models to help answer the real estate developer's questions.
 
@@ -154,10 +92,12 @@ The data set contains the following variables:
 Before we fit any models, we need to adjust how R treats the data. For example, we need to change the `date` to a date format and treat `waterfront` and `zipcode` as categorical variables instead of numeric variables. We also changed the missing values from `yr_renovated` and `sqft_basement` to "na" values instead of 0.
 
 ```{r}
+# change how variables are treated by R
 kchouse <- kchouse %>%
   mutate(date = lubridate::mdy(date),
          waterfront = as.factor(waterfront),
          zipcode = as.numeric(as.factor(zipcode)))
+# change the values that are 0 to na which is more appropriate
 kchouse <- kchouse %>%
   mutate_at(c('yr_renovated', 'sqft_basement'), ~na_if(.,0))
 ```
@@ -165,75 +105,94 @@ kchouse <- kchouse %>%
 After examining `yr_renovated` and `sqft_basement`, it appears that 95.8% and 60.7% of the values, respectively, are missing. From Figure 1, there are weak relationships between `yr_renovated` and `price` as well as `sqft_basement` and `price`. Therefore, we will drop these predictors when creating our models because they will not be as helpful as other predictors.
 
 ```{r}
+# calculate the percentage of missing observations in yr_renovated
 sum(is.na(kchouse$yr_renovated))/nrow(kchouse)
+
+# calculate the percentage of missing observations in sqft_basement
 sum(is.na(kchouse$sqft_basement))/nrow(kchouse)
 ```
 
 
 ```{r, warning = FALSE}
+# generate plot of yr_renovated and price
 fig1 <- ggplot(data = kchouse, aes(x = yr_renovated, y = price)) + 
   geom_point() + 
   labs(title = "Scatterplot of Year Renovated and Price", x = "Year Renovated",
        y = "Price")
+
+# generate plot of ysqft_basement and price
 fig2 <- ggplot(data = kchouse, aes(x = sqft_basement, y = price)) + 
   geom_point() + 
   labs(title = "Scatterplot of Sq Ft Basement and Price", 
        x = "Square Feet Basement", y = "Price")
-
 ```
 
 ```{r, include = TRUE, fig.width=9, fig.height=4, warning=FALSE, fig.cap="Scatter plots showing relationship between yr_renovated and price as well as sqft_basement and price."}
 grid.arrange(fig1, fig2, ncol = 2)
 ```
 
-Additionally, from Figure 2, there appears to be an outlier (with 33 bedrooms) so we will remove that observation.
+Additionally, from Figure 2, there appears to be an outlier (with 33 bedrooms) so we will remove that observation and show the relationship once the outlier is removed.
 
 ```{r, fig.cap="scatter plot between bedrooms and price. An outlier is visible."}
-ggplot(data = kchouse, aes(x = bedrooms, y = price)) + 
+# generate plot of bedrooms and price
+fig3 <- ggplot(data = kchouse, aes(x = bedrooms, y = price)) + 
   geom_point() + 
   labs(title = "Scatterplot of Bedrooms and Price", 
        x = "Bedrooms", y = "Price")
+
+# remove observation
+kchouse1 <- kchouse %>%
+  filter(id != 2402100895)
+
+# generate plot of bedrooms and price w/o outlier
+fig4 <- ggplot(data = kchouse1, aes(x = bedrooms, y = price)) + 
+  geom_point() + 
+  labs(title = "Scatterplot of Bedrooms and Price (no outlier)", 
+       x = "Bedrooms", y = "Price")
+```
+
+```{r, include = TRUE, fig.width=9, fig.height=4, message=FALSE, fig.cap="Scatter plots showing Bedrooms and Price before and after the removal of an outlier"}
+grid.arrange(fig3, fig4, ncol = 2)
 ```
 
 Since a couple of variables, such as `date` and `id` do not have a relationship with `price` as seen in Figure 3, we will remove those predictors as well. 
 
 ```{r}
-fig3 <- ggplot(data = kchouse, aes(x = date, y = price)) + 
+fig5 <- ggplot(data = kchouse, aes(x = date, y = price)) + 
   geom_point() + 
   labs(title = "Scatterplot of Date and Price", 
        x = "Date", y = "Price")
 
-fig4 <- ggplot(data = kchouse, aes(x = id, y = price)) + 
+fig6 <- ggplot(data = kchouse, aes(x = id, y = price)) + 
   geom_point() + 
   labs(title = "Scatterplot of ID and Price", 
        x = "ID", y = "Price")
 ```
 
-```{r, include = TRUE, fig.width=9, fig.height=4, message=FALSE, fig.cap="Scatter plots showing there is no relationship between date and price as well as id and price."}
-grid.arrange(fig3, fig4, ncol = 2)
+```{r, include = TRUE, fig.width=9, fig.height=4, message=FALSE, fig.cap="Scatter plots showing there is no relationship between date and price as well as ID and price."}
+grid.arrange(fig5, fig6, ncol = 2)
 ```
 
 Additionally, there are concerns with multicollinearity between `sqft_living` and other variables, including `sqft_living15` and `sqft_above` (Figure 4), so we are going to remove `sqft_living` as well.  
 
 ```{r}
-fig5 <- ggplot(data = kchouse, aes(x = sqft_living, y = sqft_above)) + 
+fig7 <- ggplot(data = kchouse, aes(x = sqft_living, y = sqft_above)) + 
   geom_point() + 
   labs(title = "Scatterplot of SqFt Living and SqFt Above", 
-       x = "Sq Ft Living", y = "SqFt Living in 2015")
+       x = "Sq Ft Living", y = "SqFt Above")
 
-fig6 <- ggplot(data = kchouse, aes(x = sqft_living, y = sqft_living15)) + 
+fig8 <- ggplot(data = kchouse, aes(x = sqft_living, y = sqft_living15)) + 
   geom_point() + 
   labs(title = "Scatterplot of SqFt Living and SqFt Living 2015", 
        x = "Sq Ft Living", y = "SqFt Living in 2015")
 ```
 
 ```{r, include = TRUE, fig.width=9, fig.height=4, message=FALSE, fig.cap="scatter plots showing multicollinearity concerns with sqft_living"}
-grid.arrange(fig5, fig6, ncol = 2)
+grid.arrange(fig7, fig8, ncol = 2)
 ```
 
 ```{r}
-kchouse1 <- kchouse %>%
-  filter(id != 2402100895) %>%
+kchouse1 <- kchouse1 %>%
   select(-c(id,zipcode, yr_renovated, date, sqft_basement, sqft_living))
 ```
 
@@ -246,14 +205,14 @@ ggplot(data = kchouse, aes(x = lat, y = long)) +
        x = "Latitude", y = "Longitude")
 ```
 
-From Figure 6, the distribution of `price` is right-skewed with a median of \$450,000 and an IQR is \$323,000. There appear to be many outliers on the high end for `price`. The minimum `price` is \$78,000, and the maximum is \$7,700,000. Since the distribution is right-skewed, a log transformation could be helpful if we were predicting price.
-
 ```{r, fig.cap="Histogram of Price"}
 gf_dhistogram(~ price, data = kchouse) %>%
-  gf_labs(title = "Histogram of Prices")
+  gf_labs(title = "Histogram of Price", x = "Price")
 
 favstats(~ price, data = kchouse)
 ```
+
+From Figure 6, the distribution of `price` is right-skewed with a median of \$450,000 and an IQR is \$323,000. There appear to be many outliers on the high end for `price`. The minimum `price` is \$78,000, and the maximum is \$7,700,000. Since the distribution is right-skewed, a log transformation could be helpful if we were predicting price.
 
 Next, since we want to know if the price of the house is greater or less than \$500,000, we will transform the price variable so that it is a binary predictor that is `1` if the price of the house is greater than \$500,000 and `0` if the price of the house is less than \$500,000. There are 12,546 houses with a price below \$500,000 and 9,050 houses with a price above \$500,000.
 
@@ -406,7 +365,7 @@ The second method that we are going to be using to fit models is classification 
 
 We will first create a tree with the default stopping criteria.
 
-```{r, fig.width = 6, fig.height = 5}
+```{r, fig.width = 6, fig.height = 5, fig.cap= "Classification Tree 1"}
 price.rpart1 <- rpart(price ~ ., data = train, method = "class")
 printcp(price.rpart1)
 rpart.plot(price.rpart1)
@@ -438,7 +397,7 @@ tally(predprice ~ price, data = test1)
 Before we create the second model, we examine the cross-validation process that was used in creating the previous model. The default cross-validation is 10-fold cross-validation. Below we can see that as the complexity parameter reaches 0.16, the relative error calculated from the cross-validation decreases slightly as the complexity parameter increases. Therefore, our next tree will use a complexity parameter of 0.016. 
 
 
-```{r}
+```{r, fig.cap="Graph of Relative Error from Cross-Validation as Complexity Parameter (cp) increses"}
 plotcp(price.rpart1)
 ```
 
@@ -458,14 +417,13 @@ The classification tree above uses the predictors `grade`, `lat`, and `sqft_livi
 
 From the output below, the classification tree we created is much simpler.
 
-```{r}
+```{r, fig.cap= "Classification Tree 2"}
 rpart.plot(price.rpart2)
 ```
 
 We will now see how the model performs in classifying observations.
 
 ```{r}
-
 train2 <- mutate(train, predprice = predict(price.rpart2, type = "class"))
 tally(predprice ~ price, data = train2)
 (8054+5394)/(8054+5394+1361+1388)
@@ -474,7 +432,6 @@ tally(predprice ~ price, data = train2)
 It appears the model classifies observations 83.0% correctly in the training set. We will do the same for the test set.
 
 ```{r}
-
 test2 <- mutate(test, predprice = predict(price.rpart2, type = "class", newdata = test))
 tally(predprice ~ price, data = test2)
 (2710+1772)/(2710+1772+421+496)
