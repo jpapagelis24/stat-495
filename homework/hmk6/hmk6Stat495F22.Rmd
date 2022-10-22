@@ -1,0 +1,53 @@
+---
+title: "Homework 6 - Stat 495"
+author: "Justin Papagelis"
+date: "Due Friday, October 21st by midnight"
+output:
+  pdf_document:
+    fig_height: 3
+    fig_width: 5
+  html_document:
+    fig_height: 3
+    fig_width: 5
+  word_document:
+    fig_height: 3
+    fig_width: 5
+---
+
+```{r, include = FALSE}
+library(mosaic)
+options(digits = 6)
+```
+
+# Homework 6 - Idea Brainstorm for Project
+
+This homework counts towards the project as a project component (not a homework).
+
+The idea here is to list several potential statistical topics for your project, as well as your motivation for choosing them. This can include where you've heard about the topic, why you want to learn about each topic, etc. Remember that the topics you are brainstorming should be relatively new to you. You should brainstorm at least 3 topics - feel free to add more following the outline below. 
+
+Some of you may have datasets that you'd like to perform analysis on. That's fine, and you can choose topics that align with the data set analysis. Feel free to list such connections below. However, the statistical topic must be the focus here. This allows the project to align with our learning goals for the statistics major. 
+
+The feedback provided to you from this brainstorm will help you to prepare a proposal for the project. 
+
+## Topic Idea 1
+
+<!-- Note: These are comments for instructions and will not show up in your pdf.  -->
+<!-- List your potential topic idea, motivation, and where you have encountered the topic before.  -->
+My first idea is to do something with Time Series, but I'm not sure if the topic is too broad. Over this summer, I was doing computer science research and we talked about doing statistical/data analysis that involved time series once we had results, but we didn't get to the point where we had results so I didn't have to learn about them. I feel like Time Series are applicable to many ideas.
+
+## Topic Idea 2
+
+<!-- List your potential topic idea, motivation, and where you have encountered the topic before.  -->
+I'm interested in doing something with survival analysis, but again, this might be broad of subject. I don't have much experience with other statistic electives, so I was just doing some googling about statistical methods and I read a little about survival analysis and it seems pretty interesting. But it does seem like there are many different types of applications (like in biology, economics, etc) so perhaps I could focus on one of those applications. 
+
+## Topic Idea 3
+
+<!-- List your potential topic idea, motivation, and where you have encountered the topic before.  -->
+I really enjoyed doing the bootstrap and other simulations, so I was thinking I could do something connected to that. There seems to be a lot of different types of cross-validation methods and cases where different ones are used. We have done a little with cross-validation in class, but I feel like I only briefly understand it so it could possibly be something that I could do more research about.
+
+
+
+
+
+
+
