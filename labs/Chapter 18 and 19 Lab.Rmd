@@ -1,0 +1,304 @@
+---
+title: "Chapter 18 and 19 Lab - Neural Nets and SVMs"
+output:
+  pdf_document:
+    fig_height: 3
+    fig_width: 5
+  html_document:
+    fig_height: 3
+    fig_width: 5
+  word_document:
+    fig_height: 3
+    fig_width: 5
+---
+
+
+```{r, include = FALSE}
+library(mosaic) 
+library(tidyverse)
+library(ISLR) # for data
+library(nnet) # may need to install
+library(NeuralNetTools) # may need to install
+library(e1071) # may need to install
+#install.packages("neuralnet")
+library(neuralnet)
+```
+
+This lab will practice the code and discuss concepts from Chapters 18 and 19 on Neural Nets and Support Vector Machines. 
+
+
+# A Cautionary Tale
+
+As mentioned in class, there are over 80 packages in R for neural nets. Not all are equal in how well they work, though. If you really want to fit neural nets, you should investigate the *keras* package.
+
+The example here will show you why we can't just use functions blindly. It uses the Boston housing data set we've seen before, and tries to predict medv, the same response variable we had in our Chapter 17 lab. So this is a regression problem. 
+
+The code below loads the data, fits the model with only 2 hidden nodes in a single hidden layer on the whole data set, gets the MSE, and plots the predicted values versus the actual values in the data set. (The picture of the net itself is turned off.)
+
+Run the code once and look at your plot of the predicted versus actual values. 
+
+```{r}
+BostonHousing <- MASS::Boston
+nnet.fit <- nnet(medv/50 ~ ., data=BostonHousing, size = 2) 
+ # multiply by 50 to restore original scale
+nnet.predict <- predict(nnet.fit)*50 
+
+# plotnet(nnet.fit)
+ 
+# mean squared error: claimed to be 16.40581 from blog
+mean((nnet.predict - BostonHousing$medv)^2) 
+ 
+plot(BostonHousing$medv, nnet.predict,
+    main="Neural network predictions vs actual",
+    xlab="Actual")
+```
+
+
+For some of you, this likely will run "fine", meaning you will see a scatterplot that shows the actual versus predicted values have a fairly strong positive linear relationship. Others of you will get something very different. If you got the fairly strong positive linear relationship, try running the code again.  Everyone should run the code chunk several times. What is happening to your predictions / the plot? 
+
+Why is this happening? 
+
+There is no seed set, and clearly, the results are not reproducible without a seed set. Sometimes we get completely (or almost completely) nonsense predictions that are constant. Even if we set a seed, the different performance we are obtaining indicates there is something off with the function and/or our understanding of the parameters we need to be setting in order for this neural net to run appropriately. Setting a seed allows us to get reproducible results, but we don't want reproducible results that don't make sense! The blog I was following for this doesn't set a seed and doesn't recognize there are these issues with the solution. I tried scaling, changing other tuning parameters, etc. and wasn't able to get a consistent behavior for the solution (for regression). 
+
+If you want to really get into neural nets (especially for regression), go use *keras* (or python). *keras* still doesn't have the best documentation, but there is more out there, and it is more stable (it still can take a while to install though!).
+
+For our neural nets below, to keep using the *nnet* package, we'll stick with classification where the behavior seems to be stable. (From what I can tell, anyway.)
+
+
+
+
+# Neural Nets for classification
+
+In the Chapter 17 lab, for classification, we looked at the Carseats data, so let's return to that. In these data, `Sales` is a continuous variable, we want to consider a binary classification problem, so we begin by converting it to a binary variable. We use the `ifelse()` function to create a variable, called `High`, which takes on a value of `Yes` if the `Sales` variable exceeds 8, and takes on a value of `No` otherwise:
+
+
+```{r}
+Carseats <- Carseats %>%
+  mutate(High = as.factor(ifelse(Sales <= 8, "No", "Yes")))
+```
+
+We again split the observations into a training set and a test set:
+
+
+```{r}
+set.seed(495)
+
+n <- nrow(Carseats)
+train_index <- sample(1:n, 0.5 * n)
+test_index <- setdiff(1:n, train_index)
+
+train <- Carseats[train_index, ] 
+test <- Carseats[test_index, ]
+```
+
+We now use the `nnet` function to fit a neural net in order to predict
+`High` using all variables but `Sales` (that would be a little silly...).  Besides the model formula, we have to specify the number of nodes in the hidden layer. *nnet* only allows a single hidden layer. 
+
+```{r}
+set.seed(495)
+nnet_carseats <- nnet(High ~ . - Sales, train, size = 4)
+```
+
+This neural net had 4 hidden nodes in the single hidden layer, and with this seed, it converged in less than 100 iterations (for me).
+Did yours converge?
+
+Let's try increasing the number of nodes in the hidden layer. Does this neural net converge?
+
+No, this neural net does not converge.
+
+```{r}
+set.seed(495)
+nnet_carseats2 <- nnet(High ~ . - Sales, train, size = 8, maxit = 830)
+```
+
+Try adding the *maxit* parameter to the net with 8 hidden nodes and see if you can find a value for which it converges. 
+
+It appears that the net converges after 155 iterations.
+
+Let's see how we did with the simpler net with 4 hidden nodes (easier to view, etc.)
+
+Here's how to plot the neural net:
+
+```{r}
+plotnet(nnet_carseats)
+```
+
+To look at variable importance, because there are only 2 levels to the response here, we can just run:
+
+```{r}
+olden(nnet_carseats)
+```
+
+Look at the help page for the *olden* function. Why is this method considered superior to Garson's algorithm?
+
+This method is considered superior to Garson's algorithm because it maintains the relative contributions of each connection weight (in sign and magnitude) whereas Garson's only preserves the absolute magnitude.
+
+Finally, let's evaluate the performance of the neural nets. We can check how they do on both the training and the test data sets. Here is code to get predictions for the training and test data using the network with 4 hidden nodes.
+ 
+```{r}
+trainpred <- predict(nnet_carseats, type = "class")
+pred <- predict(nnet_carseats, newdata = test, type = "class")
+```
+
+Now let's get the confusion matrices for both train and test. 
+
+```{r}
+tally(High ~ trainpred, data = train)
+tally(High ~ pred, data = test)
+
+(113+31)/(113+31+51+5)
+(106+19)/(106+19+63+12)
+```
+
+Get predictions for the model with 8 hidden nodes and enough iterations to converge on both the training and test sets. How well does this model do compared to the model with 4 hidden nodes? 
+
+```{r}
+trainpred2 <- predict(nnet_carseats2, type = "class")
+pred2 <- predict(nnet_carseats2, newdata = test, type = "class")
+```
+
+```{r}
+tally(High ~ trainpred2, data = train)
+tally(High ~ pred2, data = test)
+
+(118+7)/(118+7+75+0)
+(115+5)/(115+5+77+3)
+```
+
+This model performs worse on both the training set and the test set than the first model with 4 hidden nodes.
+
+Try one more model with parameters of your choice for at least one new option. How does it do? 
+
+
+```{r}
+set.seed(495)
+nnet_carseats3 <- nnet(High ~ . - Sales, train, size = 3)
+```
+
+```{r}
+trainpred3 <- predict(nnet_carseats3, type = "class")
+pred3 <- predict(nnet_carseats3, newdata = test, type = "class")
+```
+
+```{r}
+tally(High ~ trainpred3, data = train)
+tally(High ~ pred3, data = test)
+
+(118+31)/(118+31+51+0)
+(113+25)/(113+25+57+5)
+```
+
+
+
+
+Which neural net model do you prefer overall?
+
+The last model with 3 hidden nodes appears to have the best prediction rates for the training set and for the test set so we would use that one. 
+
+# SVMs for Classification
+
+The *e1071* package and the *svm* function allows for SVMs to be fit in R. 
+
+What else does it say it can do via the help menu?
+
+The *svm* function can also be used to perform general regression and classification as well as density estimation.
+
+Fitting a model is easy with the usual formula interface.
+
+```{r}
+svm1 <- svm(High ~ . - Sales, data = train, gamma = 0.75, kernel = "radial")
+summary(svm1)
+```
+
+The help menu lists the other possible kernels, and there are options that need to be specified for each.
+
+Fit a model called *svm2* using a polynomial kernel of degree 4 with a gamma of your choice. (To have something to compare to the provided svm1.)
+
+
+```{r}
+svm2 <- svm(High ~ . - Sales, data = train, gamma = 0.75, kernel = "polynomial", degree = 4)
+summary(svm2)
+```
+
+
+Getting predictions is pretty easy using predict, as expected. We can then get confusion matrices to see how well the method is doing. 
+
+```{r}
+svm1predtrain <- predict(svm1, train)
+svm1predtest <- predict(svm1, test)
+tally(High ~ svm1predtrain, data = train)
+tally(High ~ svm1predtest, data = test)
+
+(111+18)/(111+18+64+7)
+```
+
+What do you notice about the performance of svm1?
+
+svm1 has all correct predictions for the training set and is 64.5% correct for the test set.
+
+How does your svm2 compare?
+
+```{r}
+svm2predtrain <- predict(svm2, train)
+svm2predtest <- predict(svm2, test)
+tally(High ~ svm2predtrain, data = train)
+tally(High ~ svm2predtest, data = test)
+
+(94+58)/(94+58+24+24)
+```
+
+svm2 also has all correct predictions for the training set, but does a little better at on the test set at around 76% correct.
+
+Fit another svm to try to improve on the performance on the test set. Can you find a better model than either svm1 or svm2?
+
+```{r}
+svm3 <- svm(High ~ . - Sales, data = train, gamma = 0.75, kernel = "polynomial", degree = 2)
+summary(svm3)
+```
+
+```{r}
+svm3predtrain <- predict(svm3, train)
+svm3predtest <- predict(svm3, test)
+tally(High ~ svm3predtrain, data = train)
+tally(High ~ svm3predtest, data = test)
+
+(105+65)/(105+65+17+13)
+```
+
+svm3 does a little worse on the training set, but is better than the other two models on the test set at about 85% correct. 
+
+# Practice - Regression
+
+We use a data set that we previously examined when learning about ridge regression that we are returning to for practice. 
+
+```{r}
+data(Hitters)
+# ?Hitters # MLB data from 1986 and 1987; 322 obs on 20 variables
+```
+
+We want to predict Salary, which is missing for 59 players. 
+
+```{r}
+Hitters <- na.omit(Hitters) #263 obs now
+```
+
+Unfortunately, since the *nnet* package doesn't seem to be reliable for regression, we don't want to fit those models here, and instead will just fit some SVMs after checking out options for neural nets. 
+
+Do a brief google search. What other packages do you find out there for neural nets in R? Can you find blog entries about regression with neural nets? Do they use any of these packages?  
+
+> SOLUTION
+
+There is the *neuralnet* package. Some of the blog entries use this package. Others use other languages and packages.
+
+
+Use SVMs to explore models for predicting salary. Be sure to explore the SVM model options and the various parameter settings. 
+
+> SOLUTION
+
+```{r}
+nn <- 
+```
+
+
+
+

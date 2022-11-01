@@ -1,0 +1,326 @@
+---
+title: "Homework 7 - Stat 495"
+author: "Justin Papagelis"
+date: "Due Friday, Nov. 4th by midnight (11:59 pm)"
+output:
+  pdf_document:
+    fig_height: 3
+    fig_width: 5
+  html_document:
+    fig_height: 3
+    fig_width: 5
+  word_document:
+    fig_height: 3
+    fig_width: 5
+---
+
+```{r, include = FALSE}
+library(mosaic)
+options(digits = 6)
+library(QSARdata) #will need to install for data
+library(randomForest)
+library(nnet)
+library(gbm)
+library(e1071)
+```
+
+# Practicing Academic Integrity
+
+If you worked with others or used resources outside of provided course material (anything besides our textbook(s), course materials in Moodle/Git repo, R help menu) to complete this assignment, please acknowledge them below using a bulleted list.
+
+<!-- ~~~~~~~~~~~~~~~~ YOU MAY BEGIN EDITING BELOW THIS LINE ~~~~~~~~~~~~~~~~ -->
+
+*I acknowledge the following individuals with whom I worked on this assignment:*
+
+Name(s) and corresponding problem(s)
+
+*
+
+*I used the following sources to help complete this assignment:*
+
+Source(s) and corresponding problem(s)
+
+* 
+
+\newpage
+
+
+# PROBLEMS TO TURN IN:  Add 1, Add 2, Add 3, Add 4
+
+The first three problems use the bbb2 data set from the QSARdata package. The final problem covers some concepts from the methods in Chapters 17, 18, and 19, without a data set / application. 
+
+For the applied problems, the response variable of interest is bbb2_Class, which can be found in the bbb2_Outcome data set. We have joined the outcome variable to the QuickProp data set that we want to focus on below. You can read the associated help file in R to learn more about the data set.
+
+```{r}
+data(bbb2)
+#?bbb2 # for variable reference and information
+mybbb2 <- left_join(bbb2_QuickProp, bbb2_Outcome) %>% select(- Molecule)
+tally(~ bbb2_Class, data = mybbb2)
+```
+
+Our goal for the applied problems below is to use the recent methods from class (Chapter 17, 18, and 19) to predict the response variable, whether each compound "crosses" the blood-brain barrier or "does not" cross. You should use the *mybbb2* data set going forward. Note that there are 51 variables at the moment, and the last variable "Class" is the target, but if you open the data set to view, it will only show 50 variables by default. Class is there, but you have to use the arrows to see it. 
+
+```{r}
+# We loaded a lot of data sets we don't need anymore
+# remove them to clean up your workspace
+remove(bbb2_AtomPair, bbb2_Daylight_FP, bbb2_Dragon, bbb2_Lcalc, bbb2_moe2D,
+       bbb2_moe2D_FP, bbb2_moe3D, bbb2_Outcome, bbb2_PipelinePilot_FP,
+       bbb2_QuickProp)
+```
+
+To avoid issues with reproducibility, you should set a seed in EACH chunk below where you do a random process, whether that is setting up the train/test split or fitting a model that has some random process involved. 
+
+
+\newpage
+
+## Add 1
+
+Your task for this problem is to fit the models described in parts c, d and e, and then compare them in part f. Use all available predictor variables (except what is removed in part a), with no re-expressions. The same training/test split will be used in Add 2 and Add 3 as well (i.e. you only make this once). 
+
+> part a. One variable in the data set, QikProp_.amidine causes issues with some of these methods. We will remove it here, but can you see why it is problematic? Why is this variable not very useful for this analysis? 
+
+SOLUTION: This variable is not very useful for this analysis because from the histogram below, there are significantly more observations with a value of 0 than a value of 1. Additionally, there are no observations with a value of 1 for `QikProp_.amidine` that "do not cross" the blood-brain barrier and only 1 observation of `QikProp_.amidine` value 1 that "crosses" the blood-brain barrier.
+
+```{r}
+tally(bbb2_Class ~ QikProp_.amidine, data = mybbb2)
+```
+
+
+
+
+
+
+
+
+```{r}
+# run once you are ready to remove the variable to proceed
+# this variable is not used anywhere below, so overwrite the data set
+mybbb2 <- select(mybbb2, -QikProp_.amidine)
+```
+
+
+> part b. Create an appropriate training/test split from mybbb2 with a ratio of 70/30 to use throughout the problem. As always, be sure your split is reproducible. 
+
+SOLUTION:
+
+```{r}
+set.seed(495)
+
+n <- nrow(mybbb2)
+train_index <- sample(1:n, 0.7 * n)
+test_index <- setdiff(1:n, train_index)
+
+train <- mybbb2[train_index, ] 
+test <- mybbb2[test_index, ]
+```
+
+
+> part c. Create an appropriate model to predict Class with the training set using bagging with 1000 trees and otherwise with default settings for tuning parameter values. 
+
+SOLUTION:
+
+```{r}
+set.seed(495)
+
+# for bagging, mtry = 49 so all the variables are used
+class.bag <- randomForest(Class ~ ., data = train, ntree = 1000, mtry = 49)
+
+class.bag
+
+table(train$Class, predict(class.bag, train))
+
+```
+
+
+> part d. Create an appropriate model to predict Class with the training set using a random forest with 1000 trees and otherwise with default settings for tuning parameter values. 
+
+SOLUTION:
+
+```{r}
+set.seed(495)
+
+# no mtry value so it is defualt random forest
+class.rf <- randomForest(Class ~ ., data = train, ntree = 1000)
+
+class.rf
+table(train$Class, predict(class.rf, train))
+
+
+```
+
+
+> part e.  Create an appropriate model to predict Class with the training set using boosting with 500 trees and otherwise with default settings for tuning parameter values. 
+
+SOLUTION:
+
+```{r}
+set.seed(495)
+
+# set 1 to be "crosses" and 0 to be "does not cross"
+train2 <- mutate(train, Class = ifelse(Class == "Crosses", 1, 0))
+
+
+class.boost <- gbm(Class ~ ., data = train2, distribution = "bernoulli", 
+                   n.trees = 500)
+
+class.boost
+
+boost_estimate <- predict(class.boost, newdata = train2, n.trees = 500, 
+                          type = "response")
+
+pred_class <- boost_estimate > 0.5
+tally(~ pred_class)
+
+table(train2$Class, pred_class)
+
+```
+
+
+
+> part f. Parts c, d, and e only required you to fit models. Now we want to compare their performance. Use an appropriate measure to compare the three models in terms of their model performance based on the test set.  Be sure your choice of measure is clear. Summarize your findings. Then discuss which model you would choose for predicting Class. Explain your choice. 
+
+SOLUTION: In order to compare the performance, we will see how accurate the model can predict the test set. 
+
+```{r}
+# for the bagging model
+table(test$Class, predict(class.bag, newdata = test))
+(10+8)/(10+8+2+4)
+
+# for random forest model
+table(test$Class, predict(class.rf, newdata = test))
+(8+8)/(8+8+2+6)
+
+```
+
+
+\newpage
+
+## Add 2
+
+Your task for this problem is to fit the models described in parts a, b, and c, and then compare them in part d. Use all available predictor variables, with no re-expressions. Use the same training/test data as above. 
+
+> part a. Create an appropriate model to predict Class with the training set using a neural net with a single hidden layer of 15 nodes, and otherwise with default settings for tuning parameter values.  
+
+SOLUTION:
+
+```{r}
+
+```
+
+
+> part b. Create an appropriate model to predict Class with the training set using a neural net with a single hidden layer of 15 nodes, and a decay parameter of 5e-4, and otherwise with default settings for tuning parameter values. 
+
+SOLUTION:
+
+```{r}
+
+```
+
+
+> part c. Create an appropriate model to predict Class with the training set using a neural net with a single hidden layer of 15 nodes, a decay parameter of 5e-4, and a value for maxit that allows for convergence, and otherwise with default settings for tuning parameter values. 
+
+SOLUTION:
+
+```{r}
+
+```
+
+> part d. Parts a, b, and c only required you to fit models. Now we want to compare their performance. Use an appropriate measure to compare the three models in terms of their model performance based on the test set.  Be sure your choice of measure is clear. Summarize your findings. Then discuss which model you would choose for predicting Class. Explain your choice. 
+
+SOLUTION:
+
+```{r}
+
+```
+
+
+\newpage
+
+## Add 3
+
+Your task for this problem is to fit the models described in parts a, b, and c, and then compare them in part d. Use all available predictor variables, with no re-expressions. Use the same training/test data as above. Finally, part e will have you compare the best models from Add 1, Add 2, and Add 3. 
+
+> part a. Create an appropriate model to predict Class with the training set using an SVM with a radial kernel and a gamma of 0.75, and otherwise with default settings for tuning parameter values.  
+
+SOLUTION:
+
+```{r}
+
+```
+
+
+> part b. Create an appropriate model to predict Class with the training set using an SVM with a polynomial kernel and a gamma of 0.5, and otherwise with default settings for tuning parameter values.  
+
+SOLUTION:
+
+```{r}
+
+```
+
+
+> part c. Create an appropriate model to predict Class with the training set using an SVM with a polynomial kernel and a gamma of 0.0001, and otherwise with default settings for tuning parameter values.  
+
+SOLUTION:
+
+```{r}
+
+```
+
+> part d. Parts a, b, and c only required you to fit models. Now we want to compare their performance. Use an appropriate measure to compare the three models in terms of model performance based on the test set.  Be sure your choice of measure is clear. Summarize your findings. Then discuss which model you would choose for predicting Class. Explain your choice. 
+
+SOLUTION:
+
+```{r}
+
+```
+
+> part e. Look over your responses to Add 1, Add 2, and Add 3 in terms of your final model from each method/problem. Compare these three models, and explain which you would choose as an overarching final model to predict Class. Explain your choice. Your final choice may be determined by performance in conjunction with any factors you think are relevant. 
+
+SOLUTION:
+
+```{r}
+
+```
+
+
+
+\newpage
+
+## Add 4
+
+> part a. Neural nets and SVMs are both discussed as nonlinear models for prediction. Discuss where the "nonlinearity" is in both of these models. 
+
+SOLUTION:
+
+
+> part b. Compare and contrast random forests and boosting in a few sentences. How are they similar? How are they different?
+
+SOLUTION:
+
+
+> part c. The concepts of backpropagation and the kernel trick are related, even though they are for neural nets and SVMs, respectively. What do these concepts have in common?
+
+Hint: It has to do with what they help with in their respective methods.
+
+SOLUTION:
+
+
+> part d. Write your own short answer question relating to a concept from Chapter 17, 18, or 19, and then answer it. 
+
+Questions should require at least two sentences to answer reasonably well. True/false questions are not short answer questions. 
+
+The motivation here is for you to pick something you are still unclear on and ask a question about it. This will make you review the concept in order to answer your question well. 
+
+SOLUTION:
+
+
+Q:
+
+
+A:
+
+
+
+
+
+
