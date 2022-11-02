@@ -1,12 +1,9 @@
-# Final Project Title - Put your proposed title here
+# A Performance Comparison of Bootstrap Methods
 
-This is a demo to show how to add a readme to a folder within git. The timeline below should be kept for your reference too.
 
 SYNOPSIS: 
 
-Put your synopsis here. This is a living document, meaning that you can make changes, edit, etc. based on
-conversations with me and as the work proceeds. Keeping this here in your repo will provide you with a quick reference for the
-overall project. 
+For my project, I plan to explore different bootstrap methods for creating confidence intervals and then perform comparisons between a couple of the methods. My paper will re-introduce the simple bootstrap to my peers and then go deeper into the theory behind the construction of different bootstrap methods and the cases in which they are used. These can include the percentile bootstrap, bias-corrected bootstrap, accelerated bootstrap, and studentized bootstrap, as well as others. I will demonstrate how these bootstrap methods work using “toy examples,” which will be datasets in which a specific bootstrap method is appropriate. To demonstrate my understanding of the methods, I will write a simulation to compare a few of them and determine how they perform against each other. I will include the basic bootstrap in the simulation to demonstrate how these other bootstrap methods compare to the standard. I will demonstrate my understanding of the different bootstrap methods by communicating the statistical theory in a concise and accessible way to my peers. Writing the simulation and sharing conclusions will demonstrate my ability to implement statistical methods in practice as well as my ability to analyze the results of the simulation.
 
 
 
