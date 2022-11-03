@@ -349,19 +349,19 @@ SOLUTION: Between the three models that we picked as the best for each section, 
 
 > part a. Neural nets and SVMs are both discussed as nonlinear models for prediction. Discuss where the "nonlinearity" is in both of these models. 
 
-SOLUTION:
+SOLUTION: For Neural Nets, the non-linearity of the model comes from the the non-linear threshold activation functions that creates a non-linear output from the activation values. These activation functions can include a sigmoid function or a hyperbolic tangent function, as well as others. For SVMs, the non-linearity comes up when the feature space is enlarged to look to optimal separating hyperplanes. The feature space can be grown by using kernals (and the "kernal trick") which map a lower dimensional linear model in the enlarged space to a non-linear model in higher dimensional space.
 
 
 > part b. Compare and contrast random forests and boosting in a few sentences. How are they similar? How are they different?
 
-SOLUTION:
+SOLUTION: Random forest and boosting are similar that they both use decision trees to create models. They are also similar in the way that they lose interpretability due to the complexity of the models. Both methods utilize trees which automatically select variables. They differ because random forests build a number of larger and more bushy trees while boosting builds a large number of small trees in which the depth is fixed. The aim of random forests is variance reduction by averaging because each of the large trees has a high variance, but by averaging, the variance is brought down. On the other hand, boosting aims to reduce bias.
 
 
 > part c. The concepts of backpropagation and the kernel trick are related, even though they are for neural nets and SVMs, respectively. What do these concepts have in common?
 
 Hint: It has to do with what they help with in their respective methods.
 
-SOLUTION:
+SOLUTION: The concepts of backpropagation and the kernel trick are related in the ways that they help make the computation of the model more feasible. Backpropagation uses gradient descent to optimize the calculation and fixing the weights to minimize error. Backpropagation computes the gradient one layer at a time, by starting from the last layer and working backwards to minimize the number of redundant computations. The kernel trick is used when creating the enlarged feature space to perform the computations of inner products quicker. The kernel allows us to do this in a much lower dimension space which causes the computations to be easier. By doing this, it makes the computations for an SVM model more feasible.
 
 
 > part d. Write your own short answer question relating to a concept from Chapter 17, 18, or 19, and then answer it. 
@@ -373,10 +373,10 @@ The motivation here is for you to pick something you are still unclear on and as
 SOLUTION:
 
 
-Q:
+Q: How are Out-Of-Bag Error estimates used in random forests?
 
 
-A:
+A: The Out-Of-Bag (OOB) Error is used to measure the prediction error of a random forest. The Out-Of-Bag set is the set of all the observations that are not chosen in the bootstrap sampling process to be used in a creating a tree in the random-forest. The OOB Error is calculated by taking the average of each random-forest tree that the observation pair was left out of the bootstrap sample. This is similar to the leave-one-out cross validation error.
 
 
 
