@@ -144,8 +144,6 @@ class.rf <- randomForest(Class ~ ., data = train, ntree = 1000)
 
 class.rf
 table(train$Class, predict(class.rf, train))
-
-
 ```
 
 
@@ -200,7 +198,8 @@ table(test2$Class, pred_class_test)
 (8+7)/(8+7+7+2)
 
 ```
- The Bagging model appears to have an accuracy of 75% on the test set. The Random Forest model appears to have an accuracy of 66.7% on the test set and the Boosting model appears to have an accuracy of 62.5% on the test set. Therefore, we would choose the Bagging model for predicting Class because the model had the higest accuracy. 
+
+The Bagging model appears to have an accuracy of 75% on the test set. The Random Forest model appears to have an accuracy of 66.7% on the test set and the Boosting model appears to have an accuracy of 62.5% on the test set. Therefore, we would choose the Bagging model for predicting Class because this model had the highest accuracy. 
 
 \newpage
 
@@ -241,11 +240,10 @@ SOLUTION:
 
 ```{r}
 set.seed(1)
-nnet_class3 <- nnet(Class ~ ., train, size = 15, decay = 5e-4, maxit = 1030)
+nnet_class3 <- nnet(Class ~ ., train, size = 15, decay = 5e-4, maxit = 1170)
 
 trainpred3 <- predict(nnet_class3, type = "class")
 tally(Class ~ trainpred3, data = train)
-
 
 ```
 
@@ -267,10 +265,10 @@ tally(Class ~ pred2, data = test)
 # neural net 3
 pred3 <- predict(nnet_class3, newdata = test, type = "class")
 tally(Class ~ pred3, data = test)
-(8+8)/(8+8+6+2)
+(7+7)/(7+7+7+3)
 ```
 
-From the confusion matrices above, it appears the the accuracy in predicting the test set from our first and third neural network model is 66.7% and the accuracy in predicting the test set from the second model is 70.8%. This means that we would choose the second neural network for predicting the test set. However, it is important to note that the difference between the accuracy in all of these models is only one more correct observation which could could change depending on the seed.
+From the confusion matrices above, it appears the the accuracy in predicting the test set from our first neural network model is 66.7% and the accuracy in predicting the test set from the second model is 70.8% while the accuracy of predicting the test set from the third model was 58.3%. This means that we would choose the second neural network for predicting the test set. However, it is important to note that the difference between the accuracy in the first and second model is only one more correct observation which could change depending on the seed.
 
 \newpage
 
@@ -335,12 +333,7 @@ It appears the that first and third SVM model predict the test set with an accur
 
 > part e. Look over your responses to Add 1, Add 2, and Add 3 in terms of your final model from each method/problem. Compare these three models, and explain which you would choose as an overarching final model to predict Class. Explain your choice. Your final choice may be determined by performance in conjunction with any factors you think are relevant. 
 
-SOLUTION: Between the three models that we picked as the best for each section, the Bagging model was the most accurate at predicting the test set at 75%. However, this corresponds to 6 mistakes and best models for the Neural Net and SVM sections only had 7 mistakes. Due to the test set being so small, it is difficult to determine which model is the best because even a change of the seed value could cause a different model to have a higher accuracy rate. This means that we would choose the Bagging model as our final model to predict Class with these concerns in mind.
-
-```{r}
-
-```
-
+SOLUTION: Between the three models that we picked as the best for each section, the Bagging model was the most accurate at predicting the test set at 75%. However, this corresponds to 6 mistakes and best models for the Neural Net and SVM sections only had 7 mistakes. Due to the test set being so small, it is difficult to determine which model is the best because even a change in the seed value could cause a different model to have a higher accuracy rate. This means that we would choose the Bagging model as our final model to predict Class keeping these concerns in mind. 
 
 
 \newpage
@@ -349,12 +342,12 @@ SOLUTION: Between the three models that we picked as the best for each section, 
 
 > part a. Neural nets and SVMs are both discussed as nonlinear models for prediction. Discuss where the "nonlinearity" is in both of these models. 
 
-SOLUTION: For Neural Nets, the non-linearity of the model comes from the the non-linear threshold activation functions that creates a non-linear output from the activation values. These activation functions can include a sigmoid function or a hyperbolic tangent function, as well as others. For SVMs, the non-linearity comes up when the feature space is enlarged to look to optimal separating hyperplanes. The feature space can be grown by using kernals (and the "kernal trick") which map a lower dimensional linear model in the enlarged space to a non-linear model in higher dimensional space.
+SOLUTION: For Neural Nets, the non-linearity of the model comes from the non-linear threshold activation functions that creates a non-linear output from the activation values. These activation functions can include a sigmoid function or a hyperbolic tangent function, as well as others. For SVMs, the non-linearity comes up when the feature space is enlarged to look for optimal separating hyperplanes. The feature space can be grown by using kernels (and the "kernel trick") which maps a lower dimensional linear model in the enlarged space to a non-linear model in higher dimensional space.
 
 
 > part b. Compare and contrast random forests and boosting in a few sentences. How are they similar? How are they different?
 
-SOLUTION: Random forest and boosting are similar that they both use decision trees to create models. They are also similar in the way that they lose interpretability due to the complexity of the models. Both methods utilize trees which automatically select variables. They differ because random forests build a number of larger and more bushy trees while boosting builds a large number of small trees in which the depth is fixed. The aim of random forests is variance reduction by averaging because each of the large trees has a high variance, but by averaging, the variance is brought down. On the other hand, boosting aims to reduce bias.
+SOLUTION: Random forest and boosting are similar that they both use decision trees to create models. They are also similar in the way that they lose interpretability due to the complexity of the models. Both methods utilize trees which automatically select variables. They differ because random forests build a number of larger and more bushy trees while boosting builds a large number of small trees in which the depth is fixed. The aim of random forests is variance reduction because each of the large trees has a high variance, but by averaging, the variance is brought down. On the other hand, boosting aims to reduce bias.
 
 
 > part c. The concepts of backpropagation and the kernel trick are related, even though they are for neural nets and SVMs, respectively. What do these concepts have in common?
