@@ -1,0 +1,237 @@
+---
+title: Title here
+
+# to produce blinded version set to 1
+blinded: 0
+
+authors: 
+- name: XX YOUR NAME HERE XX
+  thanks: The authors gratefully acknowledge ...
+  affiliation: Department of Mathematics and Statistics, Amherst College
+  
+
+keywords:
+- 3 to 6 keywords
+- that do not appear in the title
+
+abstract: |
+  The text of your abstract.  200 or fewer words. It is intended to provide an overview of your paper and may be similar to your synopsis. Note that an abstract can only include one paragraph in this format. You may want to put your synopsis here as you work to refer to it easily. 
+
+bibliography: bibliography.bib
+output:
+  rticles::asa_article:
+  keep_tex: yes
+---
+
+```{r setup, include = FALSE}
+library(tidyverse)
+library(mosaic)
+library(mdsr)
+library(knitr)
+library(kableExtra)
+```
+
+# Introduction
+
+This template will be used for you to submit your final project. You'll need to install the *rticles* package, make sure you have the agsm.bst file and bibliography.bib file, and the gfx folder and figure file in order to compile. If you make your own bibliography.bib file later, that's fine - change the name above to match your file name. You'll want the setup for the file to look the same in your repo as in the class repo, and then compile to asa_article when you knit. You should change the name of the file to something other than "test" though. Remember that if something goes wrong with the file, you can always look back at the class repo for the original files and their structure. 
+
+This template was adapted from the template Prof. Horton provided Stat 495 in Fall 2021, used with permission. 
+
+# More on the template 
+\label{sec:template}
+
+This template demonstrates some of the basic LaTeX commands and syntax you'll need to know to use the `rticles` package to generate a readable report using R Markdown. Markdown allows various formatting and you can find formatting cheatsheets or guides online to assist as well. Here's an example with bullets and some advice:
+
+* I would encourage you to look closely at this file and explore the various parts and pieces.
+* I would suggest that you format your Rmd file so that you have only one sentence per line.
+* It makes it *much* easier to see changes in your GitHub commits.
+
+\section{Verifications}
+\label{sec:verify}
+This section will be just long enough to illustrate what a full page of text looks like, for margins and spacing.
+
+Note that we can refer to sections (e.g., this is section \ref{sec:verify}, while the previous section was section \ref{sec:template}).
+
+Note that we should refer to work using the BibTeX system. Here we can reference papers by @Campbell02 and @Schubert13 through inline citations (see the `bibliography.bib` file for the reference database).
+
+More work that is relevant can also be cited in a traditional fashion [@Chi81,@Galyardt14mmm,@Galyardt12dis].
+
+Note that you can capitalize proper nouns in citations [@Campbell02] (again, see `bibliography.bib`).
+
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+__With this spacing we have 30 lines per page.__
+
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+
+
+# Examples
+
+Lots of things can be done in this template.
+
+```{r sample-table1}
+Violations %>%
+  select(dba, boro) %>%
+  unique() %>%
+  group_by(boro) %>%
+  summarize(count = n(), .groups = "drop") %>%
+  knitr::kable(
+    caption = "This is a sample table caption that should interpret the table!")
+```
+
+Table \ref{tab:sample-table1} displays the number of dba's per borough.
+
+```{r sample-fig1, fig.height = 3, fig.cap = "\\label{fig:sample-fig1}This is a sample figure caption that should interpret the figure!"}
+Violations %>%
+  select(dba, boro, inspection_date, score) %>%
+  unique() %>%
+  group_by(boro) %>%
+  summarize(
+    count = n(),
+    averagescore = mean(score, na.rm = TRUE),
+    .groups = "drop"
+  ) %>%
+  ggplot(aes(x = boro, y = averagescore)) +
+  geom_boxplot()
+```
+
+Figure \ref{fig:sample-fig1} displays the average inspection score by borough.
+
+Figure \ref{fig:sample-fig2} displays a campus map.
+
+```{r sample-fig2, echo=FALSE, out.width = "80%", fig.show='hold', fig.cap="XX another sample figure caption"}
+knitr::include_graphics("gfx/campus_map.png")
+```
+
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+The quick brown fox jumped over the lazy dog.
+
+# Your Choice of Structure
+
+You are responsible for choosing the structure you want for the report, i.e. what sections and their names. Here are some examples that you could adapt, as appropriate. These are just examples - the first has more sections, some of which may make more sense as sub-sections of others. I'm just trying to give you examples. You don't have to have a conclusion or an introduction, etc. You'll need to find what works for you. 
+
+
+## Example 1
+
+* Introduction
+* Background
+* Topic X (Main exposition section)
+* Applications in Literature
+* Application to Data (your data)
+* Conclusion
+
+## Example 2
+
+* Introduction (including any relevant Background)
+* Topic X (exposition and examples)
+* Simulation
+
+
+
