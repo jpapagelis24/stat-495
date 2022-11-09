@@ -1,0 +1,243 @@
+---
+title: "Stat 495 - Chapter 15 Lab"
+author: "A.S. Wagaman"
+output:
+  pdf_document:
+    fig_height: 3
+    fig_width: 5
+  html_document:
+    fig_height: 3
+    fig_width: 5
+  word_document:
+    fig_height: 3
+    fig_width: 5
+---
+
+
+```{r, include = FALSE}
+library(mosaic)
+library(DescTools)
+```
+
+# ANOVA Example
+
+We will use the current population survey data to do one example with One-Way ANOVA.
+
+```{r}
+data(CPS85)
+```
+
+We will look for differences in average log wage by sector.
+
+```{r}
+favstats(log(wage) ~ sector, data = CPS85)
+gf_boxplot(log(wage) ~ sector, data = CPS85)
+```
+
+The log re-expression helps with satisfying appropriate conditions.
+
+```{r}
+CPS85 <- mutate(CPS85, logwage = log(wage))
+mymod <- lm(logwage ~ sector, data = CPS85)
+msummary(mymod)
+```
+
+What do we learn from the ANOVA output?
+
+> SOLUTION: 
+The linear model is not the best because the $R^2$ value is 0.1821 which means that the model is not very strong.  
+
+To perform multiple comparisons, several functions can be used, but two common ones for this setting are pairwise.t.test and PostHocTest (in DescTools). 
+
+```{r}
+with(CPS85, pairwise.t.test(log(wage), sector, p.adjust = "bonf"))
+PostHocTest(aov(log(wage)~ sector, data = CPS85), method = "bonf")
+```
+
+Compare the output between the methods for Bonferroni's approach. Which method do you prefer? Why?
+
+> SOLUTION
+Both inputs have the same values for the comparisons. It is easier to use the first method to find a comparison between two of the predictors because the table makes it helpful to helpful to look at all of the relationships that one predictor has with other ones. However, it is nice that the second method shows significance. 
+
+Implement "none", "holm", and "fdr" methods for these comparisons using pairwise.t.test. What differences do you note in the results? (PostHocTests doesn't have all of these implemented for aov.)
+
+> SOLUTION
+
+```{r}
+with(CPS85, pairwise.t.test(log(wage), sector, p.adjust = "none"))
+```
+
+```{r}
+with(CPS85, pairwise.t.test(log(wage), sector, p.adjust = "holm"))
+```
+
+```{r}
+with(CPS85, pairwise.t.test(log(wage), sector, p.adjust = "fdr"))
+```
+
+
+
+# p.adjust methods
+
+A suite of p.adjust methods exist - you've been calling them up above. All you need though is just a vector of p-values that can then be adjusted by these methods. As an example, consider:
+
+```{r}
+set.seed(495)
+pvals <- sort(c(runif(100, 0, 0.01), runif(100, 0.01, 0.20))) #random potential p-values
+adjpvals <- p.adjust(pvals, method = "bonf")
+head(pvals)
+head(adjpvals)
+```
+
+Here is the example from the help file:
+
+```{r}
+set.seed(123)
+x <- rnorm(50, mean = c(rep(0, 25), rep(3, 25)))
+p <- 2*pnorm(sort(-abs(x)))
+
+round(p, 3)
+round(p.adjust(p), 3)
+round(p.adjust(p, "BH"), 3)
+```
+
+PostHocTest has some additional description of the methods used there in its help file.
+
+```{r}
+?PostHocTest
+```
+
+
+# Prostate Microarray example
+
+The textbook uses the prostate microarray data example throughout the chapter.
+
+The data set is provided on their website, but they also provide the already computed z-scores, from which p-values can be computed. 
+
+```{r}
+prostz <- read.table("http://web.stanford.edu/~hastie/CASI_files/DATA/prostz.txt", header = FALSE)
+```
+
+Examine the distribution of the z-scores. 
+
+> SOLUTION 
+Unimodal, symmetric, centered at 0 and relatively Normal.
+
+```{r}
+gf_histogram(~V1, data = prostz)
+```
+
+
+The textbook examines one-sided POSITIVE results, though in general you might care about just any non-null case. 
+
+Consider two-sided hypotheses. How many null hypotheses would be rejected (out of the 6033) if the p-values were unadjusted and $\alpha = 0.05$? 
+
+> SOLUTION 
+296 of the NULL hypotheses would be rejected
+
+```{r}
+prosPvals0 <- 2*pnorm(sort(-abs(prostz$V1)))
+count(abs(prosPvals0) < 0.025)
+```
+
+
+What would you do differently if you wanted to apply Bonferroni's procedure to two-sided hypotheses?
+
+> SOLUTION 
+We would have to adjust the p-values
+
+
+
+Perform your two-sided Bonferroni adjustment on the prostate z-scores by hand. How many null hypotheses are rejected at $\alpha = 0.05$?
+
+> SOLUTION
+2 of the null hypotheses would be rejected.
+
+```{r}
+
+prosPvals <- 2*pnorm(sort(-abs(prostz$V1)))
+#BonRejectP <- prostz 
+
+adjustedPs = p.adjust(prosPvals, method = "bonf")
+
+#adjustedPs = abs(adjustedPs) < 0.05
+
+#adjustedPs
+
+count(abs(adjustedPs) < 0.025)
+
+```
+
+
+Obtain the two-sided p-values (if you didn't up above - it can be done based on critical values).
+
+> SOLUTION
+
+```{r}
+#adjustedPs
+```
+
+
+Apply p.adjust using bonferroni to your p-values. Do you obtain the same results as you did by hand? How many null hypotheses are rejected at $\alpha = 0.05$?
+
+> SOLUTION
+Yes, 3. it was done above.
+
+```{r}
+
+```
+
+
+Apply Holm's method using p.adjust. How many null hypotheses are rejected at $\alpha = 0.05$?
+
+> SOLUTION There are 2 that are rejected
+
+```{r}
+adjustedPs2 = p.adjust(prosPvals, method = "holm")
+
+count(abs(adjustedPs2) < 0.025)
+```
+
+
+Apply FDR using p.adjust. How many results are declared interesting at $q=\alpha=0.05$? At $q=0.1$?
+
+> SOLUTION There are 13 that are rejected
+
+```{r}
+adjustedPs3 = p.adjust(prosPvals, method = "fdr")
+
+count(abs(adjustedPs3) < 0.025)
+```
+
+
+How do the methods compare?
+
+> SOLUTION The third one is much less conservative.
+
+
+# Khan Data
+
+The Khan dataset contains 2308 rows (genes) x 64 column (observations). Khan et al., 2001 used cDNA microarrays containing 6567 clones of which 3789 were known genes and 2778 were ESTs to study the expression of genes in of four types of small round blue cell tumours of childhood (SRBCT). These were neuroblastoma (NB),rhabdomyosarcoma (RMS), Burkitt lymphoma, a subset of non-Hodgkin lymphoma (BL), and the Ewing family of tumours (EWS). Gene expression profiles from both tumour biopsy and cell line samples were obtained and are contained in this dataset. The dataset downloaded from the website contained the filtered dataset of 2308 gene expression profiles as described by Khan et al., 2001.
+
+```{r}
+khan <- read.csv("https://awagaman.people.amherst.edu/stat495/khan_train.csv", header = T)
+khan <- khan[, -1] #remove row indices
+khant <- data.frame(t(khan)) #transpose so rows become columns
+```
+
+We want to identify the top genes that allow us to significantly distinguish between tumor types, appropriately adjusting for simultaneous testing. Each ROW in the initial data set should be used as the response in ANOVA (which is why we flipped it above), where the class labels are:
+
+```{r}
+labels <- c(rep("EWS", 23), rep("BL", 8), rep("NB", 12), rep("RMS", 21))
+```
+
+Perform appropriate ANOVA analyses, adjusting for simultaneous testing. An example way to extract the p-value for the *first* gene is shown below to help get you started.
+
+```{r}
+anova(lm(khant[, 1]~labels))$"Pr(>F)"[1]
+```
+
+> SOLUTION
+
+
+
