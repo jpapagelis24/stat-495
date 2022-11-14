@@ -5,7 +5,7 @@ title: Title here
 blinded: 0
 
 authors: 
-- name: XX YOUR NAME HERE XX
+- name: Justin Papagelis
   thanks: The authors gratefully acknowledge ...
   affiliation: Department of Mathematics and Statistics, Amherst College
   

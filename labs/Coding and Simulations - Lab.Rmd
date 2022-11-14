@@ -1,0 +1,415 @@
+---
+title: "Coding and Simulations - Lab"
+output:
+  pdf_document:
+    fig_height: 3
+    fig_width: 5
+  html_document:
+    fig_height: 3
+    fig_width: 5
+  word_document:
+    fig_height: 3
+    fig_width: 5
+---
+
+
+```{r, include = FALSE}
+library(mosaic)
+library(broom)
+library(knitr)
+require(BSDA) #may need to install; used for Sign Test
+options(digits = 6)
+```
+
+This lab is designed to have you practice writing simulations, and explore commenting code and other best practices for writing R code (the lessons apply to most other coding languages).
+
+# Best Practices for Coding in R
+
+Basically, I've just assembled some resources for you to examine at your leisure. There are many other similar pages out there. 
+
+[https://www.r-bloggers.com/r-code-best-practices/](https://www.r-bloggers.com/r-code-best-practices/)
+
+This first link has lots of links to other resources at the bottom of it's page. 
+
+[Example Best Practices](https://swcarpentry.github.io/r-novice-inflammation/06-best-practices-R/)
+
+[Google's Style Guide](https://google.github.io/styleguide/Rguide.xml)
+
+In regards to commenting, you don't need to comment EVERY line, but the idea is to comment chunks, functions, etc. with their use/purpose. This helps both you and your readers. You also want to keep chunks relatively small - they become hard to parse when they get large (like paragraphs). Don't try to do too much in each chunk. 
+
+
+I strongly recommend the following when it comes to your course projects (and other future work) in terms of coding, especially if you are running a simulation.
+
+* Compile early and often. Don't wait till the last minute to compile.
+* Write code in small chunks to check that it works. A large chunk that doesn't run is harder to debug.
+* Intentionally break code INTO small chunks. You can always put it into a larger chunk later if needed. 
+* Caching is useful, but be careful about pushing/committing said pieces. The limit is 100MB. 
+* Learn RMarkdown formatting and use it. There's a cheatsheet from RStudio and an associated DataCamp course. 
+* Don't submit at the last minute. If it's late, it's late. Git gives us a time record! Submit EARLY.
+* Make sure you set seeds. You need a reproducible submission for the project.
+
+# Simulations (and Toy Examples)
+
+Don't underestimate the importance of a simulation and what it can show. In fact, simple simulation studies and toy examples (simple data sets) can be a great way to demonstrate your understanding of a method. If you can simulate to demonstrate a result, it makes you think more about the underlying setting. Toy examples can help a reader understand the output and should be easy for you to explain. Since I'm confident you can all use toy examples (we have lots of simple data sets in R!), I would like to focus more on simulations today. I'm going to show you several examples of simulations, then ask you to write one of your own.
+
+## Simulation 1 
+
+First, we examine a common misconception in linear regression. In this simulation, a SINGLE case of a setting is constructed to demonstrate a point. This is reproduced from a presentation I made for my Stat 230 class. (Normally, you'd imagine repeating the process to collect multiple results.)
+
+There is a normality condition in regression, but there are often misconceptions about "what" has to be normal. Does the response need to be normal? The predictors? The errors? 
+
+The condition is that the errors need to be normally distributed, which we then check by using the residuals (our best guesses of the errors).
+
+The simulated examples below are designed to show you that:
+
+* predictors do not need to be normally distributed for regression to be appropriate
+* predictors can be normally distributed and regression NOT be appropriate
+
+Re-expressing predictors may prove useful for helping to satisfy conditions, but the idea is to note that you do not need to re-express all predictors to have normal distributions before even starting the regression. If normality of predictors was a requirement, after all, we'd never be able to have categorical predictors.
+
+The examples below are simulated. The code is generating random values to use. I've tried to explain the process with comments and appropriate illustrations.
+
+## Simulating a Regression
+
+Before you see how I accomplish this, discuss with those around you how you would set up a simulation involving a regression model. How would you generate the data? The model?
+
+## Normal Errors - Non-normal Predictors - Regression Works!
+
+In this example, we will use two quantitative predictors with non-normal distributions and a binary (categorical) predictor to construct a response and then build a regression model. We will use normally distributed errors.
+
+```{r}
+set.seed(29540) # for reproducibility
+x1 <- rgamma(300, 500, rate = 3) #x1 has a gamma distribution; right-skewed
+x2 <- runif(300, 30, 40) #x2 has a uniform distribution
+x3bin <- factor(c(rep("Low",100), rep("High", 200))) #x3 is a factor Low/High
+x3num <- as.numeric(x3bin)-1 #makes High = 0, Low = 1 to construct model
+```
+
+We want to look at the distributions of these predictors to verify that they are all non-normal. 
+
+```{r}
+gf_histogram(~ x1) %>% gf_labs(title = "Histogram of X1")
+gf_histogram(~ x2) %>% gf_labs(title = "Histogram of X2")
+gf_histogram(~ x3num) %>% gf_labs(title = "Histogram of X3 as Numeric")
+tally(~x3bin)
+```
+
+None of the predictors are normally distributed. 
+
+Next we construct the TRUE regression model for the mean of the response $\mu_Y = 15 + x1 - 3*x2 + 25*x3num$. 
+
+```{r}
+mu_y <- 15 + x1 - 3*x2 + 25*x3num
+```
+
+Now, we add in the error inherent in the process. We use a normal distribution for the errors, with mean 0. 
+
+```{r}
+set.seed(230)
+Y <- mu_y + rnorm(300, 0, 5)
+gf_histogram(~ Y) %>% gf_labs(title = "Histogram of Response Y")
+```
+
+Remember that we don't really know the truth as presented above. We would start from the data set with a response Y and the three predictors.
+
+First, we would check to see if we think a linear model is appropriate. We make scatterplots for x1 and x2 each versus Y, and a boxplot of Y by x3bin to check the linearity condition.
+
+```{r}
+gf_point(Y ~ x1) %>% gf_lm() %>% gf_labs(title = "Y vs. X1")
+gf_point(Y ~ x2) %>% gf_lm() %>% gf_labs(title = "Y vs. X2")
+gf_boxplot(Y ~ x3bin) %>% gf_lm() %>% gf_labs(title = "Y vs. X3bin")
+```
+
+Both scatterplots show linear relationships and the boxplot shows a clear difference between the values of Y for the levels of X3. Thus, it is appropriate to use all variables in the linear model (with NO re-expressions needed).
+
+Now, we see if we can recover the regression coefficients, and check our model conditions.
+
+```{r}
+mymod <- lm(Y ~ x1 + x2 + x3bin)
+msummary(mymod)
+```
+
+Looks like we have recovered the coefficients fairly well. But what about the conditions on the errors for normality and constant variance?
+
+```{r}
+mplot(mymod, which = 1)
+mplot(mymod, which = 2)
+```
+
+The conditions for normality and constant variance of errors check out. The residuals versus fitted plot shows a random scatter of points in a horizontal band about the same width above and below 0. For the normality plot, the points follow the line very closely with only slight deviations in the tails. 
+
+
+In summary, for this example, linear regression was appropriate even though our predictors were NOT normally distributed because we had normally distributed errors (and that's what the condition is about!). 
+
+Note that this was only ONE simulation involving this model. You could imagine settings where you want to do more - such as record the slopes over many models to check the estimation. You should be able to think about how to do that with this code as a base. 
+
+
+## Normal Predictors - Non-normal Errors - Regression is NOT appropriate
+
+Here, we take the opposite approach to above. We will use two normally distributed predictors (no categorical predictor can be included if we are forcing normality on the predictors). But, we will NOT use normal errors (which is a condition violation). The goal is to see what happens when we try to recover the model. In this example, I'm going to make the violation fairly egregious, to illustrate the point. 
+
+```{r}
+set.seed(29582) # for reproducibility
+x1 <- rnorm(300, 50, 3) 
+x2 <- rnorm(300, 30, 5) 
+```
+
+We want to look at the distributions of these predictors to verify that they are both normally distributed. 
+
+```{r}
+gf_histogram(~ x1) %>% gf_labs(title = "Histogram of X1")
+gf_histogram(~ x2) %>% gf_labs(title = "Histogram of X2")
+```
+
+Both of the predictors have unimodal bell-shaped distributions. We could check qq-plots to more precisely check to see if they are normally distributed. 
+
+```{r}
+gf_qq(~ x1) %>% gf_qqline() %>% gf_labs(title = "QQ-Plot for X1")
+gf_qq(~ x2) %>% gf_qqline() %>% gf_labs(title = "QQ-Plot for X2")
+```
+
+Both of the predictors appear to be normally distributed. 
+
+Next we construct the TRUE regression model for the mean of the response $\mu_Y = 15 + 6*x1 - 4*x2$.
+
+```{r}
+mu_y <- 15 + 6*x1 - 4*x2 
+```
+
+Now, we add in the error inherent in the process. We use a combination of cauchy and normal errors, so this is the condition violation.  
+
+```{r}
+set.seed(230)
+Y <- mu_y + rcauchy(300, location = 0, scale = 6) + rnorm(300, 0, 5)
+gf_histogram(~ Y) %>% gf_labs(title = "Histogram of Response Y")
+```
+
+Again, in reality, we don't know the true model as presented above. We'd just start from Y and the two predictors in the data set.
+
+First, we would check to see if we think a linear model is appropriate. We make scatterplots for x1 and x2 each versus Y check the linearity condition.
+
+```{r}
+gf_point(Y ~ x1) %>% gf_lm() %>% gf_labs(title = "Y vs. X1")
+gf_point(Y ~ x2) %>% gf_lm() %>% gf_labs(title = "Y vs. X2")
+```
+
+Both scatterplots show linear relationships, Thus, it is appropriate to use all variables in the linear model (with NO re-expressions needed). You might notice another property of both scatterplots - some outliers. This is due to the distributions I choose for the errors. 
+
+Now, we see if we can recover the regression coefficients, and check our model conditions.
+
+```{r}
+mymod <- lm(Y ~ x1 + x2)
+msummary(mymod)
+```
+
+Hmm. Our intercept is clearly not the 15 we set. The 5.655 is nearly the 6 we set for the slope of x1, but negative 3 is not negative 4 (what we set) for the slope of x2. 
+
+What about the conditions on the errors for normality and constant variance?
+
+```{r}
+mplot(mymod, which = 1)
+mplot(mymod, which = 2)
+```
+
+The conditions for normality and constant variance of errors show extreme outliers, so as it stands, these conditions are not met. For the normality plot, the deviations in the tails are fairly extreme, as we see an S shape. Granted, n = 300 is relatively large, so things aren't too horrible here, but it would be better if we had just normally distributed errors. 
+
+In summary, linear regression was NOT appropriate even though our predictors were normally distributed because we had NON-normally distributed errors (and that's what the condition is about!). 
+
+Yes, you can argue here that removing the outliers will fix the problem. That's because that would be making the distribution of residuals more normally distributed, which is why we learned about unusual points. The key is to realize the distribution of the predictors doesn't have anything to with the issues encountered here. 
+
+
+## Simulation 2
+
+Rather than simulating a single case, you may want to simulate MANY cases to check things like Type I error, power, or confidence interval coverage. This simulation below is an example from my Stat 225 course - Nonparametric statistics. It compares three test procedures in the one-sample setting examining measures of center. The presentation below is from one of the labs from the class. 
+
+In this lab, we want to investigate the efficiencies described in the book in the last section of Chapter 3 (Nonparametric Statistical Methods by Hollander, Wolfe, and Chicken), and see if we can verify that there are situations where the t-test does not perform well compared to the Sign Test or Signed Rank test, and vice versa. To investigate, we'll be setting up a simulation study, and walking through the steps associated with that below. 
+
+## Running the three tests
+
+First, let's just see how to run all three test procedures on a set of observations. You can imagine these are the differences or just a set of values (i.e. paired setting or just one-sample setting). All these are run as two-sided examples. That could be changed with the *alternative* option, but we'll run everything here two-sided. 
+
+```{r}
+fakedata <- c(1:50) #1:50 as our data
+t.test(~ fakedata, mu = 25) #parametric t-test
+SIGN.test(fakedata, md = 25) #sign test
+wilcox.test(fakedata, mu = 25) #signed rank test
+```
+
+Now, to do our simulation study, we're going to need to *SAVE* some values from the output of the tests. What might be useful values to save?
+
+> SOLUTION:
+
+It would probably be useful to save the test statistics and p-values (primarily p-values). Let's consider how that can be done. We can rerun the tests and SAVE the output in order to see what pieces are actually computed by R when the test is run. These pieces can be extracted separately.
+
+```{r}
+tresult <- t.test(~ fakedata, mu = 25) #parametric t-test
+names(tresult)
+signresult <- SIGN.test(fakedata, md = 25) #sign test
+names(signresult)
+srresult <- wilcox.test(fakedata, mu = 25) #signed rank test
+names(srresult)
+```
+
+So, this means that I could extract all three p-values from the saved tests like this:
+
+```{r}
+tresult$p.value
+signresult$p.value
+srresult$p.value
+```
+
+(You should be able to do this for similar pieces of similar objects.)
+
+Even better, I don't have to SAVE the test output to get the p-values. I can get them like this:
+
+```{r}
+t.test(~ fakedata, mu = 25)$p.value 
+SIGN.test(fakedata, md = 25)$p.value 
+wilcox.test(fakedata, mu = 25)$p.value 
+```
+
+Ok. So now we have a way to extract p-values quickly from a test. We want to combine this with simulating MANY data sets, using different distributions for the data to see how the different tests behave. (There's a bit more to this, including understanding effect size, but we should be able to have some fun with just this understanding.)
+
+## Simulating Data from a Normal Distribution 
+
+Here, we look at an example simulating data from the normal distribution. The code below samples 10 observations from a normal distribution with mean 20 and sd 2, and saves them as x. 
+
+```{r}
+x <- rnorm(10, 20, 2); x
+```
+
+We could feed x into our different tests, along with a hypothesized mean, get the p-values, and compare the results. Better yet, we could simulate MANY different but similar x's and repeat this process to better understand the behavior of the tests.
+
+Here's an example:
+
+```{r}
+# Set Useful Values
+reps <- 1000 #number of repetitions
+truemu <- 40 
+truesd <- 3
+testcenter <- 37 #center to test for
+n <- 25 #sample size
+set.seed(1001) #for reproducibility
+
+#Initialize storage vectors
+tpvals <- rep(0, reps)
+spvals <- rep(0, reps)
+srpvals <- rep(0, reps)
+
+#Generate random data, do tests, save p-values
+for(i in 1:reps){
+  x<-rnorm(n, truemu, truesd)
+  tpvals[i] <- t.test(~x, mu = testcenter)$p.value 
+  spvals[i] <- SIGN.test(x, md = testcenter)$p.value 
+  srpvals[i] <- wilcox.test(x, mu = testcenter)$p.value 
+}
+```
+
+What does this give us? Well, we get a set of 1000 p-values each from the three different tests (1000 data sets all run through the three tests). We can figure out how often each test rejected the null, and see which test is performing better. Here, we know the true mean is 40, and we were testing a two-sided alternative with a mean of 37. So, we'd like to think the tests would reject the null.  
+
+```{r}
+sum(tpvals <= 0.05)/reps
+sum(spvals <= 0.05)/reps
+sum(srpvals <= 0.05)/reps
+```
+
+We see that 99.9% of t-tests and Signed rank tests rejected the null, but only 95.6% of sign tests did. The output is the fraction of p-values less than or equal to 0.05.
+
+
+Now you try. Here is the same code (pieces combined), and turned into a function. You run the main chunk once to create the function, and then you can run it quickly with different inputs in chunks after it.
+
+```{r}
+simnormal <- function(locationinput, scaleinput, testcenterinput, ninput, repsinput = 1000){
+# Set Useful Values
+reps <- repsinput #number of repetitions
+location <- locationinput 
+scale <- scaleinput
+testcenter <- testcenterinput #center to test for
+n <- ninput #sample size
+
+#Initialize storage vectors
+tpvals <- rep(0,reps)
+spvals <- rep(0,reps)
+srpvals <- rep(0,reps)
+
+#Generate random data, do tests, save p-values
+for(i in 1:reps){
+  x <- rnorm(n, location, scale)
+  tpvals[i] <- t.test(~x, mu = testcenter)$p.value 
+  spvals[i] <- SIGN.test(x, md = testcenter)$p.value 
+  srpvals[i] <- wilcox.test(x, mu = testcenter)$p.value 
+}
+
+output <- c(sum(tpvals <= 0.05)/reps, sum(spvals <= 0.05)/reps, sum(srpvals <= 0.05)/reps)
+names(output) <- c("Ttest", "Sign", "SignedRank")
+output
+}
+```
+
+In the code chunk below, change the inputs a few times and see what sorts of results you get. The output is in the order of t-test, sign test, and lastly, signed rank test fractions of p-values less than or equal to 0.05. Some short labels were added to help with keeping the order straight. You could envision fancier functions that took in optional alphas to compare to instead of just 0.05. But this works for our purposes. 
+
+```{r}
+set.seed(1001)
+simnormal(40, 3, 39, 25) #mean, sd, testcenter, n are the inputs
+#simnormal()
+#simnormal() #add more lines for more settings
+```
+
+What tests seem to be performing best based on your simulations?
+
+> SOLUTION
+
+In this setting, the data we generated followed a normal distribution, so we expected the t-test to do well, but signed rank should have been nearly comparable. Let's try some different distributions. 
+
+
+## Your Turn
+
+Write a simulation either in the regression setting to examine the impact of unequal variance of the errors on the solution, or continue in the nonparametric comparison setting but change the distribution to something like cauchy or uniform instead of normal to see how the tests perform. 
+
+```{r}
+simcauchy <- function(locationinput, scaleinput, testcenterinput, ninput, repsinput = 1000){
+# Set Useful Values
+reps <- repsinput #number of repetitions
+location <- locationinput 
+scale <- scaleinput
+testcenter <- testcenterinput #center to test for
+n <- ninput #sample size
+
+#Initialize storage vectors
+tpvals <- rep(0,reps)
+spvals <- rep(0,reps)
+srpvals <- rep(0,reps)
+
+#Generate random data, do tests, save p-values
+for(i in 1:reps){
+  x <- rcauchy(n, location, scale)
+  tpvals[i] <- t.test(~x, mu = testcenter)$p.value 
+  spvals[i] <- SIGN.test(x, md = testcenter)$p.value 
+  srpvals[i] <- wilcox.test(x, mu = testcenter)$p.value 
+}
+
+output <- c(sum(tpvals <= 0.05)/reps, sum(spvals <= 0.05)/reps, sum(srpvals <= 0.05)/reps)
+names(output) <- c("Ttest", "Sign", "SignedRank")
+output
+}
+```
+
+```{r}
+set.seed(1001)
+simcauchy(40, 3, 37, 25) #mean, sd, testcenter, n are the inputs
+#simnormal()
+#simnormal() #add more lines for more settings
+```
+
+## Writing up a simulation
+
+Typically, when doing a simulation, you will simulate many data sets and their corresponding sets of results for whatever procedure you are doing, under a host of different parameter settings. You then
+need to convey your results. This usually means making a table (or several) or figure (or several) to display results, which you then have to discuss. Figuring out the best layout of tables is often tricky, and I encourage you to sketch it (by hand!) to figure out what makes the best sense for your setting. 
+
+
+```{r}
+for(i in 1:100){
+  results <- simnormal(40, 3, 37, 25)
+}
+```
+
