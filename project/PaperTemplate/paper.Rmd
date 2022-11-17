@@ -45,7 +45,7 @@ Exposition
 -> what is a bootstrap
 --> parametric
 --> non-parametric
---> briefly: what is jackknife
+--> briefly: what is jackknife nah
 --> SE and bias?
 -> what is a bootstrapped confidence interval
 --> what can it do
@@ -55,9 +55,16 @@ Exposition
 ---> for sample mean or corr (check example sheet)
 
 
-Bootstrapping is a statistical method of resampling that allows the estimation of a test statistic from an unknown distribution. Supposing we have a random sample $X = (x_1,x_2,\dots,x_n)$, then the bootstrap sample could be represented as $X^* = (x^*_1, x^*_2, \dots, x^*_n)$ where each $x^*_i$ is sampled randomly with equal probability and with replacement from $\{x_1,x_2,\dots,x_n\}$. From this bootstrap sample, a bootstrap replication of the test statistic can be computed. 
+Bootstrapping is a statistical method of resampling that allows the estimation of a test statistic from an unknown distribution. In particular, bootstrapping is a computational heavy method which is useful for many different situations.
 
 
+First, we will introduce the non-parametric bootstrap. Suppose we have a random sample $X = (x_1,x_2,\dots,x_n)$ from our unknown distribution, $F$ and a statistic of interest $\hat{\theta} = \hat{\theta}(X)$. Ideally, the desired test statistic could be found by repeatedly sampling new reproductions of $X$ from $F$. However $F$ is unknown so this is not possible. The non-parametric bootstrap creates an estimate $\hat{F}$ from $F$ using our sample $X$ without making any parametric assumptions (such as distribution). Therefore, the bootstrap sample could be represented as $X^* = (x^*_1, x^*_2, \dots, x^*_n)$ where each $x^*_i$ is sampled randomly with equal probability and with replacement from $\{x_1,x_2,\dots,x_n\}$. From this bootstrap sample, a bootstrap replication of the test statistic can be computed using $\hat{\theta}^* = \hat{\theta}(X^*)$. A large number, $B$, of bootstrap samples are drawn independently and the corresponding bootstrap replication of the test statistic is calculated. $$\hat{\theta}^{*b} = \hat{\theta}(X^{*b}) \text{ for } b = 1,2, \dots, B$$. The bootstrap estimate of the test statistic is the empirical value of the test statistic from all of the $\hat{\theta}^{*b}$ replications. As $B$ increases, $\hat{F}$ approaches $F$ which means that the tests statistic of interest approaches its true value as well.
+
+SHOULD I ADD ABOUT PARAMETRIC BOOTSTRAP
+
+Confidence intervals are tools that are used to estimate a parameter. Specifically, a confidence interval gives a range in which the true value of the parameter may lie. An $\alpha$-level standard confidence interval is given by $$\hat{\theta} \pm z_{\alpha}\hat{\sigma}$$ where $\hat{\theta}$ is a point estimate of the parameter of interest $\theta$, $\hat{\sigma}$ is the estimate of the standard deviation of $\hat{\theta}$ and $z_{\alpha}$ is the $(100 *\alpha)$th percentile of the normal deviation. We say that the confidence interval constructed in this manner has a chance of capturing the true parameter with a probability of $\alpha$. 
+
+The standard confidence interval is built based on the assumption that the distribution from which we are sampling is Normal. This means that for an unknown distribution, the standard confidence interval could present an unmeaningful range. However, the same process can be used with bootstrap sampling to form the bootstrap percentile method. 
 
 
 

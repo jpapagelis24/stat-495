@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022) (preloaded format=pdflatex 2022.11.9)  14 NOV 2022 09:10
+This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022) (preloaded format=pdflatex 2022.11.9)  17 NOV 2022 00:44
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -452,92 +452,90 @@ Package hyperref Info: Link coloring OFF on input line 88.
 Non-PDF special ignored!
 <special> header=psfrag.pro
 
-{/Users/justinpapagelis/Library/TinyTeX/texmf-var/fonts/map/pdftex/updmap/pdftex.map}] [2] [3] [4]
+{/Users/justinpapagelis/Library/TinyTeX/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
+LaTeX Font Info:    Trying to load font information for OML+cmr on input line 182.
+(/Users/justinpapagelis/Library/TinyTeX/texmf-dist/tex/latex/base/omlcmr.fd
+File: omlcmr.fd 2022/07/10 v2.5l Standard LaTeX font definitions
+)
+LaTeX Font Info:    Font shape `OML/cmr/m/n' in size <12> not available
+(Font)              Font shape `OML/cmm/m/it' tried instead on input line 182.
+[2] [3] [4] [5]
 
-Package xcolor Warning: Incompatible color definition on input line 291.
+Package xcolor Warning: Incompatible color definition on input line 360.
 
-LaTeX Font Info:    Trying to load font information for OML+cmtt on input line 293.
-LaTeX Font Info:    No file OMLcmtt.fd. on input line 293.
+LaTeX Font Info:    Trying to load font information for OML+cmtt on input line 362.
+LaTeX Font Info:    No file OMLcmtt.fd. on input line 362.
 
 LaTeX Font Warning: Font shape `OML/cmtt/m/n' undefined
 (Font)              using `OML/cmm/m/it' instead
-(Font)              for symbol `textgreater' on input line 293.
+(Font)              for symbol `textgreater' on input line 362.
 
 
-Package xcolor Warning: Incompatible color definition on input line 301.
+Package xcolor Warning: Incompatible color definition on input line 370.
 
 
-Package xcolor Warning: Incompatible color definition on input line 301.
+Package xcolor Warning: Incompatible color definition on input line 370.
 
 
-Package xcolor Warning: Incompatible color definition on input line 328.
+Package xcolor Warning: Incompatible color definition on input line 397.
+
+[6]
+
+Package xcolor Warning: Incompatible color definition on input line 411.
 
 
-Package xcolor Warning: Incompatible color definition on input line 342.
+Package xcolor Warning: Incompatible color definition on input line 411.
 
-
-Package xcolor Warning: Incompatible color definition on input line 342.
-
-
-Package xcolor Warning: Incompatible color definition on input line 342.
-
-[5
-pdfTeX warning (ext4): destination with the same identifier (name{table.1}) has been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.342 \end{Shaded}
-                  ]
-
-Package xcolor Warning: Incompatible color definition on input line 342.
-
-
-Package xcolor Warning: Incompatible color definition on input line 342.
-
-<paper_files/figure-latex/sample-fig1-1.pdf, id=87, 469.755pt x 216.81pt>
+<paper_files/figure-latex/sample-fig1-1.pdf, id=100, 469.755pt x 216.81pt>
 File: paper_files/figure-latex/sample-fig1-1.pdf Graphic file (type pdf)
 <use paper_files/figure-latex/sample-fig1-1.pdf>
-Package pdftex.def Info: paper_files/figure-latex/sample-fig1-1.pdf  used on input line 346.
+Package pdftex.def Info: paper_files/figure-latex/sample-fig1-1.pdf  used on input line 415.
 (pdftex.def)             Requested size: 469.75386pt x 216.80946pt.
 
-Overfull \hbox (7.48387pt too wide) in paragraph at lines 346--348
+Overfull \hbox (7.48387pt too wide) in paragraph at lines 415--417
  [][] 
  []
 
-<gfx/campus_map.png, id=90, 1261.71375pt x 1075.01625pt>
+<gfx/campus_map.png, id=103, 1261.71375pt x 1075.01625pt>
 File: gfx/campus_map.png Graphic file (type png)
 <use gfx/campus_map.png>
-Package pdftex.def Info: gfx/campus_map.png  used on input line 357.
+Package pdftex.def Info: gfx/campus_map.png  used on input line 426.
 (pdftex.def)             Requested size: 369.8174pt x 315.09303pt.
-[6
+[7
+pdfTeX warning (ext4): destination with the same identifier (name{table.1}) has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.440 
+      ] [8
 pdfTeX warning (ext4): destination with the same identifier (name{figure.1}) has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.382 
-       <./paper_files/figure-latex/sample-fig1-1.pdf>] [7
+l.440 
+      
 pdfTeX warning (ext4): destination with the same identifier (name{figure.2}) has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.382 
-       <./gfx/campus_map.png>] (./paper.bbl [8]) [9] (./paper.aux)
+l.440 
+       <./paper_files/figure-latex/sample-fig1-1.pdf> <./gfx/campus_map.png>] (./paper.bbl [9]) [10] (./paper.aux)
 
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
 Package rerunfilecheck Info: File `paper.out' has not changed.
-(rerunfilecheck)             Checksum: F3DE475273DBC0094E740122C11AC0AE;828.
+(rerunfilecheck)             Checksum: 97DAE8ED7F8C8196B2B2EA9FE196CA27;921.
  ) 
 Here is how much of TeX's memory you used:
- 11951 strings out of 476931
- 192566 string characters out of 5824584
- 540129 words of memory out of 5000000
- 32959 multiletter control sequences out of 15000+600000
+ 11973 strings out of 476931
+ 192947 string characters out of 5824584
+ 540164 words of memory out of 5000000
+ 32975 multiletter control sequences out of 15000+600000
  478327 words of font info for 60 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 72i,12n,77p,234b,550s stack positions out of 10000i,1000n,20000p,200000b,200000s
- </Users/justinpapagelis/Library/TinyTeX/texmf-var/fonts/pk/ljfour/jknappen/ec/tcrm1200.600pk> </Users/justinpapagelis/Library/TinyTeX/texmf-var/fonts/pk/ljfour/jknappen/ec/tcrm0700.600pk> </Users/justinpapagelis/Library/TinyTeX/texmf-var/fonts/pk/ljfour/jknappen/ec/tcrm1000.600pk></Users/justinpapagelis/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></Users/justinpapagelis/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></Users/justinpapagelis/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></Users/justinpapagelis/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></Users/justinpapagelis/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></Users/justinpapagelis/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmti12.pfb></Users/justinpapagelis/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt12.pfb>
-Output written on paper.pdf (9 pages, 1969599 bytes).
+ 72i,12n,77p,234b,544s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ </Users/justinpapagelis/Library/TinyTeX/texmf-var/fonts/pk/ljfour/jknappen/ec/tcrm1200.600pk> </Users/justinpapagelis/Library/TinyTeX/texmf-var/fonts/pk/ljfour/jknappen/ec/tcrm0700.600pk> </Users/justinpapagelis/Library/TinyTeX/texmf-var/fonts/pk/ljfour/jknappen/ec/tcrm1000.600pk></Users/justinpapagelis/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></Users/justinpapagelis/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></Users/justinpapagelis/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></Users/justinpapagelis/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></Users/justinpapagelis/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></Users/justinpapagelis/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></Users/justinpapagelis/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></Users/justinpapagelis/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></Users/justinpapagelis/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></Users/justinpapagelis/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmti12.pfb></Users/justinpapagelis/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt12.pfb>
+Output written on paper.pdf (10 pages, 2012131 bytes).
 PDF statistics:
- 174 PDF objects out of 1000 (max. 8388607)
- 140 compressed objects within 2 object streams
- 32 named destinations out of 1000 (max. 500000)
- 67 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 203 PDF objects out of 1000 (max. 8388607)
+ 160 compressed objects within 2 object streams
+ 35 named destinations out of 1000 (max. 500000)
+ 75 words of extra memory for PDF output out of 10000 (max. 10000000)
 
