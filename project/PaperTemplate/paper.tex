@@ -231,8 +231,43 @@ with a probability of \(\alpha\).
 The standard confidence interval is built based on the assumption that
 the distribution from which we are sampling is Normal. This means that
 for an unknown distribution, the standard confidence interval could
-present an unmeaningful range. However, the same process can be used
-with bootstrap sampling to form the bootstrap percentile method.
+present an incorrect range. However, the same process can be used with
+bootstrap sampling to form the bootstrap percentile method. This means
+that an approximate bootstrap confidence interval will be created in the
+same automatic way that the standard confidence interval was created.
+
+The percentile method interval is defined as the interval between the
+\(100 * \alpha\) and the \(100(1 - \alpha)\) percentiles of the
+bootstrap distribution of \(\hat{\theta}\). That is, the
+\((1 - 2\alpha)\) coverage interval can be defined as
+\[[\hat{\theta}^*_\alpha,\hat{\theta}^*_{1-\alpha}].\] In the case that
+the bootstrap distribution of
+\(\hat{\theta}^* \sim N(\hat{\theta}, \hat{\sigma}^2)\), the
+corresponding percentile interval would be equivalent to the standard
+interval. However, this is not usually the case. When the bootstrap
+distribution is non-normal, we can suppose that there exists, for all
+\(\theta\), \[\hat{\phi} \sim N(\phi, \tau^2),\] for some monotone
+transformation \(\hat{\phi} = g(\hat{\theta}), \phi = g(\theta)\), and
+\(\tau\) is a constant. In other words, this transformation perfectly
+normalizes the distribution of \(\hat{\theta}\). This transformation
+invariant can be applied to the bootstrap replications such that
+\[\hat{\phi}^{*b} = g\left( \hat{\theta}^{*b}\right ) \text{ for } b = 1,2,\dots, B.\]
+The corresponding percentiles of the distribution transform similarly,
+\(\hat{\phi}^*_\alpha = g \left ( \hat{\theta}^*_\alpha \right )\). Or
+we can say that the \((1 - 2\alpha)\) percentile interval is
+\(\hat{\phi} \pm \tau z_\alpha\) which can also be represented as
+\([\hat{\phi}^*_\alpha,\hat{\phi}^*_{1-\alpha}]\). This means that the
+interval on the \(\theta\) scale can be defined as
+\[\hat{\theta}^*_\alpha = g^{-1}(\hat{\phi} \pm \tau z_\alpha).\] Or
+\(\left [ g^{-1}(\hat{\phi} \pm \tau z_{1-\alpha}), g^{-1}(\hat{\phi} \pm \tau z_\alpha) \right ]\).
+Therefore, the percentile method produces a correct interval for
+\(\phi\) and due to the transformation invariance, also produces a
+correct percentile interval for \(\theta\). This method assumes the
+existence of some monotone normalizing mapping
+\(\hat{\phi} = g(\hat{\theta}), \phi = g(\theta)\) and relies on that to
+create a correct interval. Since the process is automatic, we do not
+need to know the transformation itself, only that it exists. However, in
+some cases, no monotone normalizing mapping will exist.
 
 \hypertarget{more-on-the-template}{%
 \section{More on the template}\label{more-on-the-template}}
