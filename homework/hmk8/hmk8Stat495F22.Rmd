@@ -81,27 +81,12 @@ For the sections below, these are potential outlines / suggestions of questions 
 ## Simulation Comparing Kendall's tau and Pearson's $r$
 
 ### Intro and Simulation Overview
-
-* What is the task, as you understand it?
-* What do you plan to do for your simulation (generally speaking) to compare the performance of the methods?
-* Some questions to consider answering: Are you storing correlation values? p-values? Storing nothing? How many runs are you doing? Is a single run sufficient? What seems reasonable? What will you compare to assess the performance of the methods? 
-* You should aim to convey the general structure of your simulation in a paragraph or two, so that a reader can follow along, and could think about pseudocode steps based on your description. 
-* What do you expect to happen in the simulations? There are three settings. Describe what you expect to happen in each setting. You can check this with your simulations, but you should be able to make some predictions based on your statistical background knowledge. 
-
 The task of the simulation is to compare how Kendall's tau and Pearson's $r$ perform in terms of identifying significant relationships between two variables from varying distributions. For the simulation, we will generate two variables, each from a specified distribution and then once we have that, we will store the p-value that shows if the population parameters estimated by these values are statistically significantly different than 0 for each method. Once we run this about 10,000 and get a large number of p-values, we can see how many of the p-values from each method are significant. A small proportion of significant p-values would tell us that most of the correlation tests failed to reject the null that the true correlation between the two distributions is 0. 
 
 We expect that for the independent variables from two different distributions, most of the correlation tests will fail to reject the null because the variables were independently chosen from two different distributions. For the variables from the bivariate normal distribution with a moderate correlation, we expect there to be a larger amount of tests that reject the null because the variables have a moderate correlation. The same goes for the variables from the double exponential distribution with moderate correlation. We would expect to see a larger amount of tests reject the null because the two variables are moderately correlated.
 
 
 ### Independent Variables from Two Different Distributions
-
-* independent observations from two different distributions (your choice, but not say, two normals with different means; two different distributions, like a beta and a normal (pick another pair!))
-
-* What distributions did you choose? Report appropriate parameters.
-* Simulation (R code)
-* Summarize your results. How do the methods compare?
-* How do your findings match your expectations?
-
 We chose to use a Normal distribution and Gamma distribution. The Normal distribution has a mean of 40 and a standard deviation of 3. The Gamma distribution has a shape of 8 and a rate of 2. 
 
 ```{r}
@@ -128,16 +113,10 @@ sum(tau_pvals <= 0.05)/reps
 
 ```
 
-It appears that Pearson's $r$ rejects the null in 4.63% of the correlation tests and Kendall's tau rejects the null in 4.36% of the correlation tests. These are similar rejection rates which means that both of the methods perform in similar manners for independent observations from two different distributions. The findings match our expectations because we expected both of the methods to fail to reject a large number of the null hypotheses and that's what occurred. 
+It appears that Pearson's $r$ rejects the null in 4.63% of the correlation tests and Kendall's tau rejects the null in 4.36% of the correlation tests. These are similar rejection rates which means that both of the methods perform in similar manners for independent observations from two different distributions. The findings match our expectations because we expected both of the methods to fail to reject a large number of the null hypotheses and that's what occurred. The ~4% of tests that were rejected are due to the randomness of selecting from the distributions.
 
 
 ### Bivariate Normal with Moderate Correlation
-
-* What correlation did you choose? (i.e. Report appropriate parameters)
-* Simulation (R code)
-* Summarize your results. How do the methods compare?
-* How do your findings match your expectations?
-
 Since we used a covariance matrix of $\begin{bmatrix}
 1&0.4\\
 0.4&1
@@ -154,7 +133,7 @@ tau_pvals <- rep(0, reps)
 
 for(i in 1: reps) {
   
-  b <- rmvnorm(n, mean = c(0,1), sigma = matrix(c(1, 0.4, 0.4, 1), nrow = 2)) #correlation of 0.4
+  b <- rmvnorm(n, mean = c(0,0), sigma = matrix(c(1, 0.4, 0.4, 1), nrow = 2)) #correlation of 0.4
   values <- data.frame(b)
   
   r_pvals[i] <- with(values, cor.test(X1, X2))$p.value
@@ -170,12 +149,6 @@ It appears that the Pearson's $r$ rejects the null hypotheses in 33.18% of the c
 
 
 ### Double Exponential with Moderate Correlation
-
-* What correlation (or covariance) did you choose? (i.e. Report appropriate parameters)
-* Simulation (R code)
-* Summarize your results. How do the methods compare?
-* How do your findings match your expectations?
-
 Since we used a covariance matrix of $\begin{bmatrix}
 1&0.4\\
 0.4&1
@@ -207,9 +180,5 @@ sum(tau_pvals <= 0.05)/reps
 The Pearson's $r$ rejects the null in 37.78% of the correlation tests while Kendall's tau rejects the null in 29.1% of the cases. Pearson's $r$ performs better because we know there is a moderate correlation between the two variables. As well as before, Pearson's $r$ performs better than Kendall's tau. This matches what our prediction was for this distribution.
 
 ### Conclusion
-
-* Sum up what you found.
-* What takeaway would you want a reader to get from your submission?
-
-Overall, in the simulation of variables from independent distributions, Pearson's $p$ and Kendall's tau performed similarly in rejecting the null hypothesis, however for the next two simulations where there was a known moderate correlation, Pearson's $p$ outperformed Kendall's tau in rejecting the null hypothesis that the true correlation between the variables is 0. 
+Overall, in the simulation of variables from independent distributions, Pearson's $p$ and Kendall's tau performed similarly in rejecting the null hypothesis, however for the next two simulations where there was a known moderate correlation, Pearson's $p$ outperformed Kendall's tau in rejecting the null hypothesis that the true correlation between the variables is 0. This means that Pearson's $r$ is more useful in determining the correlation in distributions that have a known correlation (such as bivariate and double exponential).
 
