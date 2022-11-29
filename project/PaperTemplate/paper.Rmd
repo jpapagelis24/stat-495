@@ -40,36 +40,36 @@ To be added later
 Bootstrapping is a statistical method of resampling that allows the estimation of a test statistic from an unknown distribution. 
 In particular, bootstrapping is a computational heavy method which is useful for many different situations.
 
-First, we will introduce the non-parametric bootstrap.
+First, we introduce the non-parametric bootstrap.
 Suppose we have a random sample $X = (x_1,x_2,\dots,x_n)$ from our unknown distribution, $F$ and a statistic of interest $\hat{\theta} = \hat{\theta}(X)$ [@EfronCasi]. 
 Ideally, the desired test statistic could be found by repeatedly sampling new reproductions of $X$ from $F$.
-However $F$ is unknown so this is not possible. 
-The non-parametric bootstrap creates an estimate $\hat{F}$ from $F$ using our sample $X$ without making any parametric assumptions (such as distribution). 
+However $F$ is unknown, so this is not possible. 
+The non-parametric bootstrap creates an estimate $\hat{F}$ from $F$ using our sample $X$ without making any parametric assumptions about $F$ (such as its distribution type). 
 Therefore, the bootstrap sample could be represented as $X^* = (x^*_1, x^*_2, \dots, x^*_n)$ where each $x^*_i$ is sampled randomly with equal probability and with replacement from $\{x_1,x_2,\dots,x_n\}$. 
 From this bootstrap sample, a bootstrap replication of the test statistic can be computed using $\hat{\theta}^* = \hat{\theta}(X^*)$. 
 A large number, $B$, of bootstrap samples are drawn independently and the corresponding bootstrap replication of the test statistic is calculated. 
-$$\hat{\theta}^{*b} = \hat{\theta}(X^{*b}) \text{ for } b = 1,2, \dots, B$$ 
+$$\hat{\theta}^{*b} = \hat{\theta}(X^{*b}) \text{ for } b = 1,2, \dots, B.$$ 
 The bootstrap estimate of the test statistic is the empirical value of the test statistic from all of the $\hat{\theta}^{*b}$ replications. 
-As $B$ increases, $\hat{F}$ approaches $F$ which means that the tests statistic of interest approaches its true value as well.
+As $B$ increases, $\hat{F}$ approaches $F$ which means that the test statistic of interest approaches its true value as well.
 
 ## Standard Confidence Interval
 
 Confidence intervals are tools that are used to estimate a parameter. 
-Specifically, a confidence interval gives a range in which the true value of the parameter may lie. 
-An $\alpha$-level standard confidence interval is given by $$\hat{\theta}_S[\alpha] = \hat{\theta} \pm z_{\alpha}\hat{\sigma}$$ where $\hat{\theta}$ is a point estimate of the parameter of interest $\theta$, $\hat{\sigma}$ is the estimate of the standard deviation of $\hat{\theta}$ and $z_{\alpha}$ is the $(100 *\alpha)$th percentile of the normal deviation [@Efron86]. 
+Specifically, a confidence interval gives a range of values in which the true value of the parameter may lie. 
+An $\alpha$-level standard confidence interval is given by $$\hat{\theta}_S[\alpha] = \hat{\theta} \pm z_{\alpha}\hat{\sigma},$$ where $\hat{\theta}$ is a point estimate of the parameter of interest $\theta$, $\hat{\sigma}$ is the estimate of the standard deviation of $\hat{\theta}$ and $z_{\alpha}$ is the $(100 *\alpha)$th percentile of the normal deviation [@Efron86]. 
 We say that the confidence interval constructed in this manner has a chance of capturing the true parameter with a probability of $\alpha$. 
 
 The standard confidence interval is built based on the assumption that the distribution from which we are sampling is Normal. 
 This means that for an unknown distribution, the standard confidence interval could present an incorrect range.
 However, the same process can be used with bootstrap sampling to form the bootstrap percentile method. 
 This means that an approximate bootstrap confidence interval will be created in the same automatic way that the standard confidence interval was created. 
-For bootstrapped confidence intervals, the number of bootstrap replications $B$ must be large (around 2000) due to the nature of confidence intervals requiring greater accuracy.
+For bootstrapped confidence intervals, the number of bootstrap replications $B$ must be large (around 2000) due to the nature of confidence intervals requiring greater accuracy [@Efron86].
 
 ## The Percentile Method
 
 The percentile method interval is defined as the interval between the $100 * \alpha$ and the $100(1 - \alpha)$ percentiles of the bootstrap distribution of $\hat{\theta}$.
 That is, the $(1 - 2\alpha)$ coverage interval can be defined as $[\hat{\theta}^*_\alpha,\hat{\theta}^*_{1-\alpha}]$ [@Efron86,@EfronCasi]. 
-To go further, we can say define $\hat{G}(t)$ as the bootstrap cdf, or the proportion of bootstrap samples less than $t$. $$\hat{G}(t) = \frac{\#\{\hat{\theta^{*b} \leq t}\}}{B}.$$ 
+To go further, we can define $\hat{G}(t)$ as the bootstrap cdf, or the proportion of bootstrap samples less than $t$: $$\hat{G}(t) = \frac{\#\{\hat{\theta^{*b} \leq t}\}}{B}.$$ 
 Thus the $\alpha$th percentile point of the distribution is given by $$\hat{\theta}_p[\alpha] = \hat{\theta^*_\alpha} = \hat{G}^{-1}(\alpha).$$ It follows that the percentile interval can be represented as $$\left [ \hat{G}^{-1}(\alpha),\hat{G}^{-1}(1-\alpha) \right ].$$
 In the case that the bootstrap distribution of $\hat{\theta}^* \sim N(\hat{\theta}, \hat{\sigma}^2)$, the corresponding percentile interval would be equivalent to the standard interval. 
 However, this is not usually the case. 
@@ -79,45 +79,168 @@ This transformation invariant can be applied to the bootstrap replications such 
 The corresponding percentiles of the distribution transform similarly, $\hat{\phi}^*_\alpha = g \left ( \hat{\theta}^*_\alpha \right )$. 
 Or we can say that the $(1 - 2\alpha)$ percentile interval is $\hat{\phi} \pm \tau z_\alpha$ which can also be represented as $[\hat{\phi}^*_\alpha,\hat{\phi}^*_{1-\alpha}]$. 
 This means that the interval on the $\theta$ scale can be defined as $$\hat{\theta}^*_\alpha = g^{-1}(\hat{\phi} \pm \tau z_\alpha).$$ 
-This also can be represented as an interval, $$\left [ g^{-1}(\hat{\phi} \pm \tau z_{1-\alpha}), g^{-1}(\hat{\phi} \pm \tau z_\alpha) \right ]$$. 
-Therefore, the percentile method produces a correct interval for $\phi$ and due to the transformation invariance, also produces a correct percentile interval for $\theta$. 
+This also can be represented as an interval, $$\left [ g^{-1}(\hat{\phi} \pm \tau z_{1-\alpha}), g^{-1}(\hat{\phi} \pm \tau z_\alpha) \right ].$$ Therefore, the percentile method produces a correct interval for $\phi$ and due to the transformation invariance, also produces a correct percentile interval for $\theta$. 
 This method assumes the existence of some monotone normalizing mapping $\hat{\phi} = g(\hat{\theta}), \phi = g(\theta)$ and relies on that to create a correct interval.
 Since the process is automatic, we do not need to know the transformation itself, only that it exists. 
-However, in some cases, no monotone normalizing mapping will exist.
+However, in some cases, no monotone normalizing mapping will exist [@Efron86].
 
 ## The Bias-Corrected (BC) Method
 
 The next method we will be looking at is the bias-corrected percentile method (BC method) which is an improvement upon the previous percentile method because we now take into account the possibility of bias. 
 It can be shown that $\hat{\theta}$ is biased upwards relative to $\theta$ which means that the confidence intervals should be adjusted downwards [@Efron86,@EfronCasi]. 
-From our simulated bootstrap replications $\hat{\theta}^{*1}, \hat{\theta}^{*2}, \dots ,\hat{\theta}^{*B},$ define $$p_0 = \frac{\#\{\hat{\theta^{*b} \leq \theta}\}}{B}$$, and define the bias-correction value $$z_0 = \Phi^{-1}(p_0)$$ where $\Phi^{-1}$ is the inverse function of the standard normal cdf. 
-Thus we define a transformation $\hat{\phi} = g(\hat{\theta)}, \phi = g(\hat{\theta)}$ such that for any $\theta$, $$\hat{\phi} \sim N(\phi - z_0\tau, \tau^2),$$ with $z_0$ and $\tau$ constants. 
+From our simulated bootstrap replications $\hat{\theta}^{*1}, \hat{\theta}^{*2}, \dots ,\hat{\theta}^{*B},$ define $$p_0 = \frac{\#\{\hat{\theta^{*b} \leq \theta}\}}{B},$$ and define the bias-correction value $$z_0 = \Phi^{-1}(p_0),$$ where $\Phi^{-1}$ is the inverse function of the standard normal cdf. 
+Thus we define a transformation $\hat{\phi} = g(\hat{\theta)}, \phi = g(\theta)$ such that for any $\theta$, $$\hat{\phi} \sim N(\phi - z_0\tau, \tau^2),$$ with $z_0$ and $\tau$ constants. 
 This means that we can say the bias corrected method has an $\alpha$-level endpoint can be represented as $$\hat{\theta}_{BC}[\alpha] = \hat{G}^{-1} \left [ \Phi \left ( 2z_0 + z_\alpha\right ) \right ].$$ If $\hat{G} = 0.50$, then half of the bootstrap distribution is less than $\hat{\theta}$ and our bias-correction value $z_0 = 0$. 
 In this case, the confidence interval produced by BC would be the same interval produced by the percentile method. 
 
 ## The Bias-Corrected and Accelerated (BCa) Method
 
 A further modification upon the BC interval is the bias corrected and accelerated method (BCa). 
-For this method, we do assume the the standard error, $\tau$ to be constant as we did in the BC interval [@Efron86,@EfronCasi]. 
-Rather, we assume the existence of a monotone transformation $\hat{\phi} = g(\hat{\theta)}, \phi = g(\hat{\theta)}$ such that for any $\theta$, $$\hat{\phi} \sim N(\phi - z_0\tau_\phi, \tau_\phi^2) \text{ where } \tau_\phi = 1+ a\phi.$$
-The $a$ in known as the acceleration and is a constant that describes how the standard deviation of $\hat{\phi}$ varies with $\phi$. 
+For this method, we do not assume the the standard error, $\tau$ is constant as we did in the BC interval [@Efron86,@EfronCasi]. 
+Rather, we assume the existence of a monotone transformation $\hat{\phi} = g(\hat{\theta)}, \phi = g(\theta)$ such that for any $\theta$, $$\hat{\phi} \sim N(\phi - z_0\tau_\phi, \tau_\phi^2) \text{ where } \tau_\phi = 1+ a\phi.$$
+The $a$ is known as the acceleration and is a constant that describes how the standard deviation of $\hat{\phi}$ varies with $\phi$. 
 In other words, $a$ is proportional to the skewness of the bootstrap distribution. 
 For example, for one-parameter exponential families, $a=z_0$, however, there are many different algorithms to compute and estimate $a$ [@Flowers18]. 
 Now, our $\alpha$-level endpoint from BCa is $$\hat{\theta}_{BCa}[\alpha] = \hat{G}^{-1} \left [ \Phi \left ( z_0 + \frac{z_0+z_\alpha}{1-a(z_0+z_a)} \right ) \right ].$$ If $a = 0$, then $\hat{\theta}_{BCa}[\alpha] = \hat{\theta}_{BC}[\alpha].$ 
-When calculating a BCa interval, the acceleration value $a$ is not a function of the bootstrap distribution and must be calculated separate, however the process is algorithmic and can be calculated without too much work. 
+When calculating a BCa interval, the acceleration value $a$ is not a function of the bootstrap distribution and must be calculated separately, however the process is algorithmic and can be calculated without too much work. 
 Each of the three previous methods (percentile, BC, and BCa) all build upon each other and have less restrictive assumptions, however computation increases as we loosen assumptions. 
 
 ## The Bootstrap-t (Studentized) Method
 
-The next method is the bootstrap-t interval (or the studentized method). 
-Recalling from earlier, our sample, $X$ from which we can calculate an estimate, $\hat{\theta}(X)$ of the parameter of interest $\theta$ [@Efron86,@Puth15]. 
+The final method we explain is the bootstrap-t interval (or the studentized method). 
+Recall from earlier, our sample, $X$ from which we can calculate an estimate, $\hat{\theta}(X)$ of the parameter of interest $\theta$ [@Efron86,@Puth15]. 
 We can also estimate $\hat{\sigma}(X)$ for the standard error of $\theta$. 
 We can use these parameters to find the Student's $t$-statistic defined as $$T = \frac{\hat{\theta} - \theta}{\hat{\sigma}}.$$ 
 As such, the $\alpha$th percentile point of a confidence interval of $\theta$ would be $\hat{\theta} - \hat{\sigma}T_{(\alpha)}$ where $T_{(\alpha)}$ represents the $\alpha$th percentile of the $t$-distribution, $T$. 
 Unfortunately, the percentiles of the t-distribution are unknown in most cases, but we can use bootstrapping to estimate these percentiles. 
 To do this, we perform a large number, $B$, of bootstrap samples, from which we can find the bootstrap replications of the parameter of interest, $\hat{\theta^*} = \hat{\theta}(X^*)$, and the standard error, $\hat{\sigma^*} = \hat{\sigma}(X^*)$. 
-From these we can calculate a $$T^* = \frac{\hat{\theta}^* - \hat{\theta}}{\hat{\sigma}^*}$$ for each bootstrap sample. Using a large number of these bootstrap samples, we can estimate the percentiles of the $t$-distribution such that $$\hat{T}_{(\alpha)} = B*\alpha\text{th ordered value of all the bootstrap relications of }T^*.$$ 
+From these we can calculate a t-statistic for each bootstrap sample: $$T^* = \frac{\hat{\theta}^* - \hat{\theta}}{\hat{\sigma}^*}.$$ for each bootstrap sample. Using a large number of these bootstrap samples, we can estimate the percentiles of the $t$-distribution such that: $$\hat{T}_{(\alpha)} = B*\alpha\text{th ordered value of all the bootstrap relications of }T^*.$$ 
 This means that for $B = 2000$ and $\alpha = 0.90$, then $\hat{T}_{(\alpha)}$ is the 1,800th ordered point of all of the bootstrap replications of $T^*$. 
-It follows that the $\alpha$th studentized confidence interval endpoint can be given with $$\hat{\theta}_T[\alpha] = \hat{\theta} - \hat{\sigma}T_{(\alpha)}$$ where we can estimate the standard error using $$\hat{\sigma} = \frac{1-\hat{\theta}^2}{\sqrt{n}}.$$ One of the main factors why the studentized method is so popular is because we assume that our bootstrapped statistic is pivotal which means that the confidence interval does not depend on any other parameters. Instead, we can calculate the appropriate confidence interval for the parameter of interest specifically from the bootstrapped statistic.
+It follows that the $\alpha$th studentized confidence interval endpoint can be given with $$\hat{\theta}_T[\alpha] = \hat{\theta} - \hat{\sigma}T_{(\alpha)},$$ where we can estimate the standard error using $$\hat{\sigma} = \frac{1-\hat{\theta}^2}{\sqrt{n}}.$$ One of the main factors why the studentized method is so popular is because we assume that our bootstrapped statistic is pivotal which means that the confidence interval does not depend on any other parameters. Instead, we can calculate the appropriate confidence interval for the parameter of interest specifically from the bootstrapped statistic [@Efron86,@Puth15].
 
+# Simulation
+
+Justin,
+
+An example before a simulation could be useful if your simulation is assessing their performance (i.e. if your simulation is like Hmk 8, where you do a lot of reps to check performance). You could run anything on an existing data set (the one we have from Hmk 4/5), for example, that you want. I think you have enough without worrying about the parametric bootstrap.
+
+```{r}
+
+library(boot)
+set.seed(495)
+
+reps <- 2000
+n <- 50
+
+X <- rnorm(n, 0, 1)
+values <- data.frame(X)
+
+mean.fun <- function(d, i) {
+  d <- X[i]
+  return (mean(d))
+}
+
+results <- boot(data = values, statistic = mean.fun, R = reps)
+
+results
+
+plot(results)
+
+ci <- boot.ci(results, type = "all")
+
+```
+
+
+```{r}
+set.seed(1)
+
+reps <- 10000
+n <- 15
+
+r_pvals <- rep(0, reps)
+tau_pvals <- rep(0, reps)
+
+for(i in 1: reps) {
+  x <- rnorm(n, 40, 3)
+  y <- rgamma(n, 8, 2)
+  
+  values <- data.frame(x,y)
+  
+  r_pvals[i] <- with(values, cor.test(x, y))$p.value
+  tau_pvals[i] <- with(values, cor.test(x, y, method = "kendall"))$p.value
+}
+
+sum(r_pvals <= 0.05)/reps
+sum(tau_pvals <= 0.05)/reps
+
+```
+
+```{r}
+simbootstraps <- function(dataset, trueparameter) {
+  
+  
+  
+  # use the data set to create the bootstrapped distribution (1 bootstrap and then keep replicated statistic of interest)
+  # like 2000 times
+  
+  #use that bootstrap distribution as follows to test for the intervals
+  
+  # see how many times the true value lies inside the interval --> first do one and then show the actual intervals
+  
+}
+
+
+
+simnormal <- function(locationinput, scaleinput, testcenterinput, ninput, repsinput = 1000){
+# Set Useful Values
+reps <- repsinput #number of repetitions
+location <- locationinput 
+scale <- scaleinput
+testcenter <- testcenterinput #center to test for
+n <- ninput #sample size
+
+#Initialize storage vectors
+tpvals <- rep(0,reps)
+spvals <- rep(0,reps)
+srpvals <- rep(0,reps)
+
+#Generate random data, do tests, save p-values
+for(i in 1:reps){
+  x <- rnorm(n, location, scale)
+  tpvals[i] <- t.test(~x, mu = testcenter)$p.value 
+  spvals[i] <- SIGN.test(x, md = testcenter)$p.value 
+  srpvals[i] <- wilcox.test(x, mu = testcenter)$p.value 
+}
+
+output <- c(sum(tpvals <= 0.05)/reps, sum(spvals <= 0.05)/reps, sum(srpvals <= 0.05)/reps)
+names(output) <- c("Ttest", "Sign", "SignedRank")
+output
+}
+```
+
+
+
+```{r}
+set.seed(495)
+
+reps <- 10000
+n <- 15
+
+r_pvals <- rep(0, reps)
+tau_pvals <- rep(0, reps)
+
+for(i in 1: reps) {
+  y <- rgamma(n, 8, 2)
+  
+  values <- data.frame(x,y)
+  
+  r_pvals[i] <- with(values, cor.test(x, y))$p.value
+  tau_pvals[i] <- with(values, cor.test(x, y, method = "kendall"))$p.value
+}
+
+sum(r_pvals <= 0.05)/reps
+sum(tau_pvals <= 0.05)/reps
+
+```
 
 
