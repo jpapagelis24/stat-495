@@ -29,6 +29,7 @@ library(mosaic)
 library(mdsr)
 library(knitr)
 library(kableExtra)
+library(boot)
 ```
 
 # Introduction
@@ -52,6 +53,57 @@ $$\hat{\theta}^{*b} = \hat{\theta}(X^{*b}) \text{ for } b = 1,2, \dots, B.$$
 The bootstrap estimate of the test statistic is the empirical value of the test statistic from all of the $\hat{\theta}^{*b}$ replications. 
 As $B$ increases, $\hat{F}$ approaches $F$ which means that the test statistic of interest approaches its true value as well.
 
+We demonstrate performing a non-parametric bootstrap below using `SnowGR` which gives the official snowfall dataset by month for Grand Rapids, MI, starting in 1893. We will be using the `Dec` variable which gives the number of inches of snow that fell in December of each year. In particular, we are interested in the sample mean and later finding confidence intervals for population mean of `Dec`. The distribution is below.
+
+```{r}
+data(SnowGR)
+favstats(~ Dec, data = SnowGR)
+gf_histogram(~ Dec, data = SnowGR) +
+  labs(x = "Annual Snowfall in Decemeber", title = "Distribution of Annual Snowfall in Decemeber", y = "Count")
+```
+
+Next, we will perform the non-parametric bootstrap using 10,000 replications.
+
+
+```{r}
+
+orig_mean <- mean(~ Dec, data = SnowGR) # theta hat
+
+set.seed(495)
+nboot <- 10000
+
+mean <- rep(0,nboot)
+sd <- rep(0,nboot)
+se <- rep(0,nboot)
+t_stat <- rep(0,nboot)
+
+for (i in 1:nboot) {
+  resampled <- as.data.frame(mosaic::resample(SnowGR, replace = TRUE))
+  mean[i] <- mean(~Dec, data = resampled)
+  sd[i] <- sd(~Dec, data = resampled)
+ # se[i] <- sd[i]/nrow(resampled)
+#  t_stat[i] <- (mean[i] - orig_mean)/se[i]
+}
+
+dec_means <- as.data.frame(mean)
+#dec_t_stat <- as.data.frame(t_stat)
+
+```
+
+
+```{r}
+
+#set.seed(495)
+#dec_means <- do(10000)*mean(~ Dec, data = mosaic::resample(SnowGR, replace = TRUE))
+
+
+gf_dhistogram(~ mean, data = dec_means) %>%
+  gf_dens() %>%
+  gf_labs(title = "Histogram of 10,000 Bootstrapped Mean Dec Values")
+```
+
+
+
 ## Standard Confidence Interval
 
 Confidence intervals are tools that are used to estimate a parameter. 
@@ -64,6 +116,20 @@ This means that for an unknown distribution, the standard confidence interval co
 However, the same process can be used with bootstrap sampling to form the bootstrap percentile method. 
 This means that an approximate bootstrap confidence interval will be created in the same automatic way that the standard confidence interval was created. 
 For bootstrapped confidence intervals, the number of bootstrap replications $B$ must be large (around 2000) due to the nature of confidence intervals requiring greater accuracy [@Efron86].
+
+Using our example, to find a 95% confidence interval for the population mean of `Dec`, we would get the following:
+
+```{r}
+mean(~ Dec, data = SnowGR) + qnorm(c(0.025, 0.975)) * sd(~ Dec, data = SnowGR) / sqrt(nrow(SnowGR))
+```
+
+```{r}
+gf_histogram(~ Dec, data = SnowGR) +
+  labs(x = "Annual Snowfall in Decemeber", title = "Distribution of Annual Snowfall in Decemeber", y = "Count") +
+  geom_vline(aes(xintercept= 13.85639)) +
+  geom_vline(aes(xintercept= 17.65957))
+```
+
 
 ## The Percentile Method
 
@@ -84,6 +150,20 @@ This method assumes the existence of some monotone normalizing mapping $\hat{\ph
 Since the process is automatic, we do not need to know the transformation itself, only that it exists. 
 However, in some cases, no monotone normalizing mapping will exist [@Efron86].
 
+Finding a 95% confidence interval for the true population mean of `Dec` using the percentile method, we get:
+
+```{r}
+qdata(~ mean, c(0.025, 0.975), data = dec_means)
+```
+
+```{r}
+gf_histogram(~ Dec, data = SnowGR) +
+  labs(x = "Annual Snowfall in Decemeber", title = "Distribution of Annual Snowfall in Decemeber", y = "Count") +
+  geom_vline(aes(xintercept= 13.91170)) +
+  geom_vline(aes(xintercept= 17.72353))
+```
+This interval is similar to the one created using the Standard method, but shifted slightly to the right.
+
 ## The Bias-Corrected (BC) Method
 
 The next method we will be looking at is the bias-corrected percentile method (BC method) which is an improvement upon the previous percentile method because we now take into account the possibility of bias. 
@@ -92,6 +172,44 @@ From our simulated bootstrap replications $\hat{\theta}^{*1}, \hat{\theta}^{*2},
 Thus we define a transformation $\hat{\phi} = g(\hat{\theta)}, \phi = g(\theta)$ such that for any $\theta$, $$\hat{\phi} \sim N(\phi - z_0\tau, \tau^2),$$ with $z_0$ and $\tau$ constants. 
 This means that we can say the bias corrected method has an $\alpha$-level endpoint can be represented as $$\hat{\theta}_{BC}[\alpha] = \hat{G}^{-1} \left [ \Phi \left ( 2z_0 + z_\alpha\right ) \right ].$$ If $\hat{G} = 0.50$, then half of the bootstrap distribution is less than $\hat{\theta}$ and our bias-correction value $z_0 = 0$. 
 In this case, the confidence interval produced by BC would be the same interval produced by the percentile method. 
+
+Using this method to create a 95% confidence interval has a couple more steps because we need to find the bias-correction value. First we calculate the sample mean.
+
+```{r}
+sample_mean <- mean(~Dec, data = SnowGR); sample_mean
+```
+
+Then we find the proportion of bootstrap replications that have a sample mean less than the original sample mean.
+```{r}
+less_than_sample_mean <- sum(ifelse(dec_means <= sample_mean, 1, 0))/10000
+less_than_sample_mean
+```
+
+From this, we can calculate the bias-correction value, $z_0$:
+```{r}
+z0 <- qnorm(less_than_sample_mean); z0
+```
+
+Then we can find the modified percentiles:
+
+```{r}
+alphalow <- 0.025; alphahigh <- 0.975
+
+newlow <- pnorm(2*z0 + qnorm(alphalow)); #newlow
+newhigh <- pnorm(2*z0 + qnorm(alphahigh)); #newhigh
+
+qdata(~ mean, c(newlow, newhigh), data = dec_means)
+```
+
+
+```{r}
+gf_histogram(~ Dec, data = SnowGR) +
+  labs(x = "Annual Snowfall in Decemeber", title = "Distribution of Annual Snowfall in Decemeber", y = "Count") +
+  geom_vline(aes(xintercept= 14.01172)) +
+  geom_vline(aes(xintercept= 17.82017))
+
+```
+
 
 ## The Bias-Corrected and Accelerated (BCa) Method
 
@@ -105,6 +223,43 @@ Now, our $\alpha$-level endpoint from BCa is $$\hat{\theta}_{BCa}[\alpha] = \hat
 When calculating a BCa interval, the acceleration value $a$ is not a function of the bootstrap distribution and must be calculated separately, however the process is algorithmic and can be calculated without too much work. 
 Each of the three previous methods (percentile, BC, and BCa) all build upon each other and have less restrictive assumptions, however computation increases as we loosen assumptions. 
 
+In practice, we can use the jackknife procedure to estimate the acceleration value for this method. Thus, we will run the jackknife procedure:
+
+```{r}
+theta <- function(x){mean(x)}
+jackknife_results <- bootstrap::jackknife(SnowGR$Dec, theta) 
+```
+
+We find the mean of the jackknife values below:
+
+```{r}
+jackmean <- mean(~ jackknife_results$jack.values); jackmean
+```
+
+Then we can compute $a$.
+
+```{r}
+estimated_a <- (1/6)*sum((jackknife_results$jack.values - jackmean)^3)/
+  (sum((jackknife_results$jack.values - jackmean)^2))^(1.5); estimated_a
+```
+
+Now, we can find the adjust percentiles and the bias-corrected with acceleration confidence interval.
+
+```{r}
+a_newlow <- pnorm(z0 + (z0 + qnorm(alphalow))/(1-estimated_a*(z0 + qnorm(alphalow)))); #a_newlow
+a_newhigh <- pnorm(z0 + (z0 + qnorm(alphahigh))/(1-estimated_a*(z0 + qnorm(alphahigh)))); #a_newhigh
+qdata(~ mean, c(a_newlow, a_newhigh), data = dec_means)
+```
+
+```{r}
+gf_histogram(~ Dec, data = SnowGR) +
+  labs(x = "Annual Snowfall in Decemeber", title = "Distribution of Annual Snowfall in Decemeber", y = "Count") +
+  geom_vline(aes(xintercept= 13.91591)) +
+  geom_vline(aes(xintercept= 17.72353))
+
+```
+
+
 ## The Bootstrap-t (Studentized) Method
 
 The final method we explain is the bootstrap-t interval (or the studentized method). 
@@ -117,6 +272,43 @@ To do this, we perform a large number, $B$, of bootstrap samples, from which we 
 From these we can calculate a t-statistic for each bootstrap sample: $$T^* = \frac{\hat{\theta}^* - \hat{\theta}}{\hat{\sigma}^*}.$$ for each bootstrap sample. Using a large number of these bootstrap samples, we can estimate the percentiles of the $t$-distribution such that: $$\hat{T}_{(\alpha)} = B*\alpha\text{th ordered value of all the bootstrap relications of }T^*.$$ 
 This means that for $B = 2000$ and $\alpha = 0.90$, then $\hat{T}_{(\alpha)}$ is the 1,800th ordered point of all of the bootstrap replications of $T^*$. 
 It follows that the $\alpha$th studentized confidence interval endpoint can be given with $$\hat{\theta}_T[\alpha] = \hat{\theta} - \hat{\sigma}T_{(\alpha)},$$ where we can estimate the standard error using $$\hat{\sigma} = \frac{1-\hat{\theta}^2}{\sqrt{n}}.$$ One of the main factors why the studentized method is so popular is because we assume that our bootstrapped statistic is pivotal which means that the confidence interval does not depend on any other parameters. Instead, we can calculate the appropriate confidence interval for the parameter of interest specifically from the bootstrapped statistic [@Efron86,@Puth15].
+
+We can use the following to get our studentized confidence interval:
+```{r}
+mean(~ Dec, data = SnowGR) + qt(c(0.025, 0.975), df = (nrow(SnowGR-1))) * 
+  sd(~ Dec, data = SnowGR) / sqrt(nrow(SnowGR))
+```
+
+
+```{r}
+set.seed(495)
+
+orig_mean <- mean(~ Dec, data = SnowGR) # theta hat
+orig_se <- sd(~ Dec, data = SnowGR)/sqrt(nrow(SnowGR))
+
+nboot <- 10000
+
+se <- rep(0,nboot)
+t_stat <- rep(0,nboot)
+
+for (i in 1:nboot) {
+  se[i] <- sd[i]/sqrt(nrow(SnowGR))
+  t_stat[i] <- (mean[i] - orig_mean)/se[i]
+}
+
+dec_t_stat <- as.data.frame(t_stat)
+
+q <- unname(quantile(dec_t_stat$t_stat, c(0.025, 0.975)))
+lower <- q[1]
+upper <- q[2]
+
+c(orig_mean - upper*orig_se, orig_mean - lower*orig_se)
+
+
+```
+
+
+
 
 # Simulation
 
