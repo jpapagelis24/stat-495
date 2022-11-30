@@ -286,7 +286,7 @@ set.seed(495)
 orig_mean <- mean(~ Dec, data = SnowGR) # theta hat
 orig_se <- sd(~ Dec, data = SnowGR)/sqrt(nrow(SnowGR))
 
-nboot <- 10000
+#nboot <- 10000
 
 se <- rep(0,nboot)
 t_stat <- rep(0,nboot)
@@ -309,12 +309,7 @@ c(orig_mean - upper*orig_se, orig_mean - lower*orig_se)
 
 
 
-
 # Simulation
-
-Justin,
-
-An example before a simulation could be useful if your simulation is assessing their performance (i.e. if your simulation is like Hmk 8, where you do a lot of reps to check performance). You could run anything on an existing data set (the one we have from Hmk 4/5), for example, that you want. I think you have enough without worrying about the parametric bootstrap.
 
 ```{r}
 
@@ -329,7 +324,7 @@ values <- data.frame(X)
 
 mean.fun <- function(d, i) {
   d <- X[i]
-  return (mean(d))
+  return (c(mean(d), sd(d)))
 }
 
 results <- boot(data = values, statistic = mean.fun, R = reps)
@@ -339,38 +334,75 @@ results
 plot(results)
 
 ci <- boot.ci(results, type = "all")
+ci
+
+
 
 ```
 
 
+
 ```{r}
-set.seed(1)
-
-reps <- 10000
-n <- 15
-
-r_pvals <- rep(0, reps)
-tau_pvals <- rep(0, reps)
-
-for(i in 1: reps) {
-  x <- rnorm(n, 40, 3)
-  y <- rgamma(n, 8, 2)
+findCIs <- function(sampleinput, trueparameter, nboot) {
   
-  values <- data.frame(x,y)
+  sample_mean <- mean(~ Dec, data = sampleinput)
+  sample_sd <- sd(~ Dec, data = sampleinput)
+  sample_n <- nrow(sampleinput)
   
-  r_pvals[i] <- with(values, cor.test(x, y))$p.value
-  tau_pvals[i] <- with(values, cor.test(x, y, method = "kendall"))$p.value
+  alphalow <- 0.025
+  alphahigh <- 0.975
+  
+  #perform bootstrap
+  mean <- rep(0,nboot)
+  sd <- rep(0,nboot)
+  se <- rep(0,nboot)
+  t_stat <- rep(0,nboot)
+
+  for (i in 1:nboot) {
+    resampled <- as.data.frame(mosaic::resample(sampleinput, replace = TRUE))
+    mean[i] <- mean(~ Dec, data = resampled)
+    sd[i] <- sd(~ Dec, data = resampled)
+    se[i] <- sd[i]/sqrt(nrow(resampled))
+    t_stat[i] <- (mean[i] - orig_mean)/se[i]
+  }
+
+  boot_means <- as.data.frame(mean)
+  boot_t_stat <- as.data.frame(t_stat)
+  
+  # find the standard confidence interval
+  standard_interval <- sample_mean + qnorm(c(0.025, 0.975)) * sample_sd/sqrt(sample_n)
+  
+  # find percentile interval
+  percentile_interval <- qdata(~ mean, c(0.025, 0.975), data = boot_means)
+  
+  # find BC interval
+  less_than_sample_mean <- sum(ifelse(boot_means <= sample_mean, 1, 0))/nboot
+  z0 <- qnorm(less_than_sample_mean)
+  newlow <- pnorm(2*z0 + qnorm(alphalow))
+  newhigh <- pnorm(2*z0 + qnorm(alphahigh))
+
+  bc_interval <- qdata(~ mean, c(newlow, newhigh), data = boot_means)
+  
+  # find BCa interval
+  theta <- function(x){mean(x)}
+  jackknife_results <- bootstrap::jackknife(sampleinput$Dec, theta)
+  jackmean <- mean(~ jackknife_results$jack.values)
+  estimated_a <- (1/6)*sum((jackknife_results$jack.values - jackmean)^3)/
+    (sum((jackknife_results$jack.values - jackmean)^2))^(1.5)
+  a_newlow <- pnorm(z0 + (z0 + qnorm(alphalow))/(1-estimated_a*(z0 + qnorm(alphalow))))
+  a_newhigh <- pnorm(z0 + (z0 + qnorm(alphahigh))/(1-estimated_a*(z0 + qnorm(alphahigh))))
+  bca_interval <- qdata(~ mean, c(a_newlow, a_newhigh), data = boot_means)
+  
+  # find studentized
+  q <- unname(quantile(boot_t_stat$t_stat, c(0.025, 0.975)))
+  lower <- q[1]
+  upper <- q[2]
+  t_interval <- c(orig_mean - upper*orig_se, orig_mean - lower*orig_se)
+
+  output <- c(standard_interval, percentile_interval, bc_interval, bca_interval, t_interval)
+  names(output) <- c("Standard Interval", "Percentile Interval", "BC Interval", "BCa Interval", "Studentized Interval")
+  output
 }
-
-sum(r_pvals <= 0.05)/reps
-sum(tau_pvals <= 0.05)/reps
-
-```
-
-```{r}
-simbootstraps <- function(dataset, trueparameter) {
-  
-  
   
   # use the data set to create the bootstrapped distribution (1 bootstrap and then keep replicated statistic of interest)
   # like 2000 times
@@ -379,35 +411,12 @@ simbootstraps <- function(dataset, trueparameter) {
   
   # see how many times the true value lies inside the interval --> first do one and then show the actual intervals
   
-}
 
+```
 
+```{r}
 
-simnormal <- function(locationinput, scaleinput, testcenterinput, ninput, repsinput = 1000){
-# Set Useful Values
-reps <- repsinput #number of repetitions
-location <- locationinput 
-scale <- scaleinput
-testcenter <- testcenterinput #center to test for
-n <- ninput #sample size
-
-#Initialize storage vectors
-tpvals <- rep(0,reps)
-spvals <- rep(0,reps)
-srpvals <- rep(0,reps)
-
-#Generate random data, do tests, save p-values
-for(i in 1:reps){
-  x <- rnorm(n, location, scale)
-  tpvals[i] <- t.test(~x, mu = testcenter)$p.value 
-  spvals[i] <- SIGN.test(x, md = testcenter)$p.value 
-  srpvals[i] <- wilcox.test(x, mu = testcenter)$p.value 
-}
-
-output <- c(sum(tpvals <= 0.05)/reps, sum(spvals <= 0.05)/reps, sum(srpvals <= 0.05)/reps)
-names(output) <- c("Ttest", "Sign", "SignedRank")
-output
-}
+OUTPUT1 <- findCIs(SnowGR, 0, 10)
 ```
 
 
