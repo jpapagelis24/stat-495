@@ -368,6 +368,7 @@ findCIs <- function(sampleinput, nboot) {
   lower_q <- t_q[1]
   upper_q <- t_q[2]
   t_interval <- c(sample_mean - (upper_q*sample_se), sample_mean - (lower_q*sample_se))
+  
   output <- list(standard_interval, percentile_interval, bc_interval, bca_interval, t_interval)
   names(output) <- c("Standard Interval", "Percentile Interval", "BC Interval", "BCa Interval", "Studentized Interval")
   output
@@ -387,8 +388,42 @@ findCIs <- function(sampleinput, nboot) {
 
 ```{r}
 set.seed(495)
-#OUTPUT1 <- findCIs(values, 2000)
-#OUTPUT1
+simulation_reps <- 30
+trueparameter <- 4
+n <- 100
+
+ci <- matrix(nrow = simulation_reps, ncol = 5)
+
+
+for (i in 1:simulation_reps){
+  #X <- rnorm(n, trueparameter, 3)
+  X <- rgamma(n, shape = 1, scale = 4)
+  values <- data.frame(X)
+  output <- findCIs(values, 2000)
+  ci[i, 1] <- trueparameter >= output$`Standard Interval`[1] & trueparameter <= output$`Standard Interval`[2]
+  ci[i, 2] <- trueparameter >= output$`Percentile Interval`[1] & trueparameter <= output$`Percentile Interval`[2]
+  ci[i, 3] <- trueparameter >= output$`BC Interval`[1] & trueparameter <= output$`BC Interval`[2]
+  ci[i, 4] <- trueparameter >= output$`BCa Interval`[1] & trueparameter <= output$`BCa Interval`[2]
+  ci[i, 5] <- trueparameter >= output$`Studentized Interval`[1] & trueparameter <= output$`Studentized Interval`[2]
+  
+}
+
+
+#ci <- as.data.frame(ci) %>%
+#  rename("Standard Interval" = V1, "Percentile Interval" = V2, "BC Interval" = V3, "BCa Interval" = V4, "Studentized Interval" = V5) 
+
+output
+
+ci_prop <- colSums(ci)/simulation_reps
+ci_prop
+
+
+```
+
+```{r}
+Y <- rgamma(5, shape = 8, scale = 2)
+Y
+
 ```
 
 
