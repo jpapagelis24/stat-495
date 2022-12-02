@@ -39,7 +39,7 @@ library(parallel)
 ```
 
 # Introduction
-Bootstrapping is an important tool in Statistics, even more so, now that there is access to a higher-level of computing power. We use bootstrapping to find an estimate of a desired population parameter from a given sample, without making any assumptions about any underlying distributions of the sample. 
+Bootstrapping is an essential tool in Statistics, even more so now that there is access to higher computing power. We use bootstrapping to estimate the desired population parameter from a given sample without making assumptions about any underlying distributions of the sample. Different bootstrap techniques are developed, but we will focus on the non-parametric bootstrap for our purposes. One way to make a statistical inference is through confidence intervals which give a range of estimates for the unknown population parameter at a certain confidence level. We can use bootstrapping to create accurate approximate confidence intervals for our population parameter even without its underlying distributions. There are many different ways to create intervals, and we will go through a couple of them: The Standard Method, The Percentile Method, The Bias-Corrected (BC) Method, The Bias-Corrected with Acceleration (BCa) Method, and finally, The Studentized Method. Additionally, we will go through an example of creating a bootstrapped confidence interval for each method. Then, we will perform a simulation to evaluate the performance of the bootstrapped confidence interval methods on different distribution types.
 
 
 # Exposition
@@ -443,14 +443,35 @@ run_simulation_normal <- function(simulation_rep){
 
 ```
 
+```{r run simulation beta}
+run_simulation_beta <- function(simulation_rep){
+  trueparameter <- 0.8
+  
+  X <- rbeta(sample_sizes, shape1 = 4, shape2 = 1)
+  values <- data.frame(X)
+  output <- findCIs(values, 2000)
+  ci <- matrix(c(trueparameter >= output$`Standard Interval`[1] & 
+    trueparameter <= output$`Standard Interval`[2],
+    trueparameter >= output$`Percentile Interval`[1] & 
+    trueparameter <= output$`Percentile Interval`[2],
+    trueparameter >= output$`BC Interval`[1] &
+    trueparameter <= output$`BC Interval`[2],
+    trueparameter >= output$`BCa Interval`[1] & 
+    trueparameter <= output$`BCa Interval`[2],
+    trueparameter >= output$`Studentized Interval`[1] & 
+    trueparameter <= output$`Studentized Interval`[2]), nrow = 1)
+  res <- rbind(data.frame(), ci)
+  res
+}
 
+```
 
 
 
 ```{r collect data gamma}
 collect_data_gamma <- function(sim_reps) {
   data2 <- matrix(nrow = 5, ncol = 6)
-  sample_sizes = 10
+  sample_sizes = 50
  # sim_reps <- 10
   for (i in 1:5) {
     simulation_rep <- seq(1,sim_reps)
@@ -473,7 +494,7 @@ collect_data_gamma <- function(sim_reps) {
 ```{r collect data log normal}
 collect_data_log_normal <- function(sim_reps) {
   data2 <- matrix(nrow = 5, ncol = 6)
-  sample_sizes = 10
+  sample_sizes = 50
   
   for (i in 1:5) {
     simulation_rep <- seq(1,sim_reps)
@@ -496,7 +517,7 @@ collect_data_log_normal <- function(sim_reps) {
 ```{r collect data normal}
 collect_data_normal <- function(sim_reps) {
   data2 <- matrix(nrow = 5, ncol = 6)
-  sample_sizes = 10
+  sample_sizes = 50
   
   for (i in 1:5) {
     simulation_rep <- seq(1,sim_reps)
@@ -517,15 +538,46 @@ collect_data_normal <- function(sim_reps) {
 ```
 
 
+```{r collect data beta}
+collect_data_beta <- function(sim_reps) {
+  data2 <- matrix(nrow = 5, ncol = 6)
+  sample_sizes = 50
+  
+  for (i in 1:5) {
+    simulation_rep <- seq(1,sim_reps)
+    results <- mclapply(simulation_rep, run_simulation_beta, mc.cores = detectCores())
+    df <- data.frame(matrix(unlist(results), nrow=length(results), byrow=TRUE))
+    ci_prop <- unname(colSums(df)/sim_reps)
+    
+    data2[i, 1] <- sample_sizes
+    data2[i, 2:6] <- ci_prop
+    sample_sizes <- sample_sizes*2
+  }
+  
+  beta_output <- as.data.frame(data2) %>% 
+    rename("Sample_Size" = V1, "Standard" = V2, "Percentile" = V3, "BC" = V4, "BCa" = V5, "Studentized" = V6) 
+  beta_output
+}
+
+```
+
 ```{r, cache = TRUE}
 set.seed(495)
-gamma_data <- collect_data_gamma(5000)
-normal_data <- collect_data_normal(5000)
-log_normal_data <- collect_data_log_normal(5000)
+gamma_data1 <- collect_data_gamma(10000)
+normal_data1 <- collect_data_normal(10000)
+log_normal_data1 <- collect_data_log_normal(10000)
+beta_data1 <- collect_data_beta(10000)
+
+write.csv(gamma_data,"gamma_data1_10000.csv", row.names = FALSE)
+write.csv(normal_data,"normal_data1_10000.csv", row.names = FALSE)
+write.csv(log_normal_data,"log_normal1_data_10000.csv", row.names = FALSE)
+write.csv(beta_data,"beta_data1_10000.csv", row.names = FALSE)
+
+
 ```
 
 ```{r}
-  gamma_data1 <- gamma_data %>%
+  gamma_data1 <- gamma_data5 %>%
     pivot_longer(cols = 2:6, names_to = "method", values_to = "prop") 
   
   gamma_fig <- ggplot(data = gamma_data1, aes(x = Sample_Size, y = prop, color = method))+
@@ -543,8 +595,26 @@ log_normal_data <- collect_data_log_normal(5000)
   
 ```
 
-
 ```{r}
+  gamma_data1 <- log_normal_data7 %>%
+    pivot_longer(cols = 2:6, names_to = "method", values_to = "prop") 
+  
+  gamma_fig <- ggplot(data = gamma_data1, aes(x = Sample_Size, y = prop, color = method))+
+    geom_point() +
+    geom_line() + 
+    labs(title = "Proportion of CIs that Contain the True Parameter from Gamma Distibution",
+         x = "Sample Size", y = "Proportion (of xyz Simulations)", color = "Method") +
+    theme_light()
+  
+  gamma_table <- gamma_data %>%
+    kable(booktabs = TRUE, align = "c", caption = "gamma", col.names = gsub("[_]", " ", names(gamma_data)))
+  
+  gamma_table
+  gamma_fig
+  
+```
+
+```{r, eval = FALSE}
 # way with boot library
 library(boot)
 set.seed(495)
