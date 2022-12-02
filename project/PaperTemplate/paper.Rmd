@@ -11,8 +11,12 @@ authors:
   
 
 keywords:
-- 3 to 6 keywords
-- that do not appear in the title
+- confidence interval
+- simulation
+- percentile
+- bias-corrected
+- acceleration
+- studentized
 
 abstract: |
   For my project, I plan to explore different bootstrap methods for creating confidence intervals and then perform comparisons between a couple of the methods. My paper will re-introduce the idea of bootstrap to my peers and give some background on constructing confidence intervals. We will also go deeper into the theory behind the construction of confidence intervals from bootstrapped data. These various methods to create a confidence interval from a bootstrap can include the percentile method, bias-corrected method, accelerated method, and the studentized method, as well as others. I will demonstrate how these bootstrap methods work using “toy examples,” which will be datasets in which a specific bootstrap method is appropriate. To demonstrate my understanding of the methods, I will write a simulation to compare a few of them and determine how they perform against each other. I will show my understanding of the different methods of creating confidence intervals from bootstrapped data by communicating the statistical theory in a concise and accessible way to my peers. Writing the simulation and sharing conclusions will demonstrate my ability to implement statistical methods in practice as well as my ability to analyze the results of the simulation.
@@ -30,10 +34,11 @@ library(mdsr)
 library(knitr)
 library(kableExtra)
 library(boot)
+library(gridExtra)
 ```
 
 # Introduction
-To be added later
+Bootstrapping is an important tool in Statistics, even more so, now that there is access to a higher-level of computing power. We use bootstrapping to find an estimate of a desired population parameter from a given sample, without making any assumptions about any underlying distributions of the sample. 
 
 
 # Exposition
@@ -64,9 +69,7 @@ gf_histogram(~ Dec, data = SnowGR) +
 
 Next, we will perform the non-parametric bootstrap using 10,000 replications.
 
-
 ```{r}
-
 orig_mean <- mean(~ Dec, data = SnowGR) # theta hat
 
 set.seed(495)
@@ -81,22 +84,14 @@ for (i in 1:nboot) {
   resampled <- as.data.frame(mosaic::resample(SnowGR, replace = TRUE))
   mean[i] <- mean(~Dec, data = resampled)
   sd[i] <- sd(~Dec, data = resampled)
- # se[i] <- sd[i]/nrow(resampled)
-#  t_stat[i] <- (mean[i] - orig_mean)/se[i]
 }
 
 dec_means <- as.data.frame(mean)
-#dec_t_stat <- as.data.frame(t_stat)
-
 ```
 
 
+
 ```{r}
-
-#set.seed(495)
-#dec_means <- do(10000)*mean(~ Dec, data = mosaic::resample(SnowGR, replace = TRUE))
-
-
 gf_dhistogram(~ mean, data = dec_means) %>%
   gf_dens() %>%
   gf_labs(title = "Histogram of 10,000 Bootstrapped Mean Dec Values")
@@ -387,16 +382,19 @@ run_simulation_gamma <- function(num_reps, sample_size){
   ci <- matrix(nrow = simulation_reps, ncol = 5)
 
   for (i in 1:simulation_reps){
-    #X <- rnorm(n, trueparameter, 3)
     X <- rgamma(n, shape = 1, scale = 4)
     values <- data.frame(X)
     output <- findCIs(values, 2000)
-    ci[i, 1] <- trueparameter >= output$`Standard Interval`[1] & trueparameter <= output$`Standard Interval`[2]
-    ci[i, 2] <- trueparameter >= output$`Percentile Interval`[1] & trueparameter <= output$`Percentile Interval`[2]
-    ci[i, 3] <- trueparameter >= output$`BC Interval`[1] & trueparameter <= output$`BC Interval`[2]
-    ci[i, 4] <- trueparameter >= output$`BCa Interval`[1] & trueparameter <= output$`BCa Interval`[2]
-    ci[i, 5] <- trueparameter >= output$`Studentized Interval`[1] & trueparameter <= output$`Studentized Interval`[2]
-    
+    ci[i, 1] <- trueparameter >= output$`Standard Interval`[1] & 
+      trueparameter <= output$`Standard Interval`[2]
+    ci[i, 2] <- trueparameter >= output$`Percentile Interval`[1] & 
+      trueparameter <= output$`Percentile Interval`[2]
+    ci[i, 3] <- trueparameter >= output$`BC Interval`[1] &
+      trueparameter <= output$`BC Interval`[2]
+    ci[i, 4] <- trueparameter >= output$`BCa Interval`[1] & 
+      trueparameter <= output$`BCa Interval`[2]
+    ci[i, 5] <- trueparameter >= output$`Studentized Interval`[1] & 
+      trueparameter <= output$`Studentized Interval`[2]
   }
   
 
@@ -406,42 +404,157 @@ run_simulation_gamma <- function(num_reps, sample_size){
 
 ```
 
-
 ```{r}
-#10 100 500 1000
-data2 <- matrix(nrow = 3, ncol = 6)
+run_simulation_log_normal <- function(num_reps, sample_size){
+  set.seed(495)
+  simulation_reps <- num_reps
+  trueparameter <- exp(1/2)
+  n <- sample_size
 
-for (i in 1:3) {
-  output2 <- run_simulation_gamma(10, 10^i)
-  data2[i, 1] <- 10^i
-  data2[i, 2] <- output2[1]
-  data2[i, 3] <- output2[2]
-  data2[i, 4] <- output2[3]
-  data2[i, 5] <- output2[4]
-  data2[i, 6] <- output2[5]
+  ci <- matrix(nrow = simulation_reps, ncol = 5)
+
+  for (i in 1:simulation_reps){
+    X <- rlnorm(n, meanlog = 0, sdlog = 1)
+    values <- data.frame(X)
+    output <- findCIs(values, 2000)
+    ci[i, 1] <- trueparameter >= output$`Standard Interval`[1] & 
+      trueparameter <= output$`Standard Interval`[2]
+    ci[i, 2] <- trueparameter >= output$`Percentile Interval`[1] & 
+      trueparameter <= output$`Percentile Interval`[2]
+    ci[i, 3] <- trueparameter >= output$`BC Interval`[1] &
+      trueparameter <= output$`BC Interval`[2]
+    ci[i, 4] <- trueparameter >= output$`BCa Interval`[1] & 
+      trueparameter <= output$`BCa Interval`[2]
+    ci[i, 5] <- trueparameter >= output$`Studentized Interval`[1] & 
+      trueparameter <= output$`Studentized Interval`[2]
+  }
+  ci_prop <- colSums(ci)/simulation_reps
+  ci_prop
 }
 
-output3 <- as.data.frame(data2) %>% 
-  rename("sample_size" = V1, "standard" = V2, "percentile" = V3, "BC" = V4, "BCa" = V5, "studentized" = V6) 
-
-output4 <- output3 %>%
-  pivot_longer(cols = 2:6, names_to = "method", values_to = "prop") 
-
-ggplot(data = output4, aes(x = sample_size, y = prop, color = method))+
-  geom_point() +
-  geom_line()
-
-
 ```
 
 
 ```{r}
+run_simulation_normal <- function(num_reps, sample_size){
+  set.seed(495)
+  simulation_reps <- num_reps
+  trueparameter <- 0
+  n <- sample_size
 
-Y <- rgamma(5, shape = 8, scale = 2)
-Y
+  ci <- matrix(nrow = simulation_reps, ncol = 5)
+
+  for (i in 1:simulation_reps){
+    X <- rnorm(n, mean = 0, sd = 1)
+    values <- data.frame(X)
+    output <- findCIs(values, 2000)
+    ci[i, 1] <- trueparameter >= output$`Standard Interval`[1] & 
+      trueparameter <= output$`Standard Interval`[2]
+    ci[i, 2] <- trueparameter >= output$`Percentile Interval`[1] & 
+      trueparameter <= output$`Percentile Interval`[2]
+    ci[i, 3] <- trueparameter >= output$`BC Interval`[1] &
+      trueparameter <= output$`BC Interval`[2]
+    ci[i, 4] <- trueparameter >= output$`BCa Interval`[1] & 
+      trueparameter <= output$`BCa Interval`[2]
+    ci[i, 5] <- trueparameter >= output$`Studentized Interval`[1] & 
+      trueparameter <= output$`Studentized Interval`[2]
+  }
+  ci_prop <- colSums(ci)/simulation_reps
+  ci_prop
+}
 
 ```
 
+
+
+
+
+```{r}
+collect_data_gamma <- function(sim_reps) {
+  data2 <- matrix(nrow = 5, ncol = 6)
+  
+  simulation_reps <- sim_reps
+  sample_sizes <- c(10, 25, 50, 100, 250)
+  
+  for (i in 1:5) {
+    output2 <- run_simulation_gamma(simulation_reps, sample_sizes[i])
+    data2[i, 1] <- sample_sizes[i]
+    data2[i, 2:6] <- output2
+  }
+  
+  gamma_output <- as.data.frame(data2) %>% 
+    rename("Sample_Size" = V1, "Standard" = V2, "Percentile" = V3, "BC" = V4, "BCa" = V5, "Studentized" = V6) 
+  gamma_output
+}
+
+```
+
+```{r}
+collect_data_log_normal <- function(sim_reps) {
+  data2 <- matrix(nrow = 5, ncol = 6)
+  
+  simulation_reps <- sim_reps
+  sample_sizes <- c(10, 25, 50, 100, 250)
+  
+  for (i in 1:5) {
+    output2 <- run_simulation_log_normal(simulation_reps, sample_sizes[i])
+    data2[i, 1] <- sample_sizes[i]
+    data2[i, 2:6] <- output2
+  }
+  
+  normal_output <- as.data.frame(data2) %>% 
+    rename("Sample_Size" = V1, "Standard" = V2, "Percentile" = V3, "BC" = V4, "BCa" = V5, "Studentized" = V6) 
+  normal_output
+}
+
+```
+
+```{r}
+collect_data_normal <- function(sim_reps) {
+  data2 <- matrix(nrow = 5, ncol = 6)
+  
+  simulation_reps <- sim_reps
+  sample_sizes <- c(10, 25, 50, 100, 250)
+  
+  for (i in 1:5) {
+    output2 <- run_simulation_normal(simulation_reps, sample_sizes[i])
+    data2[i, 1] <- sample_sizes[i]
+    data2[i, 2:6] <- output2
+  }
+  
+  normal_output <- as.data.frame(data2) %>% 
+    rename("Sample_Size" = V1, "Standard" = V2, "Percentile" = V3, "BC" = V4, "BCa" = V5, "Studentized" = V6) 
+  normal_output
+}
+
+```
+
+
+```{r, cache = TRUE}
+set.seed(495)
+gamma_data <- collect_data_gamma(30)
+normal_data <- collect_data_normal(30)
+log_normal_data <- collect_data_log_normal(30)
+```
+
+```{r}
+  gamma_data1 <- gamma_data %>%
+    pivot_longer(cols = 2:6, names_to = "method", values_to = "prop") 
+  
+  gamma_fig <- ggplot(data = gamma_data1, aes(x = Sample_Size, y = prop, color = method))+
+    geom_point() +
+    geom_line() + 
+    labs(title = "Proportion of CIs that Contain the True Parameter from Gamma Distibution",
+         x = "Sample Size", y = "Proportion (of xyz Simulations)", color = "Method") +
+    theme_light()
+  
+  gamma_table <- gamma_data %>%
+    kable(booktabs = TRUE, align = "c", caption = "gamma", col.names = gsub("[_]", " ", names(gamma_data)))
+  
+  gamma_table
+  gamma_fig
+  
+```
 
 
 ```{r}
@@ -472,5 +585,68 @@ ci
 
 
 ```
+
+
+```{r}
+library(parallel)
+numCores <- detectCores()
+#simulation_reps <- 30
+#simulation_rep <- seq(1,simulation_reps)
+#sample_size <- 20
+#  simulation_reps <- num_reps
+
+run_simulation_normal1 <- function(simulation_rep){
+  trueparameter <- 0
+  
+  X <- rnorm(sample_sizes, mean = 0, sd = 1)
+  values <- data.frame(X)
+  output <- findCIs(values, 2000)
+  ci <- matrix(c(trueparameter >= output$`Standard Interval`[1] & 
+    trueparameter <= output$`Standard Interval`[2],
+    trueparameter >= output$`Percentile Interval`[1] & 
+    trueparameter <= output$`Percentile Interval`[2],
+    trueparameter >= output$`BC Interval`[1] &
+    trueparameter <= output$`BC Interval`[2],
+    trueparameter >= output$`BCa Interval`[1] & 
+    trueparameter <= output$`BCa Interval`[2],
+    trueparameter >= output$`Studentized Interval`[1] & 
+    trueparameter <= output$`Studentized Interval`[2]), nrow = 1)
+  res <- rbind(data.frame(), ci)
+  res
+}
+
+  
+  collect_data_normal1 <- function(sim_reps) {
+  data2 <- matrix(nrow = 5, ncol = 6)
+  
+
+
+  sample_sizes = 10
+  
+  for (i in 1:5) {
+    #output2 <- run_simulation_normal1(simulation_reps)
+    simulation_rep <- seq(1,sim_reps)
+    results <- mclapply(simulation_rep, run_simulation_normal1, mc.cores = detectCores())
+    df <- data.frame(matrix(unlist(results), nrow=length(results), byrow=TRUE))
+    ci_prop <- colSums(df)/sim_reps
+    
+    data2[i, 1] <- sample_sizes
+    data2[i, 2:6] <- ci_prop
+    sample_sizes <- sample_sizes*2
+  }
+  
+  normal_output <- as.data.frame(data2) %>% 
+    rename("Sample_Size" = V1, "Standard" = V2, "Percentile" = V3, "BC" = V4, "BCa" = V5, "Studentized" = V6) 
+  normal_output
+  }
+  
+    xyzw <- collect_data_normal1(20)
+
+
+```
+
+
+
+
 
 
