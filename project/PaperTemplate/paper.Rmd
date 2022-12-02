@@ -39,7 +39,14 @@ library(parallel)
 ```
 
 # Introduction
-Bootstrapping is an essential tool in Statistics, even more so now that there is access to higher computing power. We use bootstrapping to estimate the desired population parameter from a given sample without making assumptions about any underlying distributions of the sample. Different bootstrap techniques are developed, but we will focus on the non-parametric bootstrap for our purposes. One way to make a statistical inference is through confidence intervals which give a range of estimates for the unknown population parameter at a certain confidence level. We can use bootstrapping to create accurate approximate confidence intervals for our population parameter even without its underlying distributions. There are many different ways to create intervals, and we will go through a couple of them: The Standard Method, The Percentile Method, The Bias-Corrected (BC) Method, The Bias-Corrected with Acceleration (BCa) Method, and finally, The Studentized Method. Additionally, we will go through an example of creating a bootstrapped confidence interval for each method. Then, we will perform a simulation to evaluate the performance of the bootstrapped confidence interval methods on different distribution types.
+Bootstrapping is an essential tool in Statistics, even more so now that there is access to higher computing power. 
+We use bootstrapping to estimate the desired population parameter from a given sample without making assumptions about any underlying distributions of the sample. 
+Different bootstrap techniques are developed, but we will focus on the non-parametric bootstrap for our purposes. 
+One way to make a statistical inference is through confidence intervals which give a range of estimates for the unknown population parameter at a certain confidence level. 
+We can use bootstrapping to create accurate approximate confidence intervals for our population parameter even without its underlying distributions. 
+There are many different ways to create intervals, and we will go through a couple of them: The Standard Method, The Percentile Method, The Bias-Corrected (BC) Method, The Bias-Corrected with Acceleration (BCa) Method, and finally, The Studentized Method. 
+Additionally, we will go through an example of creating a bootstrapped confidence interval for each method.
+Then, we will perform a simulation to evaluate the performance of the bootstrapped confidence interval methods on different distribution types.
 
 
 # Exposition
@@ -65,7 +72,8 @@ We demonstrate performing a non-parametric bootstrap below using `SnowGR` which 
 data(SnowGR)
 favstats(~ Dec, data = SnowGR)
 gf_histogram(~ Dec, data = SnowGR) +
-  labs(x = "Annual Snowfall in Decemeber", title = "Distribution of Annual Snowfall in Decemeber", y = "Count")
+  labs(x = "Annual Snowfall in Decemeber", 
+       title = "Distribution of Annual Snowfall in Decemeber", y = "Count")
 ```
 
 Next, we will perform the non-parametric bootstrap using 10,000 replications.
@@ -116,12 +124,14 @@ For bootstrapped confidence intervals, the number of bootstrap replications $B$ 
 Using our example, to find a 95% confidence interval for the population mean of `Dec`, we would get the following:
 
 ```{r}
-mean(~ Dec, data = SnowGR) + qnorm(c(0.025, 0.975)) * sd(~ Dec, data = SnowGR) / sqrt(nrow(SnowGR))
+mean(~ Dec, data = SnowGR) + qnorm(c(0.025, 0.975)) * 
+  sd(~ Dec, data = SnowGR)/sqrt(nrow(SnowGR))
 ```
 
 ```{r}
 gf_histogram(~ Dec, data = SnowGR) +
-  labs(x = "Annual Snowfall in Decemeber", title = "Distribution of Annual Snowfall in Decemeber", y = "Count") +
+  labs(x = "Annual Snowfall in Decemeber", 
+       title = "Distribution of Annual Snowfall in Decemeber", y = "Count") +
   geom_vline(aes(xintercept= 13.85639)) +
   geom_vline(aes(xintercept= 17.65957))
 ```
@@ -154,7 +164,8 @@ qdata(~ mean, c(0.025, 0.975), data = dec_means)
 
 ```{r}
 gf_histogram(~ Dec, data = SnowGR) +
-  labs(x = "Annual Snowfall in Decemeber", title = "Distribution of Annual Snowfall in Decemeber", y = "Count") +
+  labs(x = "Annual Snowfall in Decemeber", 
+       title = "Distribution of Annual Snowfall in Decemeber", y = "Count") +
   geom_vline(aes(xintercept= 13.91170)) +
   geom_vline(aes(xintercept= 17.72353))
 ```
@@ -200,7 +211,8 @@ qdata(~ mean, c(newlow, newhigh), data = dec_means)
 
 ```{r}
 gf_histogram(~ Dec, data = SnowGR) +
-  labs(x = "Annual Snowfall in Decemeber", title = "Distribution of Annual Snowfall in Decemeber", y = "Count") +
+  labs(x = "Annual Snowfall in Decemeber", 
+       title = "Distribution of Annual Snowfall in Decemeber", y = "Count") +
   geom_vline(aes(xintercept= 14.01172)) +
   geom_vline(aes(xintercept= 17.82017))
 
@@ -242,14 +254,17 @@ estimated_a <- (1/6)*sum((jackknife_results$jack.values - jackmean)^3)/
 Now, we can find the adjust percentiles and the bias-corrected with acceleration confidence interval.
 
 ```{r}
-a_newlow <- pnorm(z0 + (z0 + qnorm(alphalow))/(1-estimated_a*(z0 + qnorm(alphalow)))); #a_newlow
-a_newhigh <- pnorm(z0 + (z0 + qnorm(alphahigh))/(1-estimated_a*(z0 + qnorm(alphahigh)))); #a_newhigh
+a_newlow <- pnorm(z0 + (z0 + qnorm(alphalow))/
+                    (1-estimated_a*(z0 + qnorm(alphalow)))); #a_newlow
+a_newhigh <- pnorm(z0 + (z0 + qnorm(alphahigh))/
+                     (1-estimated_a*(z0 + qnorm(alphahigh)))); #a_newhigh
 qdata(~ mean, c(a_newlow, a_newhigh), data = dec_means)
 ```
 
 ```{r}
 gf_histogram(~ Dec, data = SnowGR) +
-  labs(x = "Annual Snowfall in Decemeber", title = "Distribution of Annual Snowfall in Decemeber", y = "Count") +
+  labs(x = "Annual Snowfall in Decemeber", 
+       title = "Distribution of Annual Snowfall in Decemeber", y = "Count") +
   geom_vline(aes(xintercept= 13.91591)) +
   geom_vline(aes(xintercept= 17.72353))
 
@@ -269,11 +284,7 @@ From these we can calculate a t-statistic for each bootstrap sample: $$T^* = \fr
 This means that for $B = 2000$ and $\alpha = 0.90$, then $\hat{T}_{(\alpha)}$ is the 1,800th ordered point of all of the bootstrap replications of $T^*$. 
 It follows that the $\alpha$th studentized confidence interval endpoint can be given with $$\hat{\theta}_T[\alpha] = \hat{\theta} - \hat{\sigma}T_{(\alpha)},$$ where we can estimate the standard error using $$\hat{\sigma} = \frac{1-\hat{\theta}^2}{\sqrt{n}}.$$ One of the main factors why the studentized method is so popular is because we assume that our bootstrapped statistic is pivotal which means that the confidence interval does not depend on any other parameters. Instead, we can calculate the appropriate confidence interval for the parameter of interest specifically from the bootstrapped statistic [@Efron86,@Puth15].
 
-We can use the following to get our studentized confidence interval:
-```{r}
-mean(~ Dec, data = SnowGR) + qt(c(0.025, 0.975), df = (nrow(SnowGR-1))) * 
-  sd(~ Dec, data = SnowGR) / sqrt(nrow(SnowGR))
-```
+Following the process above, we can use the following to get our studentized confidence interval:
 
 
 ```{r}
@@ -281,8 +292,6 @@ set.seed(495)
 
 orig_mean <- mean(~ Dec, data = SnowGR) # theta hat
 orig_se <- sd(~ Dec, data = SnowGR)/sqrt(nrow(SnowGR))
-
-#nboot <- 10000
 
 se <- rep(0,nboot)
 t_stat <- rep(0,nboot)
@@ -300,12 +309,15 @@ upper <- q[2]
 
 c(orig_mean - upper*orig_se, orig_mean - lower*orig_se)
 
-
 ```
 
 
 
 # Simulation
+
+For the simulation, we will randomly sample from distributions in which we know the true population mean. For example, we will sampling from a Gamma Distribution where we can find the true population mean using the shape and rate parameters of the sample distribution. After we sample from a distribution, we will create a bootstrapped confidence interval for each of the methods we described in the exposition. Since we know the true population mean of the distribution, we will determine if the true population parameter is contained in the confidence interval for each of the methods. We will perform this process a large number of times (10,000) and then average by the number of iterations to determine the average proportion that each bootstrapped confidence interval method contains the true population mean. We will do this for a couple different distributions as well as a range of sample sizes show how the intervals perform with skewed distributions and larger sample sizes.
+
+First, we create a function that calculates the bootstrapped confidence intervals from a given sample. To do this, we first bootstrap the sample and then perform each method.
 
 ```{r find CIs}
 findCIs <- function(sampleinput, nboot) {
@@ -336,7 +348,8 @@ findCIs <- function(sampleinput, nboot) {
   boot_t_stat <- as.data.frame(t_stat)
   
   # find the standard confidence interval
-  standard_interval <- sample_mean + qnorm(c(0.025, 0.975)) * sample_sd/sqrt(sample_n)
+  standard_interval <- sample_mean + 
+    qnorm(c(0.025, 0.975)) * sample_sd/sqrt(sample_n)
   
   # find percentile interval
   percentile_interval <- qdata(~ mean, c(0.025, 0.975), data = boot_means)
@@ -355,70 +368,27 @@ findCIs <- function(sampleinput, nboot) {
   jackmean <- mean(~ jackknife_results$jack.values)
   estimated_a <- (1/6)*sum((jackknife_results$jack.values - jackmean)^3)/
     (sum((jackknife_results$jack.values - jackmean)^2))^(1.5)
-  a_newlow <- pnorm(z0 + (z0 + qnorm(alphalow))/(1-estimated_a*(z0 + qnorm(alphalow))))
-  a_newhigh <- pnorm(z0 + (z0 + qnorm(alphahigh))/(1-estimated_a*(z0 + qnorm(alphahigh))))
+  a_newlow <- pnorm(z0 + (z0 + qnorm(alphalow))/
+                      (1-estimated_a*(z0 + qnorm(alphalow))))
+  a_newhigh <- pnorm(z0 + (z0 + qnorm(alphahigh))/
+                       (1-estimated_a*(z0 + qnorm(alphahigh))))
   bca_interval <- qdata(~ mean, c(a_newlow, a_newhigh), data = boot_means)
   
-  # find studentized
+  # find studentized interval
   t_q <- unname(quantile(boot_t_stat$t_stat, c(0.025, 0.975)))
   lower_q <- t_q[1]
   upper_q <- t_q[2]
   t_interval <- c(sample_mean - (upper_q*sample_se), sample_mean - (lower_q*sample_se))
   
-  output <- list(standard_interval, percentile_interval, bc_interval, bca_interval, t_interval)
-  names(output) <- c("Standard Interval", "Percentile Interval", "BC Interval", "BCa Interval", "Studentized Interval")
+  output <- list(standard_interval, percentile_interval, bc_interval, 
+                 bca_interval, t_interval)
+  names(output) <- c("Standard Interval", "Percentile Interval", "BC Interval", 
+                     "BCa Interval", "Studentized Interval")
   output
 }
 ```
 
-
-
-```{r run simulation gamma}
-run_simulation_gamma <- function(simulation_rep){
-  trueparameter <- 4
-  
-  X <- rgamma(sample_sizes, shape = 1, scale = 4)
-  values <- data.frame(X)
-  output <- findCIs(values, 2000)
-  ci <- matrix(c(trueparameter >= output$`Standard Interval`[1] & 
-    trueparameter <= output$`Standard Interval`[2],
-    trueparameter >= output$`Percentile Interval`[1] & 
-    trueparameter <= output$`Percentile Interval`[2],
-    trueparameter >= output$`BC Interval`[1] &
-    trueparameter <= output$`BC Interval`[2],
-    trueparameter >= output$`BCa Interval`[1] & 
-    trueparameter <= output$`BCa Interval`[2],
-    trueparameter >= output$`Studentized Interval`[1] & 
-    trueparameter <= output$`Studentized Interval`[2]), nrow = 1)
-  res <- rbind(data.frame(), ci)
-  res
-}
-
-```
-
-```{r run simulation log normal}
-run_simulation_log_normal <- function(simulation_rep){
-  trueparameter <- exp(1/2)
-
-  X <- rlnorm(sample_sizes, meanlog = 0, sdlog = 1)
-  values <- data.frame(X)
-  output <- findCIs(values, 2000)
-  ci <- matrix(c(trueparameter >= output$`Standard Interval`[1] & 
-    trueparameter <= output$`Standard Interval`[2],
-    trueparameter >= output$`Percentile Interval`[1] & 
-    trueparameter <= output$`Percentile Interval`[2],
-    trueparameter >= output$`BC Interval`[1] &
-    trueparameter <= output$`BC Interval`[2],
-    trueparameter >= output$`BCa Interval`[1] & 
-    trueparameter <= output$`BCa Interval`[2],
-    trueparameter >= output$`Studentized Interval`[1] & 
-    trueparameter <= output$`Studentized Interval`[2]), nrow = 1)
-  res <- rbind(data.frame(), ci)
-  res
-}
-
-```
-
+Next, we will create the simulation that picks the random sample from a distribution and tests to see if the sample creates bootstrapped confidence intervals that contain the true population parameter. First, we have the simulation of selecting from a Normal Distribution. Since we have a $N(0,1)$ distribution, out true population mean is 0. 
 
 ```{r run simulation normal}
 run_simulation_normal <- function(simulation_rep){
@@ -443,6 +413,58 @@ run_simulation_normal <- function(simulation_rep){
 
 ```
 
+Second, we select from a Gamma Distribution with a shape parameter of 1 and a scale parameter of 4. This means the true population parameter is 4. 
+
+```{r run simulation gamma}
+run_simulation_gamma <- function(simulation_rep){
+  trueparameter <- 4
+  
+  X <- rgamma(sample_sizes, shape = 1, scale = 4)
+  values <- data.frame(X)
+  output <- findCIs(values, 2000)
+  ci <- matrix(c(trueparameter >= output$`Standard Interval`[1] & 
+    trueparameter <= output$`Standard Interval`[2],
+    trueparameter >= output$`Percentile Interval`[1] & 
+    trueparameter <= output$`Percentile Interval`[2],
+    trueparameter >= output$`BC Interval`[1] &
+    trueparameter <= output$`BC Interval`[2],
+    trueparameter >= output$`BCa Interval`[1] & 
+    trueparameter <= output$`BCa Interval`[2],
+    trueparameter >= output$`Studentized Interval`[1] & 
+    trueparameter <= output$`Studentized Interval`[2]), nrow = 1)
+  res <- rbind(data.frame(), ci)
+  res
+}
+
+```
+
+Third, we sample from a Log-Normal distribution with mean log of 0 and a mean standard deviation of 1. Therefore, the true population mean of this distribution is $e^{\frac{1}{2}}$.
+
+```{r run simulation log normal}
+run_simulation_log_normal <- function(simulation_rep){
+  trueparameter <- exp(1/2)
+
+  X <- rlnorm(sample_sizes, meanlog = 0, sdlog = 1)
+  values <- data.frame(X)
+  output <- findCIs(values, 2000)
+  ci <- matrix(c(trueparameter >= output$`Standard Interval`[1] & 
+    trueparameter <= output$`Standard Interval`[2],
+    trueparameter >= output$`Percentile Interval`[1] & 
+    trueparameter <= output$`Percentile Interval`[2],
+    trueparameter >= output$`BC Interval`[1] &
+    trueparameter <= output$`BC Interval`[2],
+    trueparameter >= output$`BCa Interval`[1] & 
+    trueparameter <= output$`BCa Interval`[2],
+    trueparameter >= output$`Studentized Interval`[1] & 
+    trueparameter <= output$`Studentized Interval`[2]), nrow = 1)
+  res <- rbind(data.frame(), ci)
+  res
+}
+
+```
+
+Lastly, we sample from a Beta distribution with shape parameters of 4 and 1 which gives us a true population mean of 0.8.
+
 ```{r run simulation beta}
 run_simulation_beta <- function(simulation_rep){
   trueparameter <- 0.8
@@ -466,13 +488,12 @@ run_simulation_beta <- function(simulation_rep){
 
 ```
 
-
+After that, these functions will compile all of the information we have created from the previous methods and run the simulations of each method for a variety of sample sizes. 
 
 ```{r collect data gamma}
 collect_data_gamma <- function(sim_reps) {
   data2 <- matrix(nrow = 5, ncol = 6)
   sample_sizes = 50
- # sim_reps <- 10
   for (i in 1:5) {
     simulation_rep <- seq(1,sim_reps)
     results <- mclapply(simulation_rep, run_simulation_gamma, mc.cores = detectCores())
@@ -483,9 +504,10 @@ collect_data_gamma <- function(sim_reps) {
     data2[i, 2:6] <- ci_prop
     sample_sizes <- sample_sizes*2
   }
-  
+
   gamma_output <- as.data.frame(data2) %>% 
-    rename("Sample_Size" = V1, "Standard" = V2, "Percentile" = V3, "BC" = V4, "BCa" = V5, "Studentized" = V6) 
+    rename("Sample_Size" = V1, "Standard" = V2, "Percentile" = V3, "BC" = V4, 
+           "BCa" = V5, "Studentized" = V6) 
   gamma_output
 }
 
@@ -508,10 +530,10 @@ collect_data_log_normal <- function(sim_reps) {
   }
   
   log_normal_output <- as.data.frame(data2) %>% 
-    rename("Sample_Size" = V1, "Standard" = V2, "Percentile" = V3, "BC" = V4, "BCa" = V5, "Studentized" = V6) 
+    rename("Sample_Size" = V1, "Standard" = V2, "Percentile" = V3, "BC" = V4, 
+           "BCa" = V5, "Studentized" = V6) 
   log_normal_output
 }
-
 ```
 
 ```{r collect data normal}
@@ -521,7 +543,8 @@ collect_data_normal <- function(sim_reps) {
   
   for (i in 1:5) {
     simulation_rep <- seq(1,sim_reps)
-    results <- mclapply(simulation_rep, run_simulation_normal, mc.cores = detectCores())
+    results <- mclapply(simulation_rep, run_simulation_normal, 
+                        mc.cores = detectCores())
     df <- data.frame(matrix(unlist(results), nrow=length(results), byrow=TRUE))
     ci_prop <- unname(colSums(df)/sim_reps)
     
@@ -531,7 +554,8 @@ collect_data_normal <- function(sim_reps) {
   }
   
   normal_output <- as.data.frame(data2) %>% 
-    rename("Sample_Size" = V1, "Standard" = V2, "Percentile" = V3, "BC" = V4, "BCa" = V5, "Studentized" = V6) 
+    rename("Sample_Size" = V1, "Standard" = V2, "Percentile" = V3, "BC" = V4, 
+           "BCa" = V5, "Studentized" = V6) 
   normal_output
 }
 
@@ -545,7 +569,8 @@ collect_data_beta <- function(sim_reps) {
   
   for (i in 1:5) {
     simulation_rep <- seq(1,sim_reps)
-    results <- mclapply(simulation_rep, run_simulation_beta, mc.cores = detectCores())
+    results <- mclapply(simulation_rep, run_simulation_beta, 
+                        mc.cores = detectCores())
     df <- data.frame(matrix(unlist(results), nrow=length(results), byrow=TRUE))
     ci_prop <- unname(colSums(df)/sim_reps)
     
@@ -555,97 +580,47 @@ collect_data_beta <- function(sim_reps) {
   }
   
   beta_output <- as.data.frame(data2) %>% 
-    rename("Sample_Size" = V1, "Standard" = V2, "Percentile" = V3, "BC" = V4, "BCa" = V5, "Studentized" = V6) 
+    rename("Sample_Size" = V1, "Standard" = V2, "Percentile" = V3, "BC" = V4, 
+           "BCa" = V5, "Studentized" = V6) 
   beta_output
 }
 
 ```
 
-```{r, cache = TRUE}
+```{r, cache = TRUE, eval = FALSE}
 set.seed(495)
 gamma_data1 <- collect_data_gamma(10000)
+write.csv(gamma_data1,"gamma_data1_10000.csv", row.names = FALSE)
+
 normal_data1 <- collect_data_normal(10000)
+write.csv(normal_data1,"normal_data1_10000.csv", row.names = FALSE)
+
 log_normal_data1 <- collect_data_log_normal(10000)
+write.csv(log_normal_data1,"log_normal1_data_10000.csv", row.names = FALSE)
+
 beta_data1 <- collect_data_beta(10000)
-
-write.csv(gamma_data,"gamma_data1_10000.csv", row.names = FALSE)
-write.csv(normal_data,"normal_data1_10000.csv", row.names = FALSE)
-write.csv(log_normal_data,"log_normal1_data_10000.csv", row.names = FALSE)
-write.csv(beta_data,"beta_data1_10000.csv", row.names = FALSE)
+write.csv(beta_data1,"beta_data1_10000.csv", row.names = FALSE)
 
 
-```
-
-```{r}
-  gamma_data1 <- gamma_data5 %>%
-    pivot_longer(cols = 2:6, names_to = "method", values_to = "prop") 
-  
-  gamma_fig <- ggplot(data = gamma_data1, aes(x = Sample_Size, y = prop, color = method))+
-    geom_point() +
-    geom_line() + 
-    labs(title = "Proportion of CIs that Contain the True Parameter from Gamma Distibution",
-         x = "Sample Size", y = "Proportion (of xyz Simulations)", color = "Method") +
-    theme_light()
-  
-  gamma_table <- gamma_data %>%
-    kable(booktabs = TRUE, align = "c", caption = "gamma", col.names = gsub("[_]", " ", names(gamma_data)))
-  
-  gamma_table
-  gamma_fig
-  
-```
-
-```{r}
-  gamma_data1 <- log_normal_data7 %>%
-    pivot_longer(cols = 2:6, names_to = "method", values_to = "prop") 
-  
-  gamma_fig <- ggplot(data = gamma_data1, aes(x = Sample_Size, y = prop, color = method))+
-    geom_point() +
-    geom_line() + 
-    labs(title = "Proportion of CIs that Contain the True Parameter from Gamma Distibution",
-         x = "Sample Size", y = "Proportion (of xyz Simulations)", color = "Method") +
-    theme_light()
-  
-  gamma_table <- gamma_data %>%
-    kable(booktabs = TRUE, align = "c", caption = "gamma", col.names = gsub("[_]", " ", names(gamma_data)))
-  
-  gamma_table
-  gamma_fig
-  
 ```
 
 ```{r, eval = FALSE}
-# way with boot library
-library(boot)
-set.seed(495)
-
-reps <- 2000
-n <- 50
-
-X <- rnorm(n, 0, 1)
-values <- data.frame(X)
-
-mean.fun <- function(d, i) {
-  d <- X[i]
-  return (c(mean(d), sd(d)))
-}
-
-results <- boot(data = values, statistic = mean.fun, R = reps)
-
-results
-
-plot(results)
-
-ci <- boot.ci(results, type = "all")
-ci
-
-
-
+    gamma_data1 <- gamma_data5 %>%
+      pivot_longer(cols = 2:6, names_to = "method", values_to = "prop") 
+    
+    gamma_fig <- ggplot(data = gamma_data1, aes(x = Sample_Size, y = prop, 
+                                                color = method))+
+      geom_point() +
+      geom_line() + 
+      labs(title = "Proportion of CIs that Contain the True Parameter 
+           from Gamma Distibution",
+           x = "Sample Size", y = "Proportion (of xyz Simulations)", color = "Method") +
+      theme_light()
+    
+    gamma_table <- gamma_data %>%
+      kable(booktabs = TRUE, align = "c", caption = "gamma", col.names = gsub("[_]", " ", names(gamma_data)))
+    
+    gamma_table
+    gamma_fig
+  
 ```
-
-
-
-
-
-
-
