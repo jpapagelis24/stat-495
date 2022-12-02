@@ -284,8 +284,7 @@ From these we can calculate a t-statistic for each bootstrap sample: $$T^* = \fr
 This means that for $B = 2000$ and $\alpha = 0.90$, then $\hat{T}_{(\alpha)}$ is the 1,800th ordered point of all of the bootstrap replications of $T^*$. 
 It follows that the $\alpha$th studentized confidence interval endpoint can be given with $$\hat{\theta}_T[\alpha] = \hat{\theta} - \hat{\sigma}T_{(\alpha)},$$ where we can estimate the standard error using $$\hat{\sigma} = \frac{1-\hat{\theta}^2}{\sqrt{n}}.$$ One of the main factors why the studentized method is so popular is because we assume that our bootstrapped statistic is pivotal which means that the confidence interval does not depend on any other parameters. Instead, we can calculate the appropriate confidence interval for the parameter of interest specifically from the bootstrapped statistic [@Efron86,@Puth15].
 
-Following the process above, we can use the following to get our studentized confidence interval:
-
+Following the process above, we can use the following to get our studentized confidence interval [@Lau20]:
 
 ```{r}
 set.seed(495)
@@ -438,7 +437,7 @@ run_simulation_gamma <- function(simulation_rep){
 
 ```
 
-Third, we sample from a Log-Normal distribution with mean log of 0 and a mean standard deviation of 1. Therefore, the true population mean of this distribution is $e^{\frac{1}{2}}$.
+Third, we sample from a Log-Normal distribution with mean log of 0 and a mean standard deviation of 1. Therefore, the true population mean of this distribution is $e^{\frac{1}{2}}$ [@Guillaume21].
 
 ```{r run simulation log normal}
 run_simulation_log_normal <- function(simulation_rep){
@@ -561,7 +560,6 @@ collect_data_normal <- function(sim_reps) {
 
 ```
 
-
 ```{r collect data beta}
 collect_data_beta <- function(sim_reps) {
   data2 <- matrix(nrow = 5, ncol = 6)
@@ -587,6 +585,8 @@ collect_data_beta <- function(sim_reps) {
 
 ```
 
+And here, we run the simulations for each of the distributions and store the results.
+
 ```{r, cache = TRUE, eval = FALSE}
 set.seed(495)
 gamma_data1 <- collect_data_gamma(10000)
@@ -600,9 +600,9 @@ write.csv(log_normal_data1,"log_normal1_data_10000.csv", row.names = FALSE)
 
 beta_data1 <- collect_data_beta(10000)
 write.csv(beta_data1,"beta_data1_10000.csv", row.names = FALSE)
-
-
 ```
+
+
 
 ```{r, eval = FALSE}
     gamma_data1 <- gamma_data5 %>%
@@ -613,14 +613,18 @@ write.csv(beta_data1,"beta_data1_10000.csv", row.names = FALSE)
       geom_point() +
       geom_line() + 
       labs(title = "Proportion of CIs that Contain the True Parameter 
-           from Gamma Distibution",
-           x = "Sample Size", y = "Proportion (of xyz Simulations)", color = "Method") +
+           from Gamma Distibution", x = "Sample Size", 
+           y = "Proportion (of xyz Simulations)", color = "Method") +
       theme_light()
     
     gamma_table <- gamma_data %>%
-      kable(booktabs = TRUE, align = "c", caption = "gamma", col.names = gsub("[_]", " ", names(gamma_data)))
+      kable(booktabs = TRUE, align = "c", caption = "gamma", 
+            col.names = gsub("[_]", " ", names(gamma_data)))
     
     gamma_table
     gamma_fig
   
 ```
+
+
+
