@@ -1,5 +1,5 @@
 ---
-title: A Comparision of Bootstrap Methods
+title: A Comparision of Bootstrap Confidence Interval Methods
 
 # to produce blinded version set to 1
 blinded: 0
@@ -11,7 +11,6 @@ authors:
   
 
 keywords:
-- confidence interval
 - simulation
 - percentile
 - bias-corrected
@@ -68,17 +67,19 @@ As $B$ increases, $\hat{F}$ approaches $F$ which means that the test statistic o
 
 We demonstrate performing a non-parametric bootstrap below using `SnowGR` which gives the official snowfall dataset by month for Grand Rapids, MI, starting in 1893. We will be using the `Dec` variable which gives the number of inches of snow that fell in December of each year. In particular, we are interested in the sample mean and later finding confidence intervals for population mean of `Dec`. The distribution is below.
 
-```{r}
+```{r, cache = TRUE}
 data(SnowGR)
 favstats(~ Dec, data = SnowGR)
 gf_histogram(~ Dec, data = SnowGR) +
-  labs(x = "Annual Snowfall in Decemeber", 
-       title = "Distribution of Annual Snowfall in Decemeber", y = "Count")
+  labs(x = "Annual Snowfall in December", 
+       title = "Distribution of Annual Snowfall in December", y = "Count",
+       caption = "Fig. 1: Histogram with Studentized Interval Shown")
 ```
 
 Next, we will perform the non-parametric bootstrap using 10,000 replications.
 
-```{r}
+```{r, cache = TRUE}
+set.seed(495)
 orig_mean <- mean(~ Dec, data = SnowGR) # theta hat
 
 set.seed(495)
@@ -100,10 +101,11 @@ dec_means <- as.data.frame(mean)
 
 
 
-```{r}
+```{r, cache = TRUE}
 gf_dhistogram(~ mean, data = dec_means) %>%
   gf_dens() %>%
-  gf_labs(title = "Histogram of 10,000 Bootstrapped Mean Dec Values")
+  gf_labs(title = "Histogram of 10,000 Bootstrapped Mean Dec Values",
+          caption = "Fig. 2: Bootstrap Histogram")
 ```
 
 
@@ -123,15 +125,16 @@ For bootstrapped confidence intervals, the number of bootstrap replications $B$ 
 
 Using our example, to find a 95% confidence interval for the population mean of `Dec`, we would get the following:
 
-```{r}
+```{r, cache = TRUE}
 mean(~ Dec, data = SnowGR) + qnorm(c(0.025, 0.975)) * 
   sd(~ Dec, data = SnowGR)/sqrt(nrow(SnowGR))
 ```
 
-```{r}
+```{r, cache = TRUE}
 gf_histogram(~ Dec, data = SnowGR) +
-  labs(x = "Annual Snowfall in Decemeber", 
-       title = "Distribution of Annual Snowfall in Decemeber", y = "Count") +
+  labs(x = "Annual Snowfall in December", 
+       title = "Distribution of Annual Snowfall in December", y = "Count",
+       caption = "Fig. 3: Histogram with Standard Interval Shown") +
   geom_vline(aes(xintercept= 13.85639)) +
   geom_vline(aes(xintercept= 17.65957))
 ```
@@ -158,14 +161,15 @@ However, in some cases, no monotone normalizing mapping will exist [@Efron86].
 
 Finding a 95% confidence interval for the true population mean of `Dec` using the percentile method, we get:
 
-```{r}
+```{r, cache = TRUE}
 qdata(~ mean, c(0.025, 0.975), data = dec_means)
 ```
 
-```{r}
+```{r, cache = TRUE}
 gf_histogram(~ Dec, data = SnowGR) +
-  labs(x = "Annual Snowfall in Decemeber", 
-       title = "Distribution of Annual Snowfall in Decemeber", y = "Count") +
+  labs(x = "Annual Snowfall in December", 
+       title = "Distribution of Annual Snowfall in December", y = "Count",
+       caption = "Fig. 4: Histogram with Percentile Interval Shown") +
   geom_vline(aes(xintercept= 13.91170)) +
   geom_vline(aes(xintercept= 17.72353))
 ```
@@ -182,24 +186,24 @@ In this case, the confidence interval produced by BC would be the same interval 
 
 Using this method to create a 95% confidence interval has a couple more steps because we need to find the bias-correction value. First we calculate the sample mean.
 
-```{r}
+```{r, cache = TRUE}
 sample_mean <- mean(~Dec, data = SnowGR); sample_mean
 ```
 
 Then we find the proportion of bootstrap replications that have a sample mean less than the original sample mean.
-```{r}
+```{r, cache = TRUE}
 less_than_sample_mean <- sum(ifelse(dec_means <= sample_mean, 1, 0))/10000
 less_than_sample_mean
 ```
 
 From this, we can calculate the bias-correction value, $z_0$:
-```{r}
+```{r, cache = TRUE}
 z0 <- qnorm(less_than_sample_mean); z0
 ```
 
 Then we can find the modified percentiles:
 
-```{r}
+```{r, cache = TRUE}
 alphalow <- 0.025; alphahigh <- 0.975
 
 newlow <- pnorm(2*z0 + qnorm(alphalow)); #newlow
@@ -209,10 +213,11 @@ qdata(~ mean, c(newlow, newhigh), data = dec_means)
 ```
 
 
-```{r}
+```{r, cache = TRUE}
 gf_histogram(~ Dec, data = SnowGR) +
-  labs(x = "Annual Snowfall in Decemeber", 
-       title = "Distribution of Annual Snowfall in Decemeber", y = "Count") +
+  labs(x = "Annual Snowfall in December", 
+       title = "Distribution of Annual Snowfall in December", y = "Count",
+       caption = "Fig. 5: Histogram with BC Interval Shown") +
   geom_vline(aes(xintercept= 14.01172)) +
   geom_vline(aes(xintercept= 17.82017))
 
@@ -233,27 +238,27 @@ Each of the three previous methods (percentile, BC, and BCa) all build upon each
 
 In practice, we can use the jackknife procedure to estimate the acceleration value for this method. Thus, we will run the jackknife procedure:
 
-```{r}
+```{r, cache = TRUE}
 theta <- function(x){mean(x)}
 jackknife_results <- bootstrap::jackknife(SnowGR$Dec, theta) 
 ```
 
 We find the mean of the jackknife values below:
 
-```{r}
+```{r, cache = TRUE}
 jackmean <- mean(~ jackknife_results$jack.values); jackmean
 ```
 
 Then we can compute $a$.
 
-```{r}
+```{r, cache = TRUE}
 estimated_a <- (1/6)*sum((jackknife_results$jack.values - jackmean)^3)/
   (sum((jackknife_results$jack.values - jackmean)^2))^(1.5); estimated_a
 ```
 
 Now, we can find the adjust percentiles and the bias-corrected with acceleration confidence interval.
 
-```{r}
+```{r, cache = TRUE}
 a_newlow <- pnorm(z0 + (z0 + qnorm(alphalow))/
                     (1-estimated_a*(z0 + qnorm(alphalow)))); #a_newlow
 a_newhigh <- pnorm(z0 + (z0 + qnorm(alphahigh))/
@@ -261,10 +266,11 @@ a_newhigh <- pnorm(z0 + (z0 + qnorm(alphahigh))/
 qdata(~ mean, c(a_newlow, a_newhigh), data = dec_means)
 ```
 
-```{r}
+```{r, cache = TRUE}
 gf_histogram(~ Dec, data = SnowGR) +
-  labs(x = "Annual Snowfall in Decemeber", 
-       title = "Distribution of Annual Snowfall in Decemeber", y = "Count") +
+  labs(x = "Annual Snowfall in December", 
+       title = "Distribution of Annual Snowfall in December", y = "Count",
+       caption = "Fig. 6: Histogram with BCa Interval Shown") +
   geom_vline(aes(xintercept= 13.91591)) +
   geom_vline(aes(xintercept= 17.72353))
 
@@ -286,7 +292,7 @@ It follows that the $\alpha$th studentized confidence interval endpoint can be g
 
 Following the process above, we can use the following to get our studentized confidence interval [@Lau20]:
 
-```{r}
+```{r, cache = TRUE}
 set.seed(495)
 
 orig_mean <- mean(~ Dec, data = SnowGR) # theta hat
@@ -310,6 +316,17 @@ c(orig_mean - upper*orig_se, orig_mean - lower*orig_se)
 
 ```
 
+This would give us the following histogram: 
+
+```{r, cache = TRUE}
+gf_histogram(~ Dec, data = SnowGR) +
+  labs(x = "Annual Snowfall in December", 
+       title = "Distribution of Annual Snowfall in December", y = "Count", 
+       caption = "Fig. 7: Histogram with Studentized Interval Shown") +
+  geom_vline(aes(xintercept= 14.03467)) +
+  geom_vline(aes(xintercept= 18.01709)) 
+  
+```
 
 
 # Simulation
@@ -437,9 +454,11 @@ run_simulation_gamma <- function(simulation_rep){
 
 ```
 
-Third, we sample from a Log-Normal distribution with mean log of 0 and a mean standard deviation of 1. Therefore, the true population mean of this distribution is $e^{\frac{1}{2}}$ [@Guillaume21].
 
-```{r run simulation log normal}
+```{r run simulation log normal, include = FALSE}
+
+#Third, we sample from a Log-Normal distribution with mean log of 0 and a mean standard deviation of 1. Therefore, the true population mean of this distribution is $e^{\frac{1}{2}}$ [@Guillaume21].
+
 run_simulation_log_normal <- function(simulation_rep){
   trueparameter <- exp(1/2)
 
@@ -462,9 +481,8 @@ run_simulation_log_normal <- function(simulation_rep){
 
 ```
 
-Lastly, we sample from a Beta distribution with shape parameters of 4 and 1 which gives us a true population mean of 0.8.
 
-```{r run simulation beta}
+```{r run simulation beta, include = FALSE}
 run_simulation_beta <- function(simulation_rep){
   trueparameter <- 0.8
   
@@ -492,16 +510,18 @@ After that, these functions will compile all of the information we have created 
 ```{r collect data gamma}
 collect_data_gamma <- function(sim_reps) {
   data2 <- matrix(nrow = 5, ncol = 6)
-  sample_sizes = 50
+  sample_sizes = 10
+
   for (i in 1:5) {
     simulation_rep <- seq(1,sim_reps)
-    results <- mclapply(simulation_rep, run_simulation_gamma, mc.cores = detectCores())
+    results <- mclapply(simulation_rep, run_simulation_gamma, 
+                        mc.cores = detectCores())
     df <- data.frame(matrix(unlist(results), nrow=length(results), byrow=TRUE))
-    ci_prop <- unname(colSums(df)/sim_reps)
-    
+    ci_prop <- colSums(df)/sim_reps
+
     data2[i, 1] <- sample_sizes
     data2[i, 2:6] <- ci_prop
-    sample_sizes <- sample_sizes*2
+    sample_sizes <- sample_sizes+10
   }
 
   gamma_output <- as.data.frame(data2) %>% 
@@ -512,20 +532,21 @@ collect_data_gamma <- function(sim_reps) {
 
 ```
 
-```{r collect data log normal}
+```{r collect data log normal, include = FALSE}
 collect_data_log_normal <- function(sim_reps) {
   data2 <- matrix(nrow = 5, ncol = 6)
-  sample_sizes = 50
+  sample_sizes = 10
   
   for (i in 1:5) {
     simulation_rep <- seq(1,sim_reps)
-    results <- mclapply(simulation_rep, run_simulation_log_normal, mc.cores = detectCores())
+    results <- mclapply(simulation_rep, run_simulation_log_normal, 
+                        mc.cores = detectCores())
     df <- data.frame(matrix(unlist(results), nrow=length(results), byrow=TRUE))
     ci_prop <- unname(colSums(df)/sim_reps)
     
     data2[i, 1] <- sample_sizes
     data2[i, 2:6] <- ci_prop
-    sample_sizes <- sample_sizes*2
+    sample_sizes <- sample_sizes+10
   }
   
   log_normal_output <- as.data.frame(data2) %>% 
@@ -538,7 +559,7 @@ collect_data_log_normal <- function(sim_reps) {
 ```{r collect data normal}
 collect_data_normal <- function(sim_reps) {
   data2 <- matrix(nrow = 5, ncol = 6)
-  sample_sizes = 50
+  sample_sizes = 10
   
   for (i in 1:5) {
     simulation_rep <- seq(1,sim_reps)
@@ -549,7 +570,7 @@ collect_data_normal <- function(sim_reps) {
     
     data2[i, 1] <- sample_sizes
     data2[i, 2:6] <- ci_prop
-    sample_sizes <- sample_sizes*2
+    sample_sizes <- sample_sizes+10
   }
   
   normal_output <- as.data.frame(data2) %>% 
@@ -560,10 +581,10 @@ collect_data_normal <- function(sim_reps) {
 
 ```
 
-```{r collect data beta}
+```{r collect data beta, include = FALSE}
 collect_data_beta <- function(sim_reps) {
   data2 <- matrix(nrow = 5, ncol = 6)
-  sample_sizes = 50
+  sample_sizes = 10
   
   for (i in 1:5) {
     simulation_rep <- seq(1,sim_reps)
@@ -574,7 +595,7 @@ collect_data_beta <- function(sim_reps) {
     
     data2[i, 1] <- sample_sizes
     data2[i, 2:6] <- ci_prop
-    sample_sizes <- sample_sizes*2
+    sample_sizes <- sample_sizes+10
   }
   
   beta_output <- as.data.frame(data2) %>% 
@@ -589,42 +610,95 @@ And here, we run the simulations for each of the distributions and store the res
 
 ```{r, cache = TRUE, eval = FALSE}
 set.seed(495)
-gamma_data1 <- collect_data_gamma(10000)
-write.csv(gamma_data1,"gamma_data1_10000.csv", row.names = FALSE)
+sim_reps <- 10000
 
-normal_data1 <- collect_data_normal(10000)
-write.csv(normal_data1,"normal_data1_10000.csv", row.names = FALSE)
+gamma_data <- collect_data_gamma(sim_reps)
+write.csv(gamma_data1,"gamma_data1.csv", row.names = FALSE)
 
-log_normal_data1 <- collect_data_log_normal(10000)
-write.csv(log_normal_data1,"log_normal1_data_10000.csv", row.names = FALSE)
-
-beta_data1 <- collect_data_beta(10000)
-write.csv(beta_data1,"beta_data1_10000.csv", row.names = FALSE)
+normal_data <- collect_data_normal(sim_reps)
+write.csv(normal_data1,"normal_data1.csv", row.names = FALSE)
 ```
 
+```{r, include = FALSE, eval = FALSE}
+#beta_data11 <- collect_data_beta(sim_reps)
+#write.csv(beta_data1,"beta_data1_100002.csv", row.names = FALSE)
 
 
-```{r, eval = FALSE}
-    gamma_data1 <- gamma_data5 %>%
-      pivot_longer(cols = 2:6, names_to = "method", values_to = "prop") 
+log_normal_data <- collect_data_log_normal(sim_reps)
+write.csv(log_normal_data1,"log_normal_data1.csv", row.names = FALSE)
+
+lognormal_df_long <- lognormal_df %>%
+  pivot_longer(cols = 2:6, names_to = "method", values_to = "prop") 
     
-    gamma_fig <- ggplot(data = gamma_data1, aes(x = Sample_Size, y = prop, 
-                                                color = method))+
-      geom_point() +
-      geom_line() + 
-      labs(title = "Proportion of CIs that Contain the True Parameter 
-           from Gamma Distibution", x = "Sample Size", 
-           y = "Proportion (of xyz Simulations)", color = "Method") +
-      theme_light()
-    
-    gamma_table <- gamma_data %>%
-      kable(booktabs = TRUE, align = "c", caption = "gamma", 
-            col.names = gsub("[_]", " ", names(gamma_data)))
-    
-    gamma_table
-    gamma_fig
-  
+lognormal_fig <- ggplot(data = lognormal_df_long, 
+                    aes(x = Sample_Size, y = prop, color = method)) + 
+  geom_point() + geom_line() + 
+  labs(title = "Proportion of CIs that Contain the True Parameter from Log-Normal 
+       Distibution", x = "Sample Size", 
+       y = "Proportion (of 10,000 Simulations)", color = "Method") +
+  theme_light() + 
+  theme(legend.position="bottom")
+      
+lognormal_table <- lognormal_df %>%
+  kable(booktabs = TRUE, align = "c", caption = "log normal", 
+        col.names = gsub("[_]", " ", names(lognormal_df)))
+
+lognormal_df <- read.csv(file = 'log_normal1_data_10000.csv')
+
 ```
 
+Then, we can plot the results and compile the results into tables. 
 
+```{r create graphs}
 
+gamma_df <- read.csv(file = 'gamma_data1_10000.csv')
+normal_df <- read.csv(file = 'normal_data1_10000.csv')
+
+gamma_df_long <- gamma_df %>%
+  pivot_longer(cols = 2:6, names_to = "method", values_to = "prop") 
+    
+gamma_fig <- ggplot(data = gamma_df_long, 
+                    aes(x = Sample_Size, y = prop, color = method)) + 
+  geom_point() + geom_line() + 
+  labs(title = "Proportion of CIs that Contain the True Parameter from Gamma 
+       Distibution", x = "Sample Size", 
+       y = "Proportion (of 10,000 Simulations)", color = "Method",
+       caption = "Fig. 8: Graph showing the Accuracy of Bootstrap CI Methods for different sample sizes on Gamma Dist.") +
+  theme_light() +
+  theme(legend.position="bottom")
+      
+gamma_table <- gamma_df %>%
+  kable(booktabs = TRUE, align = "c", caption = "Sampled From Gamma Dist.", 
+        col.names = gsub("[_]", " ", names(gamma_df))) 
+    
+normal_df_long <- normal_df %>%
+  pivot_longer(cols = 2:6, names_to = "method", values_to = "prop") 
+    
+normal_fig <- ggplot(data = normal_df_long, 
+                    aes(x = Sample_Size, y = prop, color = method)) + 
+  geom_point() + geom_line() + 
+  labs(title = "Proportion of CIs that Contain the True Parameter from Normal 
+       Distibution", x = "Sample Size", 
+       y = "Proportion (of 10,000 Simulations)", color = "Method",
+       caption = "Fig. 8: Graph showing the Accuracy of Bootstrap CI Methods for different sample sizes on Normal Dist.") +
+  theme_light() +
+  theme(legend.position="bottom")
+      
+normal_table <- normal_df %>%
+  kable(booktabs = TRUE, align = "c", caption = "Sampled from Normal Dist.", 
+        col.names = gsub("[_]", " ", names(normal_df)))
+```
+
+```{r}
+gamma_fig
+gamma_table
+```
+
+When we sample from the Gamma distribution which is a distribution that is heavily skewed, the Studentized Confidence interval performs the best. At a large sample size, the Studentized Confidence interval contains the true population parameter about 94.5% of the time. The Studentized confidence interval outperforms the rest of the intervals by a bit. The rest of the intervals are very similar to each other ranging from a correct interval 92.5% to 93% of the time. In general, as the sample size that we are bootstrapping from increases, the higher percentage our confidence intervals predict correctly.
+
+```{r}
+normal_fig
+normal_table
+```
+
+Similar to when we sampled from the Gamma distribution, the Studentized confidence interval performed the best when we sampled from a Normal distribution with around 95% of the confidence intervals containing the true population parameter. The next best is the Standard confidence interval with a performance of around 94.5% correct intervals at a high sample size. The rest of the intervals performed similarly at around 94.2% accuracy. As before, the accuracy increased as the sample size increased.
