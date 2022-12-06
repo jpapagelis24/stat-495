@@ -335,375 +335,47 @@ For the simulation, we will randomly sample from distributions in which we know 
 
 First, we create a function that calculates the bootstrapped confidence intervals from a given sample. To do this, we first bootstrap the sample and then perform each method.
 
-```{r find CIs}
-findCIs <- function(sampleinput, nboot) {
-  
-  sample_mean <- mean(~ X, data = sampleinput)
-  sample_sd <- sd(~ X, data = sampleinput)
-  sample_n <- nrow(sampleinput)
-  sample_se <- sample_sd/sqrt(sample_n)
-  
-  alphalow <- 0.025
-  alphahigh <- 0.975
-  
-  #perform bootstrap
-  mean <- rep(0,nboot)
-  sd <- rep(0,nboot)
-  se <- rep(0,nboot)
-  t_stat <- rep(0,nboot)
 
-  for (i in 1:nboot) {
-    resampled <- as.data.frame(mosaic::resample(sampleinput, replace = TRUE))
-    mean[i] <- mean(~ X, data = resampled)
-    sd[i] <- sd(~ X, data = resampled)
-    se[i] <- sd[i]/sqrt(nrow(resampled))
-    t_stat[i] <- (mean[i] - sample_mean)/se[i]
-  }
-
-  boot_means <- as.data.frame(mean)
-  boot_t_stat <- as.data.frame(t_stat)
-  
-  # find the standard confidence interval
-  standard_interval <- sample_mean + 
-    qnorm(c(0.025, 0.975)) * sample_sd/sqrt(sample_n)
-  
-  # find percentile interval
-  percentile_interval <- qdata(~ mean, c(0.025, 0.975), data = boot_means)
-  
-  # find BC interval
-  less_than_sample_mean <- sum(ifelse(boot_means <= sample_mean, 1, 0))/nboot
-  z0 <- qnorm(less_than_sample_mean)
-  newlow <- pnorm(2*z0 + qnorm(alphalow))
-  newhigh <- pnorm(2*z0 + qnorm(alphahigh))
-
-  bc_interval <- qdata(~ mean, c(newlow, newhigh), data = boot_means)
-  
-  # find BCa interval
-  theta <- function(x){mean(x)}
-  jackknife_results <- bootstrap::jackknife(sampleinput$X, theta)
-  jackmean <- mean(~ jackknife_results$jack.values)
-  estimated_a <- (1/6)*sum((jackknife_results$jack.values - jackmean)^3)/
-    (sum((jackknife_results$jack.values - jackmean)^2))^(1.5)
-  a_newlow <- pnorm(z0 + (z0 + qnorm(alphalow))/
-                      (1-estimated_a*(z0 + qnorm(alphalow))))
-  a_newhigh <- pnorm(z0 + (z0 + qnorm(alphahigh))/
-                       (1-estimated_a*(z0 + qnorm(alphahigh))))
-  bca_interval <- qdata(~ mean, c(a_newlow, a_newhigh), data = boot_means)
-  
-  # find studentized interval
-  t_q <- unname(quantile(boot_t_stat$t_stat, c(0.025, 0.975)))
-  lower_q <- t_q[1]
-  upper_q <- t_q[2]
-  t_interval <- c(sample_mean - (upper_q*sample_se), sample_mean - (lower_q*sample_se))
-  
-  output <- list(standard_interval, percentile_interval, bc_interval, 
-                 bca_interval, t_interval)
-  names(output) <- c("Standard Interval", "Percentile Interval", "BC Interval", 
-                     "BCa Interval", "Studentized Interval")
-  output
-}
-```
 
 Next, we will create the simulation that picks the random sample from a distribution and tests to see if the sample creates bootstrapped confidence intervals that contain the true population parameter. First, we have the simulation of selecting from a Normal Distribution. Since we have a $N(0,1)$ distribution, out true population mean is 0. 
 
-```{r run simulation normal}
-run_simulation_normal <- function(simulation_rep){
-  trueparameter <- 0
-  
-  X <- rnorm(sample_sizes, mean = 0, sd = 1)
-  values <- data.frame(X)
-  output <- findCIs(values, 2000)
-  ci <- matrix(c(trueparameter >= output$`Standard Interval`[1] & 
-    trueparameter <= output$`Standard Interval`[2],
-    trueparameter >= output$`Percentile Interval`[1] & 
-    trueparameter <= output$`Percentile Interval`[2],
-    trueparameter >= output$`BC Interval`[1] &
-    trueparameter <= output$`BC Interval`[2],
-    trueparameter >= output$`BCa Interval`[1] & 
-    trueparameter <= output$`BCa Interval`[2],
-    trueparameter >= output$`Studentized Interval`[1] & 
-    trueparameter <= output$`Studentized Interval`[2]), nrow = 1)
-  res <- rbind(data.frame(), ci)
-  res
-}
 
-```
 
 Second, we select from a Gamma Distribution with a shape parameter of 1 and a scale parameter of 4. This means the true population parameter is 4. 
 
-```{r run simulation gamma}
-run_simulation_gamma <- function(simulation_rep){
-  trueparameter <- 4
-  
-  X <- rgamma(sample_sizes, shape = 1, scale = 4)
-  values <- data.frame(X)
-  output <- findCIs(values, 2000)
-  ci <- matrix(c(trueparameter >= output$`Standard Interval`[1] & 
-    trueparameter <= output$`Standard Interval`[2],
-    trueparameter >= output$`Percentile Interval`[1] & 
-    trueparameter <= output$`Percentile Interval`[2],
-    trueparameter >= output$`BC Interval`[1] &
-    trueparameter <= output$`BC Interval`[2],
-    trueparameter >= output$`BCa Interval`[1] & 
-    trueparameter <= output$`BCa Interval`[2],
-    trueparameter >= output$`Studentized Interval`[1] & 
-    trueparameter <= output$`Studentized Interval`[2]), nrow = 1)
-  res <- rbind(data.frame(), ci)
-  res
-}
-
-```
 
 
-```{r run simulation log normal}
-
-#Third, we sample from a Log-Normal distribution with mean log of 0 and a mean standard deviation of 1. Therefore, the true population mean of this distribution is $e^{\frac{1}{2}}$ [@Guillaume21].
-
-run_simulation_log_normal <- function(simulation_rep){
-  trueparameter <- exp(1/2)
-
-  X <- rlnorm(sample_sizes, meanlog = 0, sdlog = 1)
-  values <- data.frame(X)
-  output <- findCIs(values, 2000)
-  ci <- matrix(c(trueparameter >= output$`Standard Interval`[1] & 
-    trueparameter <= output$`Standard Interval`[2],
-    trueparameter >= output$`Percentile Interval`[1] & 
-    trueparameter <= output$`Percentile Interval`[2],
-    trueparameter >= output$`BC Interval`[1] &
-    trueparameter <= output$`BC Interval`[2],
-    trueparameter >= output$`BCa Interval`[1] & 
-    trueparameter <= output$`BCa Interval`[2],
-    trueparameter >= output$`Studentized Interval`[1] & 
-    trueparameter <= output$`Studentized Interval`[2]), nrow = 1)
-  res <- rbind(data.frame(), ci)
-  res
-}
-
-```
 
 
-```{r run simulation beta}
-run_simulation_beta <- function(simulation_rep){
-  trueparameter <- 0.8
-  
-  X <- rbeta(sample_sizes, shape1 = 4, shape2 = 1)
-  values <- data.frame(X)
-  output <- findCIs(values, 2000)
-  ci <- matrix(c(trueparameter >= output$`Standard Interval`[1] & 
-    trueparameter <= output$`Standard Interval`[2],
-    trueparameter >= output$`Percentile Interval`[1] & 
-    trueparameter <= output$`Percentile Interval`[2],
-    trueparameter >= output$`BC Interval`[1] &
-    trueparameter <= output$`BC Interval`[2],
-    trueparameter >= output$`BCa Interval`[1] & 
-    trueparameter <= output$`BCa Interval`[2],
-    trueparameter >= output$`Studentized Interval`[1] & 
-    trueparameter <= output$`Studentized Interval`[2]), nrow = 1)
-  res <- rbind(data.frame(), ci)
-  res
-}
 
-```
+
+
 
 After that, these functions will compile all of the information we have created from the previous methods and run the simulations of each method for a variety of sample sizes. 
 
-```{r collect data gamma}
-collect_data_gamma <- function(sim_reps) {
-  data2 <- matrix(nrow = 7, ncol = 6)
-  sample_sizes = 4
 
-  for (i in 1:7) {
-    simulation_rep <- seq(1,sim_reps)
-    results <- mclapply(simulation_rep, run_simulation_gamma, 
-                        mc.cores = detectCores())
-    df <- data.frame(matrix(unlist(results), nrow=length(results), byrow=TRUE))
-    ci_prop <- colSums(df)/sim_reps
 
-    data2[i, 1] <- sample_sizes
-    data2[i, 2:6] <- ci_prop
-    sample_sizes <- sample_sizes*2
-  }
 
-  gamma_output <- as.data.frame(data2) %>% 
-    rename("Sample_Size" = V1, "Standard" = V2, "Percentile" = V3, "BC" = V4, 
-           "BCa" = V5, "Studentized" = V6) 
-  gamma_output
-}
 
-```
 
-```{r collect data log normal}
-collect_data_log_normal <- function(sim_reps) {
-  data2 <- matrix(nrow = 7, ncol = 6)
-  sample_sizes = 4
-  
-  for (i in 1:7) {
-    simulation_rep <- seq(1,sim_reps)
-    results <- mclapply(simulation_rep, run_simulation_log_normal, 
-                        mc.cores = detectCores())
-    df <- data.frame(matrix(unlist(results), nrow=length(results), byrow=TRUE))
-    ci_prop <- unname(colSums(df)/sim_reps)
-    
-    data2[i, 1] <- sample_sizes
-    data2[i, 2:6] <- ci_prop
-    sample_sizes <- sample_sizes*2
-  }
-  
-  log_normal_output <- as.data.frame(data2) %>% 
-    rename("Sample_Size" = V1, "Standard" = V2, "Percentile" = V3, "BC" = V4, 
-           "BCa" = V5, "Studentized" = V6) 
-  log_normal_output
-}
-```
 
-```{r collect data normal}
-collect_data_normal <- function(sim_reps) {
-  data2 <- matrix(nrow = 7, ncol = 6)
-  sample_sizes = 4
-  
-  for (i in 1:7) {
-    simulation_rep <- seq(1,sim_reps)
-    results <- mclapply(simulation_rep, run_simulation_normal, 
-                        mc.cores = detectCores())
-    df <- data.frame(matrix(unlist(results), nrow=length(results), byrow=TRUE))
-    ci_prop <- unname(colSums(df)/sim_reps)
-    
-    data2[i, 1] <- sample_sizes
-    data2[i, 2:6] <- ci_prop
-    sample_sizes <- sample_sizes*2
-  }
-  
-  normal_output <- as.data.frame(data2) %>% 
-    rename("Sample_Size" = V1, "Standard" = V2, "Percentile" = V3, "BC" = V4, 
-           "BCa" = V5, "Studentized" = V6) 
-  normal_output
-}
 
-```
-
-```{r collect data beta}
-collect_data_beta <- function(sim_reps) {
-  data2 <- matrix(nrow = 7, ncol = 6)
-  sample_sizes = 4
-  
-  for (i in 1:7) {
-    simulation_rep <- seq(1,sim_reps)
-    results <- mclapply(simulation_rep, run_simulation_beta, 
-                        mc.cores = detectCores())
-    df <- data.frame(matrix(unlist(results), nrow=length(results), byrow=TRUE))
-    ci_prop <- unname(colSums(df)/sim_reps)
-    
-    data2[i, 1] <- sample_sizes
-    data2[i, 2:6] <- ci_prop
-    sample_sizes <- sample_sizes*2
-  }
-  
-  beta_output <- as.data.frame(data2) %>% 
-    rename("Sample_Size" = V1, "Standard" = V2, "Percentile" = V3, "BC" = V4, 
-           "BCa" = V5, "Studentized" = V6) 
-  beta_output
-}
-
-```
 
 And here, we run the simulations for each of the distributions and store the results.
 
-```{r, cache = TRUE, eval = FALSE}
-set.seed(495)
-sim_reps <- 10000
-
-gamma_data_4_128 <- collect_data_gamma(sim_reps)
-write.csv(gamma_data_4_128,"gamma_data_4_128.csv", row.names = FALSE)
-
-normal_data_4_128 <- collect_data_normal(sim_reps)
-write.csv(normal_data_4_128,"normal_data_4_128.csv", row.names = FALSE)
-
-log_normal_data_4_128 <- collect_data_log_normal(sim_reps)
-write.csv(log_normal_data_4_128,"log_normal_data_4_128.csv", row.names = FALSE)
-
-beta_data_4_128 <- collect_data_beta(sim_reps)
-write.csv(beta_data_4_128,"beta_data_4_128.csv", row.names = FALSE)
-```
-
-```{r, include = FALSE, eval = FALSE}
 
 
 
-
-lognormal_df_long <- lognormal_df %>%
-  pivot_longer(cols = 2:6, names_to = "method", values_to = "prop") 
-    
-lognormal_fig <- ggplot(data = lognormal_df_long, 
-                    aes(x = Sample_Size, y = prop, color = method)) + 
-  geom_point() + geom_line() + 
-  labs(title = "Proportion of CIs that Contain the True Parameter from Log-Normal 
-       Distibution", x = "Sample Size", 
-       y = "Proportion (of 10,000 Simulations)", color = "Method") +
-  theme_light() + 
-  theme(legend.position="bottom")
-      
-lognormal_table <- lognormal_df %>%
-  kable(booktabs = TRUE, align = "c", caption = "log normal", 
-        col.names = gsub("[_]", " ", names(lognormal_df)))
-
-lognormal_df <- read.csv(file = 'log_normal1_data_10000.csv')
-
-```
 
 Then, we can plot the results and compile the results into tables. 
 
-```{r create graphs}
 
-gamma_df <- read.csv(file = 'gamma_data1_10000.csv')
-normal_df <- read.csv(file = 'normal_data1_10000.csv')
-log_normal_df <- read.csv(file = 'log_normal1_data_10000.csv')
 
-gamma_df_long <- log_normal_df %>%
-  pivot_longer(cols = 2:6, names_to = "method", values_to = "prop") 
-    
-gamma_fig <- ggplot(data = gamma_df_long, 
-                    aes(x = Sample_Size, y = prop, color = method)) + 
-  geom_point() + geom_line() + 
-  labs(title = "Proportion of CIs that Contain the True Parameter from Gamma 
-       Distibution", x = "Sample Size", 
-       y = "Proportion (of 10,000 Simulations)", color = "Method",
-       caption = "Fig. 8: Graph showing the Accuracy of Bootstrap CI Methods for different sample sizes on Gamma Dist.") +
-  theme_light() +
-  theme(legend.position="bottom")
-      
-gamma_table <- gamma_df %>%
-  kable(booktabs = TRUE, align = "c", caption = "Sampled From Gamma Dist.", 
-        col.names = gsub("[_]", " ", names(gamma_df))) 
-    
-normal_df_long <- normal_df %>%
-  pivot_longer(cols = 2:6, names_to = "method", values_to = "prop") 
-    
-normal_fig <- ggplot(data = normal_df_long, 
-                    aes(x = Sample_Size, y = prop, color = method)) + 
-  geom_point() + geom_line() + 
-  labs(title = "Proportion of CIs that Contain the True Parameter from Normal 
-       Distibution", x = "Sample Size", 
-       y = "Proportion (of 10,000 Simulations)", color = "Method",
-       caption = "Fig. 8: Graph showing the Accuracy of Bootstrap CI Methods for different sample sizes on Normal Dist.") +
-  theme_light() +
-  theme(legend.position="bottom")
-      
-normal_table <- normal_df %>%
-  kable(booktabs = TRUE, align = "c", caption = "Sampled from Normal Dist.", 
-        col.names = gsub("[_]", " ", names(normal_df)))
-```
 
-```{r}
-gamma_fig
-gamma_table
-```
 
 When we sample from the Gamma distribution which is a distribution that is heavily skewed, the Studentized Confidence interval performs the best. At a large sample size, the Studentized Confidence interval contains the true population parameter about 94.5% of the time. The Studentized confidence interval outperforms the rest of the intervals by a bit. The rest of the intervals are very similar to each other ranging from a correct interval 92.5% to 93% of the time. In general, as the sample size that we are bootstrapping from increases, the higher percentage our confidence intervals predict correctly.
 
-```{r}
-normal_fig
-normal_table
-```
+
 
 Similar to when we sampled from the Gamma distribution, the Studentized confidence interval performed the best when we sampled from a Normal distribution with around 95% of the confidence intervals containing the true population parameter. The next best is the Standard confidence interval with a performance of around 94.5% correct intervals at a high sample size. The rest of the intervals performed similarly at around 94.2% accuracy. As before, the accuracy increased as the sample size increased.
 
@@ -766,22 +438,7 @@ run_sim_log_normal <- function(sim_reps) {
 }
 ```
 
-```{r}
-master_df_long <- master_df %>%
-  pivot_longer(cols = 2:6, names_to = "method", values_to = "prop") 
-    
-master_fig <- ggplot(data = master_df_long, 
-                    aes(x = Sample_Size, y = prop, color = method)) + 
-  geom_point() + geom_line() + 
-  labs(title = "Proportion of CIs that Contain the True Parameter from Log-Normal
-       Distibution", x = "Sample Size", 
-       y = "Proportion (of 10,000 Simulations)", color = "Method",
-       caption = "Fig. 8: Graph showing the Accuracy of Bootstrap CI Methods for different sample sizes on Log-Normal Dist.") +
-  theme_light() +
-  theme(legend.position="bottom")
 
-master_fig
-```
 ```{r, warning = FALSE}
 library(boot)
 
@@ -901,7 +558,7 @@ run_sim_gamma <- function(sim_reps) {
 ```
 
 
-```{r, warning = FALSE}
+```{r, warning = FALSE, eval = FALSE}
 set.seed(495)
 log_normal_df <- run_sim_log_normal(10000)
 write.csv(log_normal_df,"log_normal_df.csv", row.names = FALSE)
@@ -915,3 +572,95 @@ write.csv(gamma_df,"gamma_data_df.csv", row.names = FALSE)
 
 ```
 
+```{r create graphs}
+
+gamma_df <- read.csv(file = 'gamma_data_df.csv')
+normal_df <- read.csv(file = 'normal_data_df.csv')
+log_normal_df <- read.csv(file = 'log_normal_df.csv')
+
+gamma_df_long <- gamma_df %>%
+  pivot_longer(cols = 2:6, names_to = "method", values_to = "prop") 
+    
+gamma_fig <- ggplot(data = gamma_df_long, 
+                    aes(x = Sample_Size, y = prop, color = method)) + 
+  geom_point() + geom_line() + 
+  labs(title = "Proportion of CIs that Contain the True Parameter from Gamma 
+       Distibution", x = "Sample Size", 
+       y = "Proportion (of 10,000 Simulations)", color = "Method",
+       caption = "Fig. 8: Graph showing the Accuracy of Bootstrap CI Methods for different sample sizes on Gamma Dist.") +
+  theme_light() +
+  theme(legend.position="bottom")
+      
+gamma_table <- gamma_df %>%
+  kable(booktabs = TRUE, align = "c", caption = "Sampled From Gamma Dist.", 
+        col.names = gsub("[_]", " ", names(gamma_df))) 
+    
+normal_df_long <- normal_df %>%
+  pivot_longer(cols = 2:6, names_to = "method", values_to = "prop") 
+    
+normal_fig <- ggplot(data = normal_df_long, 
+                    aes(x = Sample_Size, y = prop, color = method)) + 
+  geom_point() + geom_line() + 
+  labs(title = "Proportion of CIs that Contain the True Parameter from Normal 
+       Distibution", x = "Sample Size", 
+       y = "Proportion (of 10,000 Simulations)", color = "Method",
+       caption = "Fig. 8: Graph showing the Accuracy of Bootstrap CI Methods for different sample sizes on Normal Dist.") +
+  theme_light() +
+  theme(legend.position="bottom")
+      
+normal_table <- normal_df %>%
+  kable(booktabs = TRUE, align = "c", caption = "Sampled from Normal Dist.", 
+        col.names = gsub("[_]", " ", names(normal_df)))
+
+log_normal_df_long <- log_normal_df %>%
+  pivot_longer(cols = 2:6, names_to = "method", values_to = "prop") 
+    
+log_normal_fig <- ggplot(data = log_normal_df_long, 
+                    aes(x = Sample_Size, y = prop, color = method)) + 
+  geom_point() + geom_line() + 
+  labs(title = "Proportion of CIs that Contain the True Parameter from Log-Normal 
+       Distibution", x = "Sample Size", 
+       y = "Proportion (of 10,000 Simulations)", color = "Method",
+       caption = "Fig. 8: Graph showing the Accuracy of Bootstrap CI Methods for different sample sizes on Log-Normal Dist.") +
+  theme_light() +
+  theme(legend.position="bottom")
+      
+log_normal_table <- log_normal_df %>%
+  kable(booktabs = TRUE, align = "c", caption = "Sampled from Normal Dist.", 
+        col.names = gsub("[_]", " ", names(log_normal_df)))
+
+```
+
+```{r}
+log_normal_fig
+log_normal_table
+
+normal_fig
+normal_table
+
+gamma_fig
+gamma_table
+
+```
+
+
+```{r, eval = FALSE}
+
+
+normal_df <- read.csv(file = 'normal_data_df.csv')
+
+master_df_long <- master_df %>%
+  pivot_longer(cols = 2:6, names_to = "method", values_to = "prop") 
+    
+master_fig <- ggplot(data = master_df_long, 
+                    aes(x = Sample_Size, y = prop, color = method)) + 
+  geom_point() + geom_line() + 
+  labs(title = "Proportion of CIs that Contain the True Parameter from Log-Normal
+       Distibution", x = "Sample Size", 
+       y = "Proportion (of 10,000 Simulations)", color = "Method",
+       caption = "Fig. 8: Graph showing the Accuracy of Bootstrap CI Methods for different sample sizes on Log-Normal Dist.") +
+  theme_light() +
+  theme(legend.position="bottom")
+
+master_fig
+```
