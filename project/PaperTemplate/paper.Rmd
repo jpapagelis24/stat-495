@@ -455,7 +455,7 @@ run_simulation_gamma <- function(simulation_rep){
 ```
 
 
-```{r run simulation log normal, include = FALSE}
+```{r run simulation log normal}
 
 #Third, we sample from a Log-Normal distribution with mean log of 0 and a mean standard deviation of 1. Therefore, the true population mean of this distribution is $e^{\frac{1}{2}}$ [@Guillaume21].
 
@@ -482,7 +482,7 @@ run_simulation_log_normal <- function(simulation_rep){
 ```
 
 
-```{r run simulation beta, include = FALSE}
+```{r run simulation beta}
 run_simulation_beta <- function(simulation_rep){
   trueparameter <- 0.8
   
@@ -509,10 +509,10 @@ After that, these functions will compile all of the information we have created 
 
 ```{r collect data gamma}
 collect_data_gamma <- function(sim_reps) {
-  data2 <- matrix(nrow = 5, ncol = 6)
-  sample_sizes = 10
+  data2 <- matrix(nrow = 7, ncol = 6)
+  sample_sizes = 4
 
-  for (i in 1:5) {
+  for (i in 1:7) {
     simulation_rep <- seq(1,sim_reps)
     results <- mclapply(simulation_rep, run_simulation_gamma, 
                         mc.cores = detectCores())
@@ -521,7 +521,7 @@ collect_data_gamma <- function(sim_reps) {
 
     data2[i, 1] <- sample_sizes
     data2[i, 2:6] <- ci_prop
-    sample_sizes <- sample_sizes+10
+    sample_sizes <- sample_sizes*2
   }
 
   gamma_output <- as.data.frame(data2) %>% 
@@ -532,12 +532,12 @@ collect_data_gamma <- function(sim_reps) {
 
 ```
 
-```{r collect data log normal, include = FALSE}
+```{r collect data log normal}
 collect_data_log_normal <- function(sim_reps) {
-  data2 <- matrix(nrow = 5, ncol = 6)
-  sample_sizes = 10
+  data2 <- matrix(nrow = 7, ncol = 6)
+  sample_sizes = 4
   
-  for (i in 1:5) {
+  for (i in 1:7) {
     simulation_rep <- seq(1,sim_reps)
     results <- mclapply(simulation_rep, run_simulation_log_normal, 
                         mc.cores = detectCores())
@@ -546,7 +546,7 @@ collect_data_log_normal <- function(sim_reps) {
     
     data2[i, 1] <- sample_sizes
     data2[i, 2:6] <- ci_prop
-    sample_sizes <- sample_sizes+10
+    sample_sizes <- sample_sizes*2
   }
   
   log_normal_output <- as.data.frame(data2) %>% 
@@ -558,10 +558,10 @@ collect_data_log_normal <- function(sim_reps) {
 
 ```{r collect data normal}
 collect_data_normal <- function(sim_reps) {
-  data2 <- matrix(nrow = 5, ncol = 6)
-  sample_sizes = 10
+  data2 <- matrix(nrow = 7, ncol = 6)
+  sample_sizes = 4
   
-  for (i in 1:5) {
+  for (i in 1:7) {
     simulation_rep <- seq(1,sim_reps)
     results <- mclapply(simulation_rep, run_simulation_normal, 
                         mc.cores = detectCores())
@@ -570,7 +570,7 @@ collect_data_normal <- function(sim_reps) {
     
     data2[i, 1] <- sample_sizes
     data2[i, 2:6] <- ci_prop
-    sample_sizes <- sample_sizes+10
+    sample_sizes <- sample_sizes*2
   }
   
   normal_output <- as.data.frame(data2) %>% 
@@ -581,12 +581,12 @@ collect_data_normal <- function(sim_reps) {
 
 ```
 
-```{r collect data beta, include = FALSE}
+```{r collect data beta}
 collect_data_beta <- function(sim_reps) {
-  data2 <- matrix(nrow = 5, ncol = 6)
-  sample_sizes = 10
+  data2 <- matrix(nrow = 7, ncol = 6)
+  sample_sizes = 4
   
-  for (i in 1:5) {
+  for (i in 1:7) {
     simulation_rep <- seq(1,sim_reps)
     results <- mclapply(simulation_rep, run_simulation_beta, 
                         mc.cores = detectCores())
@@ -595,7 +595,7 @@ collect_data_beta <- function(sim_reps) {
     
     data2[i, 1] <- sample_sizes
     data2[i, 2:6] <- ci_prop
-    sample_sizes <- sample_sizes+10
+    sample_sizes <- sample_sizes*2
   }
   
   beta_output <- as.data.frame(data2) %>% 
@@ -608,24 +608,27 @@ collect_data_beta <- function(sim_reps) {
 
 And here, we run the simulations for each of the distributions and store the results.
 
-```{r, cache = TRUE, eval = FALSE}
+```{r, cache = TRUE}
 set.seed(495)
 sim_reps <- 10000
 
-gamma_data <- collect_data_gamma(sim_reps)
-write.csv(gamma_data1,"gamma_data1.csv", row.names = FALSE)
+gamma_data_4_128 <- collect_data_gamma(sim_reps)
+write.csv(gamma_data_4_128,"gamma_data_4_128.csv", row.names = FALSE)
 
-normal_data <- collect_data_normal(sim_reps)
-write.csv(normal_data1,"normal_data1.csv", row.names = FALSE)
+normal_data_4_128 <- collect_data_normal(sim_reps)
+write.csv(normal_data_4_128,"normal_data_4_128.csv", row.names = FALSE)
+
+log_normal_data_4_128 <- collect_data_log_normal(sim_reps)
+write.csv(log_normal_data_4_128,"log_normal_data_4_128.csv", row.names = FALSE)
+
+beta_data_4_128 <- collect_data_beta(sim_reps)
+write.csv(beta_data_4_128,"beta_data_4_128.csv", row.names = FALSE)
 ```
 
 ```{r, include = FALSE, eval = FALSE}
-#beta_data11 <- collect_data_beta(sim_reps)
-#write.csv(beta_data1,"beta_data1_100002.csv", row.names = FALSE)
 
 
-log_normal_data <- collect_data_log_normal(sim_reps)
-write.csv(log_normal_data1,"log_normal_data1.csv", row.names = FALSE)
+
 
 lognormal_df_long <- lognormal_df %>%
   pivot_longer(cols = 2:6, names_to = "method", values_to = "prop") 
@@ -653,8 +656,9 @@ Then, we can plot the results and compile the results into tables.
 
 gamma_df <- read.csv(file = 'gamma_data1_10000.csv')
 normal_df <- read.csv(file = 'normal_data1_10000.csv')
+log_normal_df <- read.csv(file = 'log_normal1_data_10000.csv')
 
-gamma_df_long <- gamma_df %>%
+gamma_df_long <- log_normal_df %>%
   pivot_longer(cols = 2:6, names_to = "method", values_to = "prop") 
     
 gamma_fig <- ggplot(data = gamma_df_long, 
@@ -702,3 +706,63 @@ normal_table
 ```
 
 Similar to when we sampled from the Gamma distribution, the Studentized confidence interval performed the best when we sampled from a Normal distribution with around 95% of the confidence intervals containing the true population parameter. The next best is the Standard confidence interval with a performance of around 94.5% correct intervals at a high sample size. The rest of the intervals performed similarly at around 94.2% accuracy. As before, the accuracy increased as the sample size increased.
+
+
+```{r}
+library(boot)
+
+mean.fun <- function(d, i) {
+  d <- X[i]
+  return (c(mean(d), sd(d)))
+}
+
+sample_sizes <- c(4, 10, 15, 20, 30, 40, 60, 80, 100)
+num_sample_sizes <- length(sample_sizes)
+master <- matrix(nrow = num_sample_sizes, ncol = 6)
+
+for(i in 1:num_sample_sizes) {
+
+  sim_reps <- 10000
+  norm_contains <- rep(0, sim_reps)
+  basic_contains <- rep(0, sim_reps)
+  student_contains <- rep(0, sim_reps)
+  percentile_contains <- rep(0, sim_reps)
+  bca_contains <- rep(0, sim_reps)
+  
+  boot_reps <- 2000
+  n <- sample_sizes[i]
+  true_mean <- exp(1/2)
+  
+  
+  
+  set.seed(495)
+  for (j in 1:sim_reps) {
+    X <- rlnorm(n, 0, 1)
+    values <- data.frame(X)
+  
+    results <- boot(data = values, statistic = mean.fun, R = boot_reps)
+    results
+    #plot(results)
+    ci <- boot.ci(results, type = "all")
+    
+    norm_contains[j] <- true_mean >= ci$normal[2] & true_mean <= ci$normal[3]
+    basic_contains[j] <- true_mean >= ci$basic[4] & true_mean <= ci$basic[5]
+    student_contains[j] <- true_mean >= ci$basic[4] & true_mean <= ci$basic[5]
+    percentile_contains[j] <- true_mean >= ci$basic[4] & true_mean <= ci$basic[5]
+    bca_contains[j] <- true_mean >= ci$basic[4] & true_mean <= ci$basic[5]
+    
+  }
+  
+  master[i, 1] <- sample_sizes[i]
+  master[i, 2] <- sum(norm_contains)/sim_reps
+  master[i, 3] <- sum(basic_contains)/sim_reps
+  master[i, 4] <- sum(student_contains)/sim_reps
+  master[i, 5] <- sum(percentile_contains)/sim_reps
+  master[i, 6] <- sum(bca_contains)/sim_reps
+
+}
+
+
+```
+
+
