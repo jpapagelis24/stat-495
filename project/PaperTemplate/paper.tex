@@ -96,7 +96,7 @@
 
 \if0\blind
 {
-  \title{\bf A Comparision of Bootstrap Methods}
+  \title{\bf A Comparision of Bootstrap Confidence Interval Methods}
 
   \author{
         Justin Papagelis \thanks{The authors gratefully acknowledge
@@ -112,7 +112,7 @@
   \bigskip
   \bigskip
   \begin{center}
-    {\LARGE\bf A Comparision of Bootstrap Methods}
+    {\LARGE\bf A Comparision of Bootstrap Confidence Interval Methods}
   \end{center}
   \medskip
 } \fi
@@ -141,8 +141,7 @@ well as my ability to analyze the results of the simulation.
 \end{abstract}
 
 \noindent%
-{\it Keywords:} confidence
-interval, simulation, percentile, bias-corrected, acceleration, studentized
+{\it Keywords:} simulation, percentile, bias-corrected, acceleration, studentized
 \vfill
 
 \newpage
@@ -228,8 +227,9 @@ The distribution is below.
 \begin{Shaded}
 \begin{Highlighting}[]
 \FunctionTok{gf\_histogram}\NormalTok{(}\SpecialCharTok{\textasciitilde{}}\NormalTok{ Dec, }\AttributeTok{data =}\NormalTok{ SnowGR) }\SpecialCharTok{+}
-  \FunctionTok{labs}\NormalTok{(}\AttributeTok{x =} \StringTok{"Annual Snowfall in Decemeber"}\NormalTok{, }
-       \AttributeTok{title =} \StringTok{"Distribution of Annual Snowfall in Decemeber"}\NormalTok{, }\AttributeTok{y =} \StringTok{"Count"}\NormalTok{)}
+  \FunctionTok{labs}\NormalTok{(}\AttributeTok{x =} \StringTok{"Annual Snowfall in December"}\NormalTok{, }
+       \AttributeTok{title =} \StringTok{"Distribution of Annual Snowfall in December"}\NormalTok{, }\AttributeTok{y =} \StringTok{"Count"}\NormalTok{,}
+       \AttributeTok{caption =} \StringTok{"Fig. 1: Histogram with Studentized Interval Shown"}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -240,6 +240,7 @@ replications.
 
 \begin{Shaded}
 \begin{Highlighting}[]
+\FunctionTok{set.seed}\NormalTok{(}\DecValTok{495}\NormalTok{)}
 \NormalTok{orig\_mean }\OtherTok{\textless{}{-}} \FunctionTok{mean}\NormalTok{(}\SpecialCharTok{\textasciitilde{}}\NormalTok{ Dec, }\AttributeTok{data =}\NormalTok{ SnowGR) }\CommentTok{\# theta hat}
 
 \FunctionTok{set.seed}\NormalTok{(}\DecValTok{495}\NormalTok{)}
@@ -264,7 +265,8 @@ replications.
 \begin{Highlighting}[]
 \FunctionTok{gf\_dhistogram}\NormalTok{(}\SpecialCharTok{\textasciitilde{}}\NormalTok{ mean, }\AttributeTok{data =}\NormalTok{ dec\_means) }\SpecialCharTok{\%\textgreater{}\%}
   \FunctionTok{gf\_dens}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%}
-  \FunctionTok{gf\_labs}\NormalTok{(}\AttributeTok{title =} \StringTok{"Histogram of 10,000 Bootstrapped Mean Dec Values"}\NormalTok{)}
+  \FunctionTok{gf\_labs}\NormalTok{(}\AttributeTok{title =} \StringTok{"Histogram of 10,000 Bootstrapped Mean Dec Values"}\NormalTok{,}
+          \AttributeTok{caption =} \StringTok{"Fig. 2: Bootstrap Histogram"}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -314,8 +316,9 @@ mean of \texttt{Dec}, we would get the following:
 \begin{Shaded}
 \begin{Highlighting}[]
 \FunctionTok{gf\_histogram}\NormalTok{(}\SpecialCharTok{\textasciitilde{}}\NormalTok{ Dec, }\AttributeTok{data =}\NormalTok{ SnowGR) }\SpecialCharTok{+}
-  \FunctionTok{labs}\NormalTok{(}\AttributeTok{x =} \StringTok{"Annual Snowfall in Decemeber"}\NormalTok{, }
-       \AttributeTok{title =} \StringTok{"Distribution of Annual Snowfall in Decemeber"}\NormalTok{, }\AttributeTok{y =} \StringTok{"Count"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{labs}\NormalTok{(}\AttributeTok{x =} \StringTok{"Annual Snowfall in December"}\NormalTok{, }
+       \AttributeTok{title =} \StringTok{"Distribution of Annual Snowfall in December"}\NormalTok{, }\AttributeTok{y =} \StringTok{"Count"}\NormalTok{,}
+       \AttributeTok{caption =} \StringTok{"Fig. 3: Histogram with Standard Interval Shown"}\NormalTok{) }\SpecialCharTok{+}
   \FunctionTok{geom\_vline}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{xintercept=} \FloatTok{13.85639}\NormalTok{)) }\SpecialCharTok{+}
   \FunctionTok{geom\_vline}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{xintercept=} \FloatTok{17.65957}\NormalTok{))}
 \end{Highlighting}
@@ -385,8 +388,9 @@ Finding a 95\% confidence interval for the true population mean of
 \begin{Shaded}
 \begin{Highlighting}[]
 \FunctionTok{gf\_histogram}\NormalTok{(}\SpecialCharTok{\textasciitilde{}}\NormalTok{ Dec, }\AttributeTok{data =}\NormalTok{ SnowGR) }\SpecialCharTok{+}
-  \FunctionTok{labs}\NormalTok{(}\AttributeTok{x =} \StringTok{"Annual Snowfall in Decemeber"}\NormalTok{, }
-       \AttributeTok{title =} \StringTok{"Distribution of Annual Snowfall in Decemeber"}\NormalTok{, }\AttributeTok{y =} \StringTok{"Count"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{labs}\NormalTok{(}\AttributeTok{x =} \StringTok{"Annual Snowfall in December"}\NormalTok{, }
+       \AttributeTok{title =} \StringTok{"Distribution of Annual Snowfall in December"}\NormalTok{, }\AttributeTok{y =} \StringTok{"Count"}\NormalTok{,}
+       \AttributeTok{caption =} \StringTok{"Fig. 4: Histogram with Percentile Interval Shown"}\NormalTok{) }\SpecialCharTok{+}
   \FunctionTok{geom\_vline}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{xintercept=} \FloatTok{13.91170}\NormalTok{)) }\SpecialCharTok{+}
   \FunctionTok{geom\_vline}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{xintercept=} \FloatTok{17.72353}\NormalTok{))}
 \end{Highlighting}
@@ -483,8 +487,9 @@ Then we can find the modified percentiles:
 \begin{Shaded}
 \begin{Highlighting}[]
 \FunctionTok{gf\_histogram}\NormalTok{(}\SpecialCharTok{\textasciitilde{}}\NormalTok{ Dec, }\AttributeTok{data =}\NormalTok{ SnowGR) }\SpecialCharTok{+}
-  \FunctionTok{labs}\NormalTok{(}\AttributeTok{x =} \StringTok{"Annual Snowfall in Decemeber"}\NormalTok{, }
-       \AttributeTok{title =} \StringTok{"Distribution of Annual Snowfall in Decemeber"}\NormalTok{, }\AttributeTok{y =} \StringTok{"Count"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{labs}\NormalTok{(}\AttributeTok{x =} \StringTok{"Annual Snowfall in December"}\NormalTok{, }
+       \AttributeTok{title =} \StringTok{"Distribution of Annual Snowfall in December"}\NormalTok{, }\AttributeTok{y =} \StringTok{"Count"}\NormalTok{,}
+       \AttributeTok{caption =} \StringTok{"Fig. 5: Histogram with BC Interval Shown"}\NormalTok{) }\SpecialCharTok{+}
   \FunctionTok{geom\_vline}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{xintercept=} \FloatTok{14.01172}\NormalTok{)) }\SpecialCharTok{+}
   \FunctionTok{geom\_vline}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{xintercept=} \FloatTok{17.82017}\NormalTok{))}
 \end{Highlighting}
@@ -578,8 +583,9 @@ acceleration confidence interval.
 \begin{Shaded}
 \begin{Highlighting}[]
 \FunctionTok{gf\_histogram}\NormalTok{(}\SpecialCharTok{\textasciitilde{}}\NormalTok{ Dec, }\AttributeTok{data =}\NormalTok{ SnowGR) }\SpecialCharTok{+}
-  \FunctionTok{labs}\NormalTok{(}\AttributeTok{x =} \StringTok{"Annual Snowfall in Decemeber"}\NormalTok{, }
-       \AttributeTok{title =} \StringTok{"Distribution of Annual Snowfall in Decemeber"}\NormalTok{, }\AttributeTok{y =} \StringTok{"Count"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{labs}\NormalTok{(}\AttributeTok{x =} \StringTok{"Annual Snowfall in December"}\NormalTok{, }
+       \AttributeTok{title =} \StringTok{"Distribution of Annual Snowfall in December"}\NormalTok{, }\AttributeTok{y =} \StringTok{"Count"}\NormalTok{,}
+       \AttributeTok{caption =} \StringTok{"Fig. 6: Histogram with BCa Interval Shown"}\NormalTok{) }\SpecialCharTok{+}
   \FunctionTok{geom\_vline}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{xintercept=} \FloatTok{13.91591}\NormalTok{)) }\SpecialCharTok{+}
   \FunctionTok{geom\_vline}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{xintercept=} \FloatTok{17.72353}\NormalTok{))}
 \end{Highlighting}
@@ -658,6 +664,21 @@ studentized confidence interval \citep{Lau20}:
 \begin{verbatim}
 ## [1] 14.03467 18.01709
 \end{verbatim}
+
+This would give us the following histogram:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{gf\_histogram}\NormalTok{(}\SpecialCharTok{\textasciitilde{}}\NormalTok{ Dec, }\AttributeTok{data =}\NormalTok{ SnowGR) }\SpecialCharTok{+}
+  \FunctionTok{labs}\NormalTok{(}\AttributeTok{x =} \StringTok{"Annual Snowfall in December"}\NormalTok{, }
+       \AttributeTok{title =} \StringTok{"Distribution of Annual Snowfall in December"}\NormalTok{, }\AttributeTok{y =} \StringTok{"Count"}\NormalTok{, }
+       \AttributeTok{caption =} \StringTok{"Fig. 7: Histogram with Studentized Interval Shown"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{geom\_vline}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{xintercept=} \FloatTok{14.03467}\NormalTok{)) }\SpecialCharTok{+}
+  \FunctionTok{geom\_vline}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{xintercept=} \FloatTok{18.01709}\NormalTok{)) }
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{paper_files/figure-latex/unnamed-chunk-19-1.pdf}
 
 \hypertarget{simulation}{%
 \section{Simulation}\label{simulation}}
@@ -810,61 +831,6 @@ and a scale parameter of 4. This means the true population parameter is
 \end{Highlighting}
 \end{Shaded}
 
-Third, we sample from a Log-Normal distribution with mean log of 0 and a
-mean standard deviation of 1. Therefore, the true population mean of
-this distribution is \(e^{\frac{1}{2}}\) \citep{Guillaume21}.
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{run\_simulation\_log\_normal }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(simulation\_rep)\{}
-\NormalTok{  trueparameter }\OtherTok{\textless{}{-}} \FunctionTok{exp}\NormalTok{(}\DecValTok{1}\SpecialCharTok{/}\DecValTok{2}\NormalTok{)}
-
-\NormalTok{  X }\OtherTok{\textless{}{-}} \FunctionTok{rlnorm}\NormalTok{(sample\_sizes, }\AttributeTok{meanlog =} \DecValTok{0}\NormalTok{, }\AttributeTok{sdlog =} \DecValTok{1}\NormalTok{)}
-\NormalTok{  values }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(X)}
-\NormalTok{  output }\OtherTok{\textless{}{-}} \FunctionTok{findCIs}\NormalTok{(values, }\DecValTok{2000}\NormalTok{)}
-\NormalTok{  ci }\OtherTok{\textless{}{-}} \FunctionTok{matrix}\NormalTok{(}\FunctionTok{c}\NormalTok{(trueparameter }\SpecialCharTok{\textgreater{}=}\NormalTok{ output}\SpecialCharTok{$}\StringTok{\textasciigrave{}}\AttributeTok{Standard Interval}\StringTok{\textasciigrave{}}\NormalTok{[}\DecValTok{1}\NormalTok{] }\SpecialCharTok{\&} 
-\NormalTok{    trueparameter }\SpecialCharTok{\textless{}=}\NormalTok{ output}\SpecialCharTok{$}\StringTok{\textasciigrave{}}\AttributeTok{Standard Interval}\StringTok{\textasciigrave{}}\NormalTok{[}\DecValTok{2}\NormalTok{],}
-\NormalTok{    trueparameter }\SpecialCharTok{\textgreater{}=}\NormalTok{ output}\SpecialCharTok{$}\StringTok{\textasciigrave{}}\AttributeTok{Percentile Interval}\StringTok{\textasciigrave{}}\NormalTok{[}\DecValTok{1}\NormalTok{] }\SpecialCharTok{\&} 
-\NormalTok{    trueparameter }\SpecialCharTok{\textless{}=}\NormalTok{ output}\SpecialCharTok{$}\StringTok{\textasciigrave{}}\AttributeTok{Percentile Interval}\StringTok{\textasciigrave{}}\NormalTok{[}\DecValTok{2}\NormalTok{],}
-\NormalTok{    trueparameter }\SpecialCharTok{\textgreater{}=}\NormalTok{ output}\SpecialCharTok{$}\StringTok{\textasciigrave{}}\AttributeTok{BC Interval}\StringTok{\textasciigrave{}}\NormalTok{[}\DecValTok{1}\NormalTok{] }\SpecialCharTok{\&}
-\NormalTok{    trueparameter }\SpecialCharTok{\textless{}=}\NormalTok{ output}\SpecialCharTok{$}\StringTok{\textasciigrave{}}\AttributeTok{BC Interval}\StringTok{\textasciigrave{}}\NormalTok{[}\DecValTok{2}\NormalTok{],}
-\NormalTok{    trueparameter }\SpecialCharTok{\textgreater{}=}\NormalTok{ output}\SpecialCharTok{$}\StringTok{\textasciigrave{}}\AttributeTok{BCa Interval}\StringTok{\textasciigrave{}}\NormalTok{[}\DecValTok{1}\NormalTok{] }\SpecialCharTok{\&} 
-\NormalTok{    trueparameter }\SpecialCharTok{\textless{}=}\NormalTok{ output}\SpecialCharTok{$}\StringTok{\textasciigrave{}}\AttributeTok{BCa Interval}\StringTok{\textasciigrave{}}\NormalTok{[}\DecValTok{2}\NormalTok{],}
-\NormalTok{    trueparameter }\SpecialCharTok{\textgreater{}=}\NormalTok{ output}\SpecialCharTok{$}\StringTok{\textasciigrave{}}\AttributeTok{Studentized Interval}\StringTok{\textasciigrave{}}\NormalTok{[}\DecValTok{1}\NormalTok{] }\SpecialCharTok{\&} 
-\NormalTok{    trueparameter }\SpecialCharTok{\textless{}=}\NormalTok{ output}\SpecialCharTok{$}\StringTok{\textasciigrave{}}\AttributeTok{Studentized Interval}\StringTok{\textasciigrave{}}\NormalTok{[}\DecValTok{2}\NormalTok{]), }\AttributeTok{nrow =} \DecValTok{1}\NormalTok{)}
-\NormalTok{  res }\OtherTok{\textless{}{-}} \FunctionTok{rbind}\NormalTok{(}\FunctionTok{data.frame}\NormalTok{(), ci)}
-\NormalTok{  res}
-\NormalTok{\}}
-\end{Highlighting}
-\end{Shaded}
-
-Lastly, we sample from a Beta distribution with shape parameters of 4
-and 1 which gives us a true population mean of 0.8.
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{run\_simulation\_beta }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(simulation\_rep)\{}
-\NormalTok{  trueparameter }\OtherTok{\textless{}{-}} \FloatTok{0.8}
-  
-\NormalTok{  X }\OtherTok{\textless{}{-}} \FunctionTok{rbeta}\NormalTok{(sample\_sizes, }\AttributeTok{shape1 =} \DecValTok{4}\NormalTok{, }\AttributeTok{shape2 =} \DecValTok{1}\NormalTok{)}
-\NormalTok{  values }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(X)}
-\NormalTok{  output }\OtherTok{\textless{}{-}} \FunctionTok{findCIs}\NormalTok{(values, }\DecValTok{2000}\NormalTok{)}
-\NormalTok{  ci }\OtherTok{\textless{}{-}} \FunctionTok{matrix}\NormalTok{(}\FunctionTok{c}\NormalTok{(trueparameter }\SpecialCharTok{\textgreater{}=}\NormalTok{ output}\SpecialCharTok{$}\StringTok{\textasciigrave{}}\AttributeTok{Standard Interval}\StringTok{\textasciigrave{}}\NormalTok{[}\DecValTok{1}\NormalTok{] }\SpecialCharTok{\&} 
-\NormalTok{    trueparameter }\SpecialCharTok{\textless{}=}\NormalTok{ output}\SpecialCharTok{$}\StringTok{\textasciigrave{}}\AttributeTok{Standard Interval}\StringTok{\textasciigrave{}}\NormalTok{[}\DecValTok{2}\NormalTok{],}
-\NormalTok{    trueparameter }\SpecialCharTok{\textgreater{}=}\NormalTok{ output}\SpecialCharTok{$}\StringTok{\textasciigrave{}}\AttributeTok{Percentile Interval}\StringTok{\textasciigrave{}}\NormalTok{[}\DecValTok{1}\NormalTok{] }\SpecialCharTok{\&} 
-\NormalTok{    trueparameter }\SpecialCharTok{\textless{}=}\NormalTok{ output}\SpecialCharTok{$}\StringTok{\textasciigrave{}}\AttributeTok{Percentile Interval}\StringTok{\textasciigrave{}}\NormalTok{[}\DecValTok{2}\NormalTok{],}
-\NormalTok{    trueparameter }\SpecialCharTok{\textgreater{}=}\NormalTok{ output}\SpecialCharTok{$}\StringTok{\textasciigrave{}}\AttributeTok{BC Interval}\StringTok{\textasciigrave{}}\NormalTok{[}\DecValTok{1}\NormalTok{] }\SpecialCharTok{\&}
-\NormalTok{    trueparameter }\SpecialCharTok{\textless{}=}\NormalTok{ output}\SpecialCharTok{$}\StringTok{\textasciigrave{}}\AttributeTok{BC Interval}\StringTok{\textasciigrave{}}\NormalTok{[}\DecValTok{2}\NormalTok{],}
-\NormalTok{    trueparameter }\SpecialCharTok{\textgreater{}=}\NormalTok{ output}\SpecialCharTok{$}\StringTok{\textasciigrave{}}\AttributeTok{BCa Interval}\StringTok{\textasciigrave{}}\NormalTok{[}\DecValTok{1}\NormalTok{] }\SpecialCharTok{\&} 
-\NormalTok{    trueparameter }\SpecialCharTok{\textless{}=}\NormalTok{ output}\SpecialCharTok{$}\StringTok{\textasciigrave{}}\AttributeTok{BCa Interval}\StringTok{\textasciigrave{}}\NormalTok{[}\DecValTok{2}\NormalTok{],}
-\NormalTok{    trueparameter }\SpecialCharTok{\textgreater{}=}\NormalTok{ output}\SpecialCharTok{$}\StringTok{\textasciigrave{}}\AttributeTok{Studentized Interval}\StringTok{\textasciigrave{}}\NormalTok{[}\DecValTok{1}\NormalTok{] }\SpecialCharTok{\&} 
-\NormalTok{    trueparameter }\SpecialCharTok{\textless{}=}\NormalTok{ output}\SpecialCharTok{$}\StringTok{\textasciigrave{}}\AttributeTok{Studentized Interval}\StringTok{\textasciigrave{}}\NormalTok{[}\DecValTok{2}\NormalTok{]), }\AttributeTok{nrow =} \DecValTok{1}\NormalTok{)}
-\NormalTok{  res }\OtherTok{\textless{}{-}} \FunctionTok{rbind}\NormalTok{(}\FunctionTok{data.frame}\NormalTok{(), ci)}
-\NormalTok{  res}
-\NormalTok{\}}
-\end{Highlighting}
-\end{Shaded}
-
 After that, these functions will compile all of the information we have
 created from the previous methods and run the simulations of each method
 for a variety of sample sizes.
@@ -873,16 +839,18 @@ for a variety of sample sizes.
 \begin{Highlighting}[]
 \NormalTok{collect\_data\_gamma }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(sim\_reps) \{}
 \NormalTok{  data2 }\OtherTok{\textless{}{-}} \FunctionTok{matrix}\NormalTok{(}\AttributeTok{nrow =} \DecValTok{5}\NormalTok{, }\AttributeTok{ncol =} \DecValTok{6}\NormalTok{)}
-\NormalTok{  sample\_sizes }\OtherTok{=} \DecValTok{50}
+\NormalTok{  sample\_sizes }\OtherTok{=} \DecValTok{10}
+
   \ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \DecValTok{1}\SpecialCharTok{:}\DecValTok{5}\NormalTok{) \{}
 \NormalTok{    simulation\_rep }\OtherTok{\textless{}{-}} \FunctionTok{seq}\NormalTok{(}\DecValTok{1}\NormalTok{,sim\_reps)}
-\NormalTok{    results }\OtherTok{\textless{}{-}} \FunctionTok{mclapply}\NormalTok{(simulation\_rep, run\_simulation\_gamma, }\AttributeTok{mc.cores =} \FunctionTok{detectCores}\NormalTok{())}
+\NormalTok{    results }\OtherTok{\textless{}{-}} \FunctionTok{mclapply}\NormalTok{(simulation\_rep, run\_simulation\_gamma, }
+                        \AttributeTok{mc.cores =} \FunctionTok{detectCores}\NormalTok{())}
 \NormalTok{    df }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(}\FunctionTok{matrix}\NormalTok{(}\FunctionTok{unlist}\NormalTok{(results), }\AttributeTok{nrow=}\FunctionTok{length}\NormalTok{(results), }\AttributeTok{byrow=}\ConstantTok{TRUE}\NormalTok{))}
-\NormalTok{    ci\_prop }\OtherTok{\textless{}{-}} \FunctionTok{unname}\NormalTok{(}\FunctionTok{colSums}\NormalTok{(df)}\SpecialCharTok{/}\NormalTok{sim\_reps)}
-    
+\NormalTok{    ci\_prop }\OtherTok{\textless{}{-}} \FunctionTok{colSums}\NormalTok{(df)}\SpecialCharTok{/}\NormalTok{sim\_reps}
+
 \NormalTok{    data2[i, }\DecValTok{1}\NormalTok{] }\OtherTok{\textless{}{-}}\NormalTok{ sample\_sizes}
 \NormalTok{    data2[i, }\DecValTok{2}\SpecialCharTok{:}\DecValTok{6}\NormalTok{] }\OtherTok{\textless{}{-}}\NormalTok{ ci\_prop}
-\NormalTok{    sample\_sizes }\OtherTok{\textless{}{-}}\NormalTok{ sample\_sizes}\SpecialCharTok{*}\DecValTok{2}
+\NormalTok{    sample\_sizes }\OtherTok{\textless{}{-}}\NormalTok{ sample\_sizes}\SpecialCharTok{+}\DecValTok{10}
 \NormalTok{  \}}
 
 \NormalTok{  gamma\_output }\OtherTok{\textless{}{-}} \FunctionTok{as.data.frame}\NormalTok{(data2) }\SpecialCharTok{\%\textgreater{}\%} 
@@ -895,34 +863,9 @@ for a variety of sample sizes.
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{collect\_data\_log\_normal }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(sim\_reps) \{}
-\NormalTok{  data2 }\OtherTok{\textless{}{-}} \FunctionTok{matrix}\NormalTok{(}\AttributeTok{nrow =} \DecValTok{5}\NormalTok{, }\AttributeTok{ncol =} \DecValTok{6}\NormalTok{)}
-\NormalTok{  sample\_sizes }\OtherTok{=} \DecValTok{50}
-  
-  \ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \DecValTok{1}\SpecialCharTok{:}\DecValTok{5}\NormalTok{) \{}
-\NormalTok{    simulation\_rep }\OtherTok{\textless{}{-}} \FunctionTok{seq}\NormalTok{(}\DecValTok{1}\NormalTok{,sim\_reps)}
-\NormalTok{    results }\OtherTok{\textless{}{-}} \FunctionTok{mclapply}\NormalTok{(simulation\_rep, run\_simulation\_log\_normal, }\AttributeTok{mc.cores =} \FunctionTok{detectCores}\NormalTok{())}
-\NormalTok{    df }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(}\FunctionTok{matrix}\NormalTok{(}\FunctionTok{unlist}\NormalTok{(results), }\AttributeTok{nrow=}\FunctionTok{length}\NormalTok{(results), }\AttributeTok{byrow=}\ConstantTok{TRUE}\NormalTok{))}
-\NormalTok{    ci\_prop }\OtherTok{\textless{}{-}} \FunctionTok{unname}\NormalTok{(}\FunctionTok{colSums}\NormalTok{(df)}\SpecialCharTok{/}\NormalTok{sim\_reps)}
-    
-\NormalTok{    data2[i, }\DecValTok{1}\NormalTok{] }\OtherTok{\textless{}{-}}\NormalTok{ sample\_sizes}
-\NormalTok{    data2[i, }\DecValTok{2}\SpecialCharTok{:}\DecValTok{6}\NormalTok{] }\OtherTok{\textless{}{-}}\NormalTok{ ci\_prop}
-\NormalTok{    sample\_sizes }\OtherTok{\textless{}{-}}\NormalTok{ sample\_sizes}\SpecialCharTok{*}\DecValTok{2}
-\NormalTok{  \}}
-  
-\NormalTok{  log\_normal\_output }\OtherTok{\textless{}{-}} \FunctionTok{as.data.frame}\NormalTok{(data2) }\SpecialCharTok{\%\textgreater{}\%} 
-    \FunctionTok{rename}\NormalTok{(}\StringTok{"Sample\_Size"} \OtherTok{=}\NormalTok{ V1, }\StringTok{"Standard"} \OtherTok{=}\NormalTok{ V2, }\StringTok{"Percentile"} \OtherTok{=}\NormalTok{ V3, }\StringTok{"BC"} \OtherTok{=}\NormalTok{ V4, }
-           \StringTok{"BCa"} \OtherTok{=}\NormalTok{ V5, }\StringTok{"Studentized"} \OtherTok{=}\NormalTok{ V6) }
-\NormalTok{  log\_normal\_output}
-\NormalTok{\}}
-\end{Highlighting}
-\end{Shaded}
-
-\begin{Shaded}
-\begin{Highlighting}[]
 \NormalTok{collect\_data\_normal }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(sim\_reps) \{}
 \NormalTok{  data2 }\OtherTok{\textless{}{-}} \FunctionTok{matrix}\NormalTok{(}\AttributeTok{nrow =} \DecValTok{5}\NormalTok{, }\AttributeTok{ncol =} \DecValTok{6}\NormalTok{)}
-\NormalTok{  sample\_sizes }\OtherTok{=} \DecValTok{50}
+\NormalTok{  sample\_sizes }\OtherTok{=} \DecValTok{10}
   
   \ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \DecValTok{1}\SpecialCharTok{:}\DecValTok{5}\NormalTok{) \{}
 \NormalTok{    simulation\_rep }\OtherTok{\textless{}{-}} \FunctionTok{seq}\NormalTok{(}\DecValTok{1}\NormalTok{,sim\_reps)}
@@ -933,7 +876,7 @@ for a variety of sample sizes.
     
 \NormalTok{    data2[i, }\DecValTok{1}\NormalTok{] }\OtherTok{\textless{}{-}}\NormalTok{ sample\_sizes}
 \NormalTok{    data2[i, }\DecValTok{2}\SpecialCharTok{:}\DecValTok{6}\NormalTok{] }\OtherTok{\textless{}{-}}\NormalTok{ ci\_prop}
-\NormalTok{    sample\_sizes }\OtherTok{\textless{}{-}}\NormalTok{ sample\_sizes}\SpecialCharTok{*}\DecValTok{2}
+\NormalTok{    sample\_sizes }\OtherTok{\textless{}{-}}\NormalTok{ sample\_sizes}\SpecialCharTok{+}\DecValTok{10}
 \NormalTok{  \}}
   
 \NormalTok{  normal\_output }\OtherTok{\textless{}{-}} \FunctionTok{as.data.frame}\NormalTok{(data2) }\SpecialCharTok{\%\textgreater{}\%} 
@@ -944,75 +887,141 @@ for a variety of sample sizes.
 \end{Highlighting}
 \end{Shaded}
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{collect\_data\_beta }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(sim\_reps) \{}
-\NormalTok{  data2 }\OtherTok{\textless{}{-}} \FunctionTok{matrix}\NormalTok{(}\AttributeTok{nrow =} \DecValTok{5}\NormalTok{, }\AttributeTok{ncol =} \DecValTok{6}\NormalTok{)}
-\NormalTok{  sample\_sizes }\OtherTok{=} \DecValTok{50}
-  
-  \ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \DecValTok{1}\SpecialCharTok{:}\DecValTok{5}\NormalTok{) \{}
-\NormalTok{    simulation\_rep }\OtherTok{\textless{}{-}} \FunctionTok{seq}\NormalTok{(}\DecValTok{1}\NormalTok{,sim\_reps)}
-\NormalTok{    results }\OtherTok{\textless{}{-}} \FunctionTok{mclapply}\NormalTok{(simulation\_rep, run\_simulation\_beta, }
-                        \AttributeTok{mc.cores =} \FunctionTok{detectCores}\NormalTok{())}
-\NormalTok{    df }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(}\FunctionTok{matrix}\NormalTok{(}\FunctionTok{unlist}\NormalTok{(results), }\AttributeTok{nrow=}\FunctionTok{length}\NormalTok{(results), }\AttributeTok{byrow=}\ConstantTok{TRUE}\NormalTok{))}
-\NormalTok{    ci\_prop }\OtherTok{\textless{}{-}} \FunctionTok{unname}\NormalTok{(}\FunctionTok{colSums}\NormalTok{(df)}\SpecialCharTok{/}\NormalTok{sim\_reps)}
-    
-\NormalTok{    data2[i, }\DecValTok{1}\NormalTok{] }\OtherTok{\textless{}{-}}\NormalTok{ sample\_sizes}
-\NormalTok{    data2[i, }\DecValTok{2}\SpecialCharTok{:}\DecValTok{6}\NormalTok{] }\OtherTok{\textless{}{-}}\NormalTok{ ci\_prop}
-\NormalTok{    sample\_sizes }\OtherTok{\textless{}{-}}\NormalTok{ sample\_sizes}\SpecialCharTok{*}\DecValTok{2}
-\NormalTok{  \}}
-  
-\NormalTok{  beta\_output }\OtherTok{\textless{}{-}} \FunctionTok{as.data.frame}\NormalTok{(data2) }\SpecialCharTok{\%\textgreater{}\%} 
-    \FunctionTok{rename}\NormalTok{(}\StringTok{"Sample\_Size"} \OtherTok{=}\NormalTok{ V1, }\StringTok{"Standard"} \OtherTok{=}\NormalTok{ V2, }\StringTok{"Percentile"} \OtherTok{=}\NormalTok{ V3, }\StringTok{"BC"} \OtherTok{=}\NormalTok{ V4, }
-           \StringTok{"BCa"} \OtherTok{=}\NormalTok{ V5, }\StringTok{"Studentized"} \OtherTok{=}\NormalTok{ V6) }
-\NormalTok{  beta\_output}
-\NormalTok{\}}
-\end{Highlighting}
-\end{Shaded}
-
 And here, we run the simulations for each of the distributions and store
 the results.
 
 \begin{Shaded}
 \begin{Highlighting}[]
 \FunctionTok{set.seed}\NormalTok{(}\DecValTok{495}\NormalTok{)}
-\NormalTok{gamma\_data1 }\OtherTok{\textless{}{-}} \FunctionTok{collect\_data\_gamma}\NormalTok{(}\DecValTok{10000}\NormalTok{)}
-\FunctionTok{write.csv}\NormalTok{(gamma\_data1,}\StringTok{"gamma\_data1\_10000.csv"}\NormalTok{, }\AttributeTok{row.names =} \ConstantTok{FALSE}\NormalTok{)}
+\NormalTok{sim\_reps }\OtherTok{\textless{}{-}} \DecValTok{10000}
 
-\NormalTok{normal\_data1 }\OtherTok{\textless{}{-}} \FunctionTok{collect\_data\_normal}\NormalTok{(}\DecValTok{10000}\NormalTok{)}
-\FunctionTok{write.csv}\NormalTok{(normal\_data1,}\StringTok{"normal\_data1\_10000.csv"}\NormalTok{, }\AttributeTok{row.names =} \ConstantTok{FALSE}\NormalTok{)}
+\NormalTok{gamma\_data }\OtherTok{\textless{}{-}} \FunctionTok{collect\_data\_gamma}\NormalTok{(sim\_reps)}
+\FunctionTok{write.csv}\NormalTok{(gamma\_data1,}\StringTok{"gamma\_data1.csv"}\NormalTok{, }\AttributeTok{row.names =} \ConstantTok{FALSE}\NormalTok{)}
 
-\NormalTok{log\_normal\_data1 }\OtherTok{\textless{}{-}} \FunctionTok{collect\_data\_log\_normal}\NormalTok{(}\DecValTok{10000}\NormalTok{)}
-\FunctionTok{write.csv}\NormalTok{(log\_normal\_data1,}\StringTok{"log\_normal1\_data\_10000.csv"}\NormalTok{, }\AttributeTok{row.names =} \ConstantTok{FALSE}\NormalTok{)}
+\NormalTok{normal\_data }\OtherTok{\textless{}{-}} \FunctionTok{collect\_data\_normal}\NormalTok{(sim\_reps)}
+\FunctionTok{write.csv}\NormalTok{(normal\_data1,}\StringTok{"normal\_data1.csv"}\NormalTok{, }\AttributeTok{row.names =} \ConstantTok{FALSE}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
 
-\NormalTok{beta\_data1 }\OtherTok{\textless{}{-}} \FunctionTok{collect\_data\_beta}\NormalTok{(}\DecValTok{10000}\NormalTok{)}
-\FunctionTok{write.csv}\NormalTok{(beta\_data1,}\StringTok{"beta\_data1\_10000.csv"}\NormalTok{, }\AttributeTok{row.names =} \ConstantTok{FALSE}\NormalTok{)}
+Then, we can plot the results and compile the results into tables.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{gamma\_df }\OtherTok{\textless{}{-}} \FunctionTok{read.csv}\NormalTok{(}\AttributeTok{file =} \StringTok{\textquotesingle{}gamma\_data1\_10000.csv\textquotesingle{}}\NormalTok{)}
+\NormalTok{normal\_df }\OtherTok{\textless{}{-}} \FunctionTok{read.csv}\NormalTok{(}\AttributeTok{file =} \StringTok{\textquotesingle{}normal\_data1\_10000.csv\textquotesingle{}}\NormalTok{)}
+
+\NormalTok{gamma\_df\_long }\OtherTok{\textless{}{-}}\NormalTok{ gamma\_df }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{pivot\_longer}\NormalTok{(}\AttributeTok{cols =} \DecValTok{2}\SpecialCharTok{:}\DecValTok{6}\NormalTok{, }\AttributeTok{names\_to =} \StringTok{"method"}\NormalTok{, }\AttributeTok{values\_to =} \StringTok{"prop"}\NormalTok{) }
+    
+\NormalTok{gamma\_fig }\OtherTok{\textless{}{-}} \FunctionTok{ggplot}\NormalTok{(}\AttributeTok{data =}\NormalTok{ gamma\_df\_long, }
+                    \FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ Sample\_Size, }\AttributeTok{y =}\NormalTok{ prop, }\AttributeTok{color =}\NormalTok{ method)) }\SpecialCharTok{+} 
+  \FunctionTok{geom\_point}\NormalTok{() }\SpecialCharTok{+} \FunctionTok{geom\_line}\NormalTok{() }\SpecialCharTok{+} 
+  \FunctionTok{labs}\NormalTok{(}\AttributeTok{title =} \StringTok{"Proportion of CIs that Contain the True Parameter from Gamma }
+\StringTok{       Distibution"}\NormalTok{, }\AttributeTok{x =} \StringTok{"Sample Size"}\NormalTok{, }
+       \AttributeTok{y =} \StringTok{"Proportion (of 10,000 Simulations)"}\NormalTok{, }\AttributeTok{color =} \StringTok{"Method"}\NormalTok{,}
+       \AttributeTok{caption =} \StringTok{"Fig. 8: Graph showing the Accuracy of Bootstrap CI Methods for different sample sizes on Gamma Dist."}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{theme\_light}\NormalTok{() }\SpecialCharTok{+}
+  \FunctionTok{theme}\NormalTok{(}\AttributeTok{legend.position=}\StringTok{"bottom"}\NormalTok{)}
+      
+\NormalTok{gamma\_table }\OtherTok{\textless{}{-}}\NormalTok{ gamma\_df }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{kable}\NormalTok{(}\AttributeTok{booktabs =} \ConstantTok{TRUE}\NormalTok{, }\AttributeTok{align =} \StringTok{"c"}\NormalTok{, }\AttributeTok{caption =} \StringTok{"Sampled From Gamma Dist."}\NormalTok{, }
+        \AttributeTok{col.names =} \FunctionTok{gsub}\NormalTok{(}\StringTok{"[\_]"}\NormalTok{, }\StringTok{" "}\NormalTok{, }\FunctionTok{names}\NormalTok{(gamma\_df))) }
+    
+\NormalTok{normal\_df\_long }\OtherTok{\textless{}{-}}\NormalTok{ normal\_df }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{pivot\_longer}\NormalTok{(}\AttributeTok{cols =} \DecValTok{2}\SpecialCharTok{:}\DecValTok{6}\NormalTok{, }\AttributeTok{names\_to =} \StringTok{"method"}\NormalTok{, }\AttributeTok{values\_to =} \StringTok{"prop"}\NormalTok{) }
+    
+\NormalTok{normal\_fig }\OtherTok{\textless{}{-}} \FunctionTok{ggplot}\NormalTok{(}\AttributeTok{data =}\NormalTok{ normal\_df\_long, }
+                    \FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ Sample\_Size, }\AttributeTok{y =}\NormalTok{ prop, }\AttributeTok{color =}\NormalTok{ method)) }\SpecialCharTok{+} 
+  \FunctionTok{geom\_point}\NormalTok{() }\SpecialCharTok{+} \FunctionTok{geom\_line}\NormalTok{() }\SpecialCharTok{+} 
+  \FunctionTok{labs}\NormalTok{(}\AttributeTok{title =} \StringTok{"Proportion of CIs that Contain the True Parameter from Normal }
+\StringTok{       Distibution"}\NormalTok{, }\AttributeTok{x =} \StringTok{"Sample Size"}\NormalTok{, }
+       \AttributeTok{y =} \StringTok{"Proportion (of 10,000 Simulations)"}\NormalTok{, }\AttributeTok{color =} \StringTok{"Method"}\NormalTok{,}
+       \AttributeTok{caption =} \StringTok{"Fig. 8: Graph showing the Accuracy of Bootstrap CI Methods for different sample sizes on Normal Dist."}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{theme\_light}\NormalTok{() }\SpecialCharTok{+}
+  \FunctionTok{theme}\NormalTok{(}\AttributeTok{legend.position=}\StringTok{"bottom"}\NormalTok{)}
+      
+\NormalTok{normal\_table }\OtherTok{\textless{}{-}}\NormalTok{ normal\_df }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{kable}\NormalTok{(}\AttributeTok{booktabs =} \ConstantTok{TRUE}\NormalTok{, }\AttributeTok{align =} \StringTok{"c"}\NormalTok{, }\AttributeTok{caption =} \StringTok{"Sampled from Normal Dist."}\NormalTok{, }
+        \AttributeTok{col.names =} \FunctionTok{gsub}\NormalTok{(}\StringTok{"[\_]"}\NormalTok{, }\StringTok{" "}\NormalTok{, }\FunctionTok{names}\NormalTok{(normal\_df)))}
 \end{Highlighting}
 \end{Shaded}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{    gamma\_data1 }\OtherTok{\textless{}{-}}\NormalTok{ gamma\_data5 }\SpecialCharTok{\%\textgreater{}\%}
-      \FunctionTok{pivot\_longer}\NormalTok{(}\AttributeTok{cols =} \DecValTok{2}\SpecialCharTok{:}\DecValTok{6}\NormalTok{, }\AttributeTok{names\_to =} \StringTok{"method"}\NormalTok{, }\AttributeTok{values\_to =} \StringTok{"prop"}\NormalTok{) }
-    
-\NormalTok{    gamma\_fig }\OtherTok{\textless{}{-}} \FunctionTok{ggplot}\NormalTok{(}\AttributeTok{data =}\NormalTok{ gamma\_data1, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ Sample\_Size, }\AttributeTok{y =}\NormalTok{ prop, }
-                                                \AttributeTok{color =}\NormalTok{ method))}\SpecialCharTok{+}
-      \FunctionTok{geom\_point}\NormalTok{() }\SpecialCharTok{+}
-      \FunctionTok{geom\_line}\NormalTok{() }\SpecialCharTok{+} 
-      \FunctionTok{labs}\NormalTok{(}\AttributeTok{title =} \StringTok{"Proportion of CIs that Contain the True Parameter }
-\StringTok{           from Gamma Distibution"}\NormalTok{, }\AttributeTok{x =} \StringTok{"Sample Size"}\NormalTok{, }
-           \AttributeTok{y =} \StringTok{"Proportion (of xyz Simulations)"}\NormalTok{, }\AttributeTok{color =} \StringTok{"Method"}\NormalTok{) }\SpecialCharTok{+}
-      \FunctionTok{theme\_light}\NormalTok{()}
-    
-\NormalTok{    gamma\_table }\OtherTok{\textless{}{-}}\NormalTok{ gamma\_data }\SpecialCharTok{\%\textgreater{}\%}
-      \FunctionTok{kable}\NormalTok{(}\AttributeTok{booktabs =} \ConstantTok{TRUE}\NormalTok{, }\AttributeTok{align =} \StringTok{"c"}\NormalTok{, }\AttributeTok{caption =} \StringTok{"gamma"}\NormalTok{, }
-            \AttributeTok{col.names =} \FunctionTok{gsub}\NormalTok{(}\StringTok{"[\_]"}\NormalTok{, }\StringTok{" "}\NormalTok{, }\FunctionTok{names}\NormalTok{(gamma\_data)))}
-    
-\NormalTok{    gamma\_table}
-\NormalTok{    gamma\_fig}
+\NormalTok{gamma\_fig}
 \end{Highlighting}
 \end{Shaded}
 
+\includegraphics{paper_files/figure-latex/unnamed-chunk-22-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{gamma\_table}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{table}
+
+\caption{\label{tab:create graphs}Sampled From Gamma Dist.}
+\centering
+\begin{tabular}[t]{cccccc}
+\toprule
+Sample Size & Standard & Percentile & BC & BCa & Studentized\\
+\midrule
+100 & 0.9205 & 0.9210 & 0.9226 & 0.9182 & 0.9406\\
+200 & 0.9284 & 0.9286 & 0.9305 & 0.9257 & 0.9463\\
+400 & 0.9298 & 0.9291 & 0.9310 & 0.9273 & 0.9465\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+When we sample from the Gamma distribution which is a distribution that
+is heavily skewed, the Studentized Confidence interval performs the
+best. At a large sample size, the Studentized Confidence interval
+contains the true population parameter about 94.5\% of the time. The
+Studentized confidence interval outperforms the rest of the intervals by
+a bit. The rest of the intervals are very similar to each other ranging
+from a correct interval 92.5\% to 93\% of the time. In general, as the
+sample size that we are bootstrapping from increases, the higher
+percentage our confidence intervals predict correctly.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{normal\_fig}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{paper_files/figure-latex/unnamed-chunk-23-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{normal\_table}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{table}
+
+\caption{\label{tab:create graphs}Sampled from Normal Dist.}
+\centering
+\begin{tabular}[t]{cccccc}
+\toprule
+Sample Size & Standard & Percentile & BC & BCa & Studentized\\
+\midrule
+100 & 0.9415 & 0.9394 & 0.9391 & 0.9390 & 0.9483\\
+200 & 0.9448 & 0.9411 & 0.9405 & 0.9404 & 0.9489\\
+400 & 0.9464 & 0.9417 & 0.9421 & 0.9426 & 0.9503\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Similar to when we sampled from the Gamma distribution, the Studentized
+confidence interval performed the best when we sampled from a Normal
+distribution with around 95\% of the confidence intervals containing the
+true population parameter. The next best is the Standard confidence
+interval with a performance of around 94.5\% correct intervals at a high
+sample size. The rest of the intervals performed similarly at around
+94.2\% accuracy. As before, the accuracy increased as the sample size
+increased.
 
 \bibliographystyle{agsm}
 \bibliography{bibliography.bib}
