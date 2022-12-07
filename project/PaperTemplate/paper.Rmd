@@ -6,9 +6,8 @@ blinded: 0
 
 authors: 
 - name: Justin Papagelis
-  thanks: The authors gratefully acknowledge ...
+  thanks: The authors gratefully acknowledge Profossor Wagaman
   affiliation: Department of Mathematics and Statistics, Amherst College
-  
 
 keywords:
 - simulation
@@ -99,7 +98,7 @@ for (i in 1:nboot) {
 dec_means <- as.data.frame(mean)
 ```
 
-
+Below is the 
 
 ```{r, cache = TRUE}
 gf_dhistogram(~ mean, data = dec_means) %>%
@@ -117,11 +116,12 @@ Specifically, a confidence interval gives a range of values in which the true va
 An $\alpha$-level standard confidence interval is given by $$\hat{\theta}_S[\alpha] = \hat{\theta} \pm z_{\alpha}\hat{\sigma},$$ where $\hat{\theta}$ is a point estimate of the parameter of interest $\theta$, $\hat{\sigma}$ is the estimate of the standard deviation of $\hat{\theta}$ and $z_{\alpha}$ is the $(100 *\alpha)$th percentile of the normal deviation [@Efron86]. 
 We say that the confidence interval constructed in this manner has a chance of capturing the true parameter with a probability of $\alpha$. 
 
-The standard confidence interval is built based on the assumption that the distribution from which we are sampling is Normal. 
+The standard confidence interval is built based on the assumption that the distribution from which we are sampling is Normal.
+As such, the standard confidence interval is sometimes called the normal confidence interval for bootstrapped data.
 This means that for an unknown distribution, the standard confidence interval could present an incorrect range.
 However, the same process can be used with bootstrap sampling to form the bootstrap percentile method. 
 This means that an approximate bootstrap confidence interval will be created in the same automatic way that the standard confidence interval was created. 
-For bootstrapped confidence intervals, the number of bootstrap replications $B$ must be large (around 2000) due to the nature of confidence intervals requiring greater accuracy [@Efron86].
+For bootstrapped confidence intervals, the number of bootstrap replications $B$ must be large (around 2,000) due to the nature of confidence intervals requiring greater accuracy [@Efron86].
 
 Using our example, to find a 95% confidence interval for the population mean of `Dec`, we would get the following:
 
@@ -287,8 +287,9 @@ As such, the $\alpha$th percentile point of a confidence interval of $\theta$ wo
 Unfortunately, the percentiles of the t-distribution are unknown in most cases, but we can use bootstrapping to estimate these percentiles. 
 To do this, we perform a large number, $B$, of bootstrap samples, from which we can find the bootstrap replications of the parameter of interest, $\hat{\theta^*} = \hat{\theta}(X^*)$, and the standard error, $\hat{\sigma^*} = \hat{\sigma}(X^*)$. 
 From these we can calculate a t-statistic for each bootstrap sample: $$T^* = \frac{\hat{\theta}^* - \hat{\theta}}{\hat{\sigma}^*}.$$ for each bootstrap sample. Using a large number of these bootstrap samples, we can estimate the percentiles of the $t$-distribution such that: $$\hat{T}_{(\alpha)} = B*\alpha\text{th ordered value of all the bootstrap relications of }T^*.$$ 
-This means that for $B = 2000$ and $\alpha = 0.90$, then $\hat{T}_{(\alpha)}$ is the 1,800th ordered point of all of the bootstrap replications of $T^*$. 
-It follows that the $\alpha$th studentized confidence interval endpoint can be given with $$\hat{\theta}_T[\alpha] = \hat{\theta} - \hat{\sigma}T_{(\alpha)},$$ where we can estimate the standard error using $$\hat{\sigma} = \frac{1-\hat{\theta}^2}{\sqrt{n}}.$$ One of the main factors why the studentized method is so popular is because we assume that our bootstrapped statistic is pivotal which means that the confidence interval does not depend on any other parameters. Instead, we can calculate the appropriate confidence interval for the parameter of interest specifically from the bootstrapped statistic [@Efron86,@Puth15].
+This means that for $B = 2,000$ and $\alpha = 0.90$, then $\hat{T}_{(\alpha)}$ is the 1,800th ordered point of all of the bootstrap replications of $T^*$. 
+It follows that the $\alpha$th studentized confidence interval endpoint can be given with $$\hat{\theta}_T[\alpha] = \hat{\theta} - \hat{\sigma}T_{(\alpha)},$$ where we can estimate the standard error using $$\hat{\sigma} = \frac{1-\hat{\theta}^2}{\sqrt{n}}.$$ One of the main factors why the studentized method is so popular is because we assume that our bootstrapped statistic is pivotal which means that the confidence interval does not depend on any other parameters. 
+Instead, we can calculate the appropriate confidence interval for the parameter of interest specifically from the bootstrapped statistic [@Efron86,@Puth15].
 
 Following the process above, we can use the following to get our studentized confidence interval [@Lau20]:
 
@@ -331,23 +332,170 @@ gf_histogram(~ Dec, data = SnowGR) +
 
 # Simulation
 
-For the simulation, we will randomly sample from distributions in which we know the true population mean. For example, we will sampling from a Gamma Distribution where we can find the true population mean using the shape and rate parameters of the sample distribution. After we sample from a distribution, we will create a bootstrapped confidence interval for each of the methods we described in the exposition. Since we know the true population mean of the distribution, we will determine if the true population parameter is contained in the confidence interval for each of the methods. We will perform this process a large number of times (10,000) and then average by the number of iterations to determine the average proportion that each bootstrapped confidence interval method contains the true population mean. We will do this for a couple different distributions as well as a range of sample sizes show how the intervals perform with skewed distributions and larger sample sizes.
+For the simulation, we will randomly sample from distributions in which we know the true population mean. 
+For example, we will sampling from a Gamma Distribution where we can find the true population mean using the shape and rate parameters of the sample distribution. 
+After we sample from a distribution, we will create a bootstrapped confidence interval for a few of the methods we described in the exposition. 
+Since we know the true population mean of the distribution, we will determine if the true population parameter is contained in the confidence interval for each of the methods we are testing. 
+We will perform this process a large number of times (10,000 simulations) and then average by the number of iterations to determines on average, the proportion that each bootstrapped confidence interval method contains the true population mean for a given distribution. 
+We will do this for a couple different distributions as well as a range of sample sizes show how the intervals perform with skewed distributions and larger sample sizes.
 
-First, we create a function that calculates the bootstrapped confidence intervals from a given sample. To do this, we first bootstrap the sample and then perform each method.
+To do this simulation, we will be using the `boot` package [@boot]. 
+This package can compute a bootstrap object which contains the output from a bootstrap calculation of a given sample and then produces confidence intervals from the bootstrap object. 
+In particular, we will use the `boot.ci` function to create four types of confidence intervals: the standard (or normal) confidence interval, the studentized confidence interval, the percentile confidence interval, and the bias-corrected with acceleration confidence interval.
+
+Before we create the simulation, we create a helper function to extract the replication statistics we will need from the bootstrapped data. 
+These are the bootstrapped replicated mean and standard deviation of each bootstrapped sample.
+We will also declare some constants here including the sample sizes we will be using and the number of bootstrap replication we are using as well.
+
+```{r pre-simulation}
+boot.stat <- function(d, i) {
+  d <- X[i]
+  return (c(mean(d), sd(d)))
+}
+sample_sizes <- c(4, 10, 15, 20, 30, 40, 60, 80, 100)
+num_sample_sizes <- length(sample_sizes)
+boot_reps <- 2000
+```
 
 
+Next, we will create a simulation that randomly selects a sample from a Normal distribution and performs a bootstrap with 2,000 bootstrap replications.
+After, we will create the confidence intervals that we will be testing from this bootstrap and then determine if the true mean, our population parameter, is contained within our interval. 
+Since we are using a $N(0,1)$ distribution, our true population mean is equal to 0. 
+We will repeat this process 10,000 times as specified for each of the sample sizes that we are using. 
+Since we are using originally sampling from a Normal distribution, the assumptions we hold for the standard interval are true and thus we would expect all of the methods to perform comparably to each other at large sample sizes.
 
-Next, we will create the simulation that picks the random sample from a distribution and tests to see if the sample creates bootstrapped confidence intervals that contain the true population parameter. First, we have the simulation of selecting from a Normal Distribution. Since we have a $N(0,1)$ distribution, out true population mean is 0. 
+```{r normal simulation}
+run_sim_normal <- function(sim_reps) {
+  master <- matrix(nrow = num_sample_sizes, ncol = 5)
+  
+  for(i in 1:num_sample_sizes) {
+  
+    norm_contains <- rep(0, sim_reps)
+    student_contains <- rep(0, sim_reps)
+    percentile_contains <- rep(0, sim_reps)
+    bca_contains <- rep(0, sim_reps)
+    
+    n <- sample_sizes[i]
+    true_mean <- 0
+    
+    for (j in 1:sim_reps) {
+      X <- rnorm(n, 0, 1)
+      values <- data.frame(X)
+      results <- boot(data = values, statistic = boot.stat, R = boot_reps)
+      ci <- boot.ci(results, conf = 0.95, type = c("norm", "perc", "bca", "stud"))
+      
+      norm_contains[j] <- true_mean >= ci$normal[2] & true_mean <= ci$normal[3]
+      student_contains[j] <- true_mean >= ci$student[4] & true_mean <= ci$student[5]
+      percentile_contains[j] <- true_mean >= ci$percent[4] & true_mean <= ci$percent[5]
+      bca_contains[j] <- true_mean >= ci$bca[4] & true_mean <= ci$bca[5]
+    }
+    
+    master[i, 1] <- sample_sizes[i]
+    master[i, 2] <- sum(norm_contains)/sim_reps
+    master[i, 3] <- sum(student_contains)/sim_reps
+    master[i, 4] <- sum(percentile_contains)/sim_reps
+    master[i, 5] <- sum(bca_contains)/sim_reps
+  }
+  
+  master_df <- as.data.frame(master) %>% 
+      rename("Sample_Size" = V1, "Normal" = V2, "Studentized" = V3, 
+             "Percentile" = V4, "BCa" = V5) 
+  master_df
+}
 
+```
 
+Secondly, we select from a Gamma Distribution with a shape parameter of 1 and a scale parameter of 4 $Gamma(1,4)$. 
+This means the true population mean is 4 because the true mean is given by the product of the shape and scale parameter. 
+The simulation follows the same process as above where we sampled from the Normal distribution except we are sampling from a Gamma Distribution this time. 
+Since, the Gamma Distribution we are using heavily left-skewed, we would expect the studentized confidence interval and the BCa confidence interval to perform the best. 
 
-Second, we select from a Gamma Distribution with a shape parameter of 1 and a scale parameter of 4. This means the true population parameter is 4. 
+```{r gamma simulation}
+run_sim_gamma <- function(sim_reps) {
 
+  master <- matrix(nrow = num_sample_sizes, ncol = 6)
+  
+  for(i in 1:num_sample_sizes) {
+  
+    norm_contains <- rep(0, sim_reps)
+    student_contains <- rep(0, sim_reps)
+    percentile_contains <- rep(0, sim_reps)
+    bca_contains <- rep(0, sim_reps)
+    
+    n <- sample_sizes[i]
+    true_mean <- 4
+    
+    for (j in 1:sim_reps) {
+      X <- rgamma(sample_sizes, shape = 1, scale = 4)
+      values <- data.frame(X)
+    
+      results <- boot(data = values, statistic = boot.stat, R = boot_reps)
+      ci <- boot.ci(results, conf = 0.95, type = c("norm", "perc", "bca", "stud"))
+      
+      norm_contains[j] <- true_mean >= ci$normal[2] & true_mean <= ci$normal[3]
+      student_contains[j] <- true_mean >= ci$student[4] & true_mean <= ci$student[5]
+      percentile_contains[j] <- true_mean >= ci$percent[4] & true_mean <= ci$percent[5]
+      bca_contains[j] <- true_mean >= ci$bca[4] & true_mean <= ci$bca[5]
+    }
+    master[i, 1] <- sample_sizes[i]
+    master[i, 2] <- sum(norm_contains)/sim_reps
+    master[i, 3] <- sum(student_contains)/sim_reps
+    master[i, 4] <- sum(percentile_contains)/sim_reps
+    master[i, 5] <- sum(bca_contains)/sim_reps
+  }
+  master_df <- as.data.frame(master) %>% 
+      rename("Sample_Size" = V1, "Normal" = V2, "Studentized" = V3, 
+             "Percentile" = V4, "BCa" = V5) 
+  master_df
+}
 
+```
 
+Lastly, we will be sampling from a Log-Normal Distribution. 
+This means that if we have a random variable $X \sim Lognormal$, then the random variable, $Y = ln(X) \sim N$. 
+Therefore, the distribution is left-skewed, although not as heavily as the Gamma Distribution we previously used.
+The true mean of this distribution can be found using $E(X) = e^{u+\frac{\sigma^2}{2}}$ which means that for a $Lognormal(0,1)$ distribution, we should expect the population mean to be $e^{\frac{1}{2}}$.
+Again, we would expect the studentized confidence interval and the BCa confidence interval to perform the best.
 
+```{r log-normal simulation}
+run_sim_log_normal <- function(sim_reps) {
 
-
+  master <- matrix(nrow = num_sample_sizes, ncol = 6)
+  
+  for(i in 1:num_sample_sizes) {
+  
+    norm_contains <- rep(0, sim_reps)
+    student_contains <- rep(0, sim_reps)
+    percentile_contains <- rep(0, sim_reps)
+    bca_contains <- rep(0, sim_reps)
+    
+    n <- sample_sizes[i]
+    true_mean <- exp(1/2)
+    
+    for (j in 1:sim_reps) {
+      X <- rlnorm(n, 0, 1)
+      values <- data.frame(X)
+    
+      results <- boot(data = values, statistic = boot.stat, R = boot_reps)
+      ci <- boot.ci(results, conf = 0.95, type = c("norm", "perc", "bca", "stud"))
+      
+      norm_contains[j] <- true_mean >= ci$normal[2] & true_mean <= ci$normal[3]
+      student_contains[j] <- true_mean >= ci$student[4] & true_mean <= ci$student[5]
+      percentile_contains[j] <- true_mean >= ci$percent[4] & true_mean <= ci$percent[5]
+      bca_contains[j] <- true_mean >= ci$bca[4] & true_mean <= ci$bca[5]
+    }
+    master[i, 1] <- sample_sizes[i]
+    master[i, 2] <- sum(norm_contains)/sim_reps
+    master[i, 3] <- sum(student_contains)/sim_reps
+    master[i, 4] <- sum(percentile_contains)/sim_reps
+    master[i, 5] <- sum(bca_contains)/sim_reps
+  }
+  master_df <- as.data.frame(master) %>% 
+      rename("Sample_Size" = V1, "Normal" = V2, "Studentized" = V3, 
+             "Percentile" = V4, "BCa" = V5) 
+  master_df
+}
+```
 
 
 
@@ -380,185 +528,14 @@ When we sample from the Gamma distribution which is a distribution that is heavi
 Similar to when we sampled from the Gamma distribution, the Studentized confidence interval performed the best when we sampled from a Normal distribution with around 95% of the confidence intervals containing the true population parameter. The next best is the Standard confidence interval with a performance of around 94.5% correct intervals at a high sample size. The rest of the intervals performed similarly at around 94.2% accuracy. As before, the accuracy increased as the sample size increased.
 
 
-```{r, warning = FALSE}
-library(boot)
-
-run_sim_log_normal <- function(sim_reps) {
-  set.seed(495)
-  mean.fun <- function(d, i) {
-    d <- X[i]
-    return (c(mean(d), sd(d)))
-  }
-  
-  sample_sizes <- c(4, 10, 15, 20, 30, 40, 60, 80, 100)
-  num_sample_sizes <- length(sample_sizes)
-  master <- matrix(nrow = num_sample_sizes, ncol = 6)
-  
-  for(i in 1:num_sample_sizes) {
-  
-    norm_contains <- rep(0, sim_reps)
-    basic_contains <- rep(0, sim_reps)
-    student_contains <- rep(0, sim_reps)
-    percentile_contains <- rep(0, sim_reps)
-    bca_contains <- rep(0, sim_reps)
-    
-    boot_reps <- 2000
-    n <- sample_sizes[i]
-    true_mean <- exp(1/2)
-    
-    for (j in 1:sim_reps) {
-      X <- rlnorm(n, 0, 1)
-      values <- data.frame(X)
-    
-      results <- boot(data = values, statistic = mean.fun, R = boot_reps)
-      results
-      #plot(results)
-      ci <- boot.ci(results, type = "all")
-      
-      norm_contains[j] <- true_mean >= ci$normal[2] & true_mean <= ci$normal[3]
-      basic_contains[j] <- true_mean >= ci$basic[4] & true_mean <= ci$basic[5]
-      student_contains[j] <- true_mean >= ci$student[4] & true_mean <= ci$student[5]
-      percentile_contains[j] <- true_mean >= ci$percent[4] & true_mean <= ci$percent[5]
-      bca_contains[j] <- true_mean >= ci$bca[4] & true_mean <= ci$bca[5]
-      
-    }
-    
-    master[i, 1] <- sample_sizes[i]
-    master[i, 2] <- sum(norm_contains)/sim_reps
-    master[i, 3] <- sum(basic_contains)/sim_reps
-    master[i, 4] <- sum(student_contains)/sim_reps
-    master[i, 5] <- sum(percentile_contains)/sim_reps
-    master[i, 6] <- sum(bca_contains)/sim_reps
-  }
-  
-  master_df <- as.data.frame(master) %>% 
-      rename("Sample_Size" = V1, "Normal" = V2, "Basic" = V3, "Studentized" = V4, 
-             "Percentile" = V5, "BCa" = V6) 
-  master_df
-}
-```
 
 
-```{r, warning = FALSE}
-library(boot)
-
-run_sim_normal <- function(sim_reps) {
-  set.seed(495)
-  mean.fun <- function(d, i) {
-    d <- X[i]
-    return (c(mean(d), sd(d)))
-  }
-  
-  sample_sizes <- c(4, 10, 15, 20, 30, 40, 60, 80, 100)
-  num_sample_sizes <- length(sample_sizes)
-  master <- matrix(nrow = num_sample_sizes, ncol = 6)
-  
-  for(i in 1:num_sample_sizes) {
-  
-    norm_contains <- rep(0, sim_reps)
-    basic_contains <- rep(0, sim_reps)
-    student_contains <- rep(0, sim_reps)
-    percentile_contains <- rep(0, sim_reps)
-    bca_contains <- rep(0, sim_reps)
-    
-    boot_reps <- 2000
-    n <- sample_sizes[i]
-    true_mean <- 0
-    
-    for (j in 1:sim_reps) {
-      X <- rnorm(n, 0, 1)
-      values <- data.frame(X)
-    
-      results <- boot(data = values, statistic = mean.fun, R = boot_reps)
-      results
-      #plot(results)
-      ci <- boot.ci(results, type = "all")
-      
-      norm_contains[j] <- true_mean >= ci$normal[2] & true_mean <= ci$normal[3]
-      basic_contains[j] <- true_mean >= ci$basic[4] & true_mean <= ci$basic[5]
-      student_contains[j] <- true_mean >= ci$student[4] & true_mean <= ci$student[5]
-      percentile_contains[j] <- true_mean >= ci$percent[4] & true_mean <= ci$percent[5]
-      bca_contains[j] <- true_mean >= ci$bca[4] & true_mean <= ci$bca[5]
-      
-    }
-    
-    master[i, 1] <- sample_sizes[i]
-    master[i, 2] <- sum(norm_contains)/sim_reps
-    master[i, 3] <- sum(basic_contains)/sim_reps
-    master[i, 4] <- sum(student_contains)/sim_reps
-    master[i, 5] <- sum(percentile_contains)/sim_reps
-    master[i, 6] <- sum(bca_contains)/sim_reps
-  }
-  
-  master_df <- as.data.frame(master) %>% 
-      rename("Sample_Size" = V1, "Normal" = V2, "Basic" = V3, "Studentized" = V4, 
-             "Percentile" = V5, "BCa" = V6) 
-  master_df
-}
-
-```
-
-```{r, warning = FALSE}
-library(boot)
-
-run_sim_gamma <- function(sim_reps) {
-  set.seed(495)
-  mean.fun <- function(d, i) {
-    d <- X[i]
-    return (c(mean(d), sd(d)))
-  }
-  
-  sample_sizes <- c(4, 10, 15, 20, 30, 40, 60, 80, 100)
-  num_sample_sizes <- length(sample_sizes)
-  master <- matrix(nrow = num_sample_sizes, ncol = 6)
-  
-  for(i in 1:num_sample_sizes) {
-  
-    norm_contains <- rep(0, sim_reps)
-    basic_contains <- rep(0, sim_reps)
-    student_contains <- rep(0, sim_reps)
-    percentile_contains <- rep(0, sim_reps)
-    bca_contains <- rep(0, sim_reps)
-    
-    boot_reps <- 2000
-    n <- sample_sizes[i]
-    true_mean <- 4
-    
-    for (j in 1:sim_reps) {
-      X <- rgamma(sample_sizes, shape = 1, scale = 4)
-      values <- data.frame(X)
-    
-      results <- boot(data = values, statistic = mean.fun, R = boot_reps)
-      results
-      #plot(results)
-      ci <- boot.ci(results, type = "all")
-      
-      norm_contains[j] <- true_mean >= ci$normal[2] & true_mean <= ci$normal[3]
-      basic_contains[j] <- true_mean >= ci$basic[4] & true_mean <= ci$basic[5]
-      student_contains[j] <- true_mean >= ci$student[4] & true_mean <= ci$student[5]
-      percentile_contains[j] <- true_mean >= ci$percent[4] & true_mean <= ci$percent[5]
-      bca_contains[j] <- true_mean >= ci$bca[4] & true_mean <= ci$bca[5]
-      
-    }
-    
-    master[i, 1] <- sample_sizes[i]
-    master[i, 2] <- sum(norm_contains)/sim_reps
-    master[i, 3] <- sum(basic_contains)/sim_reps
-    master[i, 4] <- sum(student_contains)/sim_reps
-    master[i, 5] <- sum(percentile_contains)/sim_reps
-    master[i, 6] <- sum(bca_contains)/sim_reps
-  }
-  
-  master_df <- as.data.frame(master) %>% 
-      rename("Sample_Size" = V1, "Normal" = V2, "Basic" = V3, "Studentized" = V4, 
-             "Percentile" = V5, "BCa" = V6) 
-  master_df
-}
-
-```
 
 
-```{r, warning = FALSE, eval = FALSE}
+
+
+
+```{r run simulations, warning = FALSE, eval = FALSE}
 set.seed(495)
 log_normal_df <- run_sim_log_normal(10000)
 write.csv(log_normal_df,"log_normal_df.csv", row.names = FALSE)
@@ -569,15 +546,14 @@ write.csv(normal_df,"normal_data_df.csv", row.names = FALSE)
 gamma_df <- run_sim_gamma(10000)
 write.csv(gamma_df,"gamma_data_df.csv", row.names = FALSE)
 
-
 ```
 
 ```{r create graphs}
-
 gamma_df <- read.csv(file = 'gamma_data_df.csv')
 normal_df <- read.csv(file = 'normal_data_df.csv')
 log_normal_df <- read.csv(file = 'log_normal_df.csv')
 
+# create the figure that shows the gamma output
 gamma_df_long <- gamma_df %>%
   pivot_longer(cols = 2:6, names_to = "method", values_to = "prop") 
     
@@ -590,11 +566,13 @@ gamma_fig <- ggplot(data = gamma_df_long,
        caption = "Fig. 8: Graph showing the Accuracy of Bootstrap CI Methods for different sample sizes on Gamma Dist.") +
   theme_light() +
   theme(legend.position="bottom")
-      
+
+# create the table for the gamma output
 gamma_table <- gamma_df %>%
   kable(booktabs = TRUE, align = "c", caption = "Sampled From Gamma Dist.", 
-        col.names = gsub("[_]", " ", names(gamma_df))) 
-    
+        col.names = gsub("[_]", " ", names(gamma_df)), digits = 3) 
+   
+# create the figure that shows the normal output 
 normal_df_long <- normal_df %>%
   pivot_longer(cols = 2:6, names_to = "method", values_to = "prop") 
     
@@ -607,11 +585,13 @@ normal_fig <- ggplot(data = normal_df_long,
        caption = "Fig. 8: Graph showing the Accuracy of Bootstrap CI Methods for different sample sizes on Normal Dist.") +
   theme_light() +
   theme(legend.position="bottom")
-      
+
+# create the table for the normal output
 normal_table <- normal_df %>%
   kable(booktabs = TRUE, align = "c", caption = "Sampled from Normal Dist.", 
         col.names = gsub("[_]", " ", names(normal_df)))
 
+# create the figure that shows the log normal output
 log_normal_df_long <- log_normal_df %>%
   pivot_longer(cols = 2:6, names_to = "method", values_to = "prop") 
     
@@ -624,14 +604,15 @@ log_normal_fig <- ggplot(data = log_normal_df_long,
        caption = "Fig. 8: Graph showing the Accuracy of Bootstrap CI Methods for different sample sizes on Log-Normal Dist.") +
   theme_light() +
   theme(legend.position="bottom")
-      
+
+# create the table for the log normal output
 log_normal_table <- log_normal_df %>%
   kable(booktabs = TRUE, align = "c", caption = "Sampled from Normal Dist.", 
         col.names = gsub("[_]", " ", names(log_normal_df)))
 
 ```
 
-```{r}
+```{r output the graphs/tables, cache = TRUE}
 log_normal_fig
 log_normal_table
 
@@ -644,9 +625,7 @@ gamma_table
 ```
 
 
-```{r, eval = FALSE}
-
-
+```{r delete, eval = FALSE}
 normal_df <- read.csv(file = 'normal_data_df.csv')
 
 master_df_long <- master_df %>%
@@ -655,8 +634,8 @@ master_df_long <- master_df %>%
 master_fig <- ggplot(data = master_df_long, 
                     aes(x = Sample_Size, y = prop, color = method)) + 
   geom_point() + geom_line() + 
-  labs(title = "Proportion of CIs that Contain the True Parameter from Log-Normal
-       Distibution", x = "Sample Size", 
+  labs(title = "Proportion of CIs that Contain the True Parameter from Log-Normal Distibution", 
+       x = "Sample Size", 
        y = "Proportion (of 10,000 Simulations)", color = "Method",
        caption = "Fig. 8: Graph showing the Accuracy of Bootstrap CI Methods for different sample sizes on Log-Normal Dist.") +
   theme_light() +

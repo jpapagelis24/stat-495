@@ -100,7 +100,7 @@
 
   \author{
         Justin Papagelis \thanks{The authors gratefully acknowledge
-\ldots{}} \\
+Profossor Wagaman} \\
     Department of Mathematics and Statistics, Amherst College\\
       }
   \maketitle
@@ -261,6 +261,8 @@ replications.
 \end{Highlighting}
 \end{Shaded}
 
+Below is the
+
 \begin{Shaded}
 \begin{Highlighting}[]
 \FunctionTok{gf\_dhistogram}\NormalTok{(}\SpecialCharTok{\textasciitilde{}}\NormalTok{ mean, }\AttributeTok{data =}\NormalTok{ dec\_means) }\SpecialCharTok{\%\textgreater{}\%}
@@ -289,15 +291,17 @@ confidence interval constructed in this manner has a chance of capturing
 the true parameter with a probability of \(\alpha\).
 
 The standard confidence interval is built based on the assumption that
-the distribution from which we are sampling is Normal. This means that
-for an unknown distribution, the standard confidence interval could
-present an incorrect range. However, the same process can be used with
-bootstrap sampling to form the bootstrap percentile method. This means
-that an approximate bootstrap confidence interval will be created in the
-same automatic way that the standard confidence interval was created.
-For bootstrapped confidence intervals, the number of bootstrap
-replications \(B\) must be large (around 2000) due to the nature of
-confidence intervals requiring greater accuracy \citep{Efron86}.
+the distribution from which we are sampling is Normal. As such, the
+standard confidence interval is sometimes called the normal confidence
+interval for bootstrapped data. This means that for an unknown
+distribution, the standard confidence interval could present an
+incorrect range. However, the same process can be used with bootstrap
+sampling to form the bootstrap percentile method. This means that an
+approximate bootstrap confidence interval will be created in the same
+automatic way that the standard confidence interval was created. For
+bootstrapped confidence intervals, the number of bootstrap replications
+\(B\) must be large (around 2000) due to the nature of confidence
+intervals requiring greater accuracy \citep{Efron86}.
 
 Using our example, to find a 95\% confidence interval for the population
 mean of \texttt{Dec}, we would get the following:
@@ -688,25 +692,33 @@ we know the true population mean. For example, we will sampling from a
 Gamma Distribution where we can find the true population mean using the
 shape and rate parameters of the sample distribution. After we sample
 from a distribution, we will create a bootstrapped confidence interval
-for each of the methods we described in the exposition. Since we know
+for a few of the methods we described in the exposition. Since we know
 the true population mean of the distribution, we will determine if the
 true population parameter is contained in the confidence interval for
-each of the methods. We will perform this process a large number of
-times (10,000) and then average by the number of iterations to determine
-the average proportion that each bootstrapped confidence interval method
-contains the true population mean. We will do this for a couple
-different distributions as well as a range of sample sizes show how the
-intervals perform with skewed distributions and larger sample sizes.
+each of the methods we are testing. We will perform this process a large
+number of times (10,000 simulations) and then average by the number of
+iterations to determines on average, the proportion that each
+bootstrapped confidence interval method contains the true population
+mean for a given distribution. We will do this for a couple different
+distributions as well as a range of sample sizes show how the intervals
+perform with skewed distributions and larger sample sizes.
 
-First, we create a function that calculates the bootstrapped confidence
-intervals from a given sample. To do this, we first bootstrap the sample
-and then perform each method.
+To do this simulation, we will be using the \texttt{boot} package
+\citep{boot}. This package can compute a bootstrap object which contains
+the output from a bootstrap calculation of a given sample and then
+produces confidence intervals from the bootstrap object. In particular,
+we will use the \texttt{boot.ci} function to create four types of
+confidence intervals: the standard (or normal) confidence interval, the
+studentized confidence interval, the percentile confidence interval, and
+the bias-corrected with acceleration confidence interval.
 
-Next, we will create the simulation that picks the random sample from a
-distribution and tests to see if the sample creates bootstrapped
-confidence intervals that contain the true population parameter. First,
-we have the simulation of selecting from a Normal Distribution. Since we
-have a \(N(0,1)\) distribution, out true population mean is 0.
+First, we will create a simulation that pick a random sample from a
+distribution and performs
+
+and tests to see if the sample creates a bootstrapped confidence
+intervals that contain the true population parameter. First, we have the
+simulation of selecting from a Normal Distribution. Since we have a
+\(N(0,1)\) distribution, out true population mean is 0.
 
 Second, we select from a Gamma Distribution with a shape parameter of 1
 and a scale parameter of 4. This means the true population parameter is
@@ -742,8 +754,6 @@ increased.
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\FunctionTok{library}\NormalTok{(boot)}
-
 \NormalTok{run\_sim\_log\_normal }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(sim\_reps) \{}
   \FunctionTok{set.seed}\NormalTok{(}\DecValTok{495}\NormalTok{)}
 \NormalTok{  mean.fun }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(d, i) \{}
@@ -774,7 +784,7 @@ increased.
 \NormalTok{      results }\OtherTok{\textless{}{-}} \FunctionTok{boot}\NormalTok{(}\AttributeTok{data =}\NormalTok{ values, }\AttributeTok{statistic =}\NormalTok{ mean.fun, }\AttributeTok{R =}\NormalTok{ boot\_reps)}
 \NormalTok{      results}
       \CommentTok{\#plot(results)}
-\NormalTok{      ci }\OtherTok{\textless{}{-}} \FunctionTok{boot.ci}\NormalTok{(results, }\AttributeTok{type =} \StringTok{"all"}\NormalTok{)}
+\NormalTok{      ci }\OtherTok{\textless{}{-}} \FunctionTok{boot.ci}\NormalTok{(results, }\AttributeTok{conf =} \FloatTok{0.95}\NormalTok{, }\AttributeTok{type =} \FunctionTok{c}\NormalTok{(}\StringTok{"norm"}\NormalTok{, }\StringTok{"perc"}\NormalTok{, }\StringTok{"bca"}\NormalTok{, }\StringTok{"stud"}\NormalTok{))}
       
 \NormalTok{      norm\_contains[j] }\OtherTok{\textless{}{-}}\NormalTok{ true\_mean }\SpecialCharTok{\textgreater{}=}\NormalTok{ ci}\SpecialCharTok{$}\NormalTok{normal[}\DecValTok{2}\NormalTok{] }\SpecialCharTok{\&}\NormalTok{ true\_mean }\SpecialCharTok{\textless{}=}\NormalTok{ ci}\SpecialCharTok{$}\NormalTok{normal[}\DecValTok{3}\NormalTok{]}
 \NormalTok{      basic\_contains[j] }\OtherTok{\textless{}{-}}\NormalTok{ true\_mean }\SpecialCharTok{\textgreater{}=}\NormalTok{ ci}\SpecialCharTok{$}\NormalTok{basic[}\DecValTok{4}\NormalTok{] }\SpecialCharTok{\&}\NormalTok{ true\_mean }\SpecialCharTok{\textless{}=}\NormalTok{ ci}\SpecialCharTok{$}\NormalTok{basic[}\DecValTok{5}\NormalTok{]}
@@ -802,8 +812,6 @@ increased.
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\FunctionTok{library}\NormalTok{(boot)}
-
 \NormalTok{run\_sim\_normal }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(sim\_reps) \{}
   \FunctionTok{set.seed}\NormalTok{(}\DecValTok{495}\NormalTok{)}
 \NormalTok{  mean.fun }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(d, i) \{}
@@ -834,7 +842,7 @@ increased.
 \NormalTok{      results }\OtherTok{\textless{}{-}} \FunctionTok{boot}\NormalTok{(}\AttributeTok{data =}\NormalTok{ values, }\AttributeTok{statistic =}\NormalTok{ mean.fun, }\AttributeTok{R =}\NormalTok{ boot\_reps)}
 \NormalTok{      results}
       \CommentTok{\#plot(results)}
-\NormalTok{      ci }\OtherTok{\textless{}{-}} \FunctionTok{boot.ci}\NormalTok{(results, }\AttributeTok{type =} \StringTok{"all"}\NormalTok{)}
+\NormalTok{      ci }\OtherTok{\textless{}{-}} \FunctionTok{boot.ci}\NormalTok{(results, }\AttributeTok{conf =} \FloatTok{0.95}\NormalTok{, }\AttributeTok{type =} \FunctionTok{c}\NormalTok{(}\StringTok{"norm"}\NormalTok{, }\StringTok{"perc"}\NormalTok{, }\StringTok{"bca"}\NormalTok{, }\StringTok{"stud"}\NormalTok{))}
       
 \NormalTok{      norm\_contains[j] }\OtherTok{\textless{}{-}}\NormalTok{ true\_mean }\SpecialCharTok{\textgreater{}=}\NormalTok{ ci}\SpecialCharTok{$}\NormalTok{normal[}\DecValTok{2}\NormalTok{] }\SpecialCharTok{\&}\NormalTok{ true\_mean }\SpecialCharTok{\textless{}=}\NormalTok{ ci}\SpecialCharTok{$}\NormalTok{normal[}\DecValTok{3}\NormalTok{]}
 \NormalTok{      basic\_contains[j] }\OtherTok{\textless{}{-}}\NormalTok{ true\_mean }\SpecialCharTok{\textgreater{}=}\NormalTok{ ci}\SpecialCharTok{$}\NormalTok{basic[}\DecValTok{4}\NormalTok{] }\SpecialCharTok{\&}\NormalTok{ true\_mean }\SpecialCharTok{\textless{}=}\NormalTok{ ci}\SpecialCharTok{$}\NormalTok{basic[}\DecValTok{5}\NormalTok{]}
@@ -862,8 +870,6 @@ increased.
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\FunctionTok{library}\NormalTok{(boot)}
-
 \NormalTok{run\_sim\_gamma }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(sim\_reps) \{}
   \FunctionTok{set.seed}\NormalTok{(}\DecValTok{495}\NormalTok{)}
 \NormalTok{  mean.fun }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(d, i) \{}
@@ -894,7 +900,7 @@ increased.
 \NormalTok{      results }\OtherTok{\textless{}{-}} \FunctionTok{boot}\NormalTok{(}\AttributeTok{data =}\NormalTok{ values, }\AttributeTok{statistic =}\NormalTok{ mean.fun, }\AttributeTok{R =}\NormalTok{ boot\_reps)}
 \NormalTok{      results}
       \CommentTok{\#plot(results)}
-\NormalTok{      ci }\OtherTok{\textless{}{-}} \FunctionTok{boot.ci}\NormalTok{(results, }\AttributeTok{type =} \StringTok{"all"}\NormalTok{)}
+\NormalTok{      ci }\OtherTok{\textless{}{-}} \FunctionTok{boot.ci}\NormalTok{(results, }\AttributeTok{conf =} \FloatTok{0.95}\NormalTok{, }\AttributeTok{type =} \FunctionTok{c}\NormalTok{(}\StringTok{"norm"}\NormalTok{, }\StringTok{"perc"}\NormalTok{, }\StringTok{"bca"}\NormalTok{, }\StringTok{"stud"}\NormalTok{))}
       
 \NormalTok{      norm\_contains[j] }\OtherTok{\textless{}{-}}\NormalTok{ true\_mean }\SpecialCharTok{\textgreater{}=}\NormalTok{ ci}\SpecialCharTok{$}\NormalTok{normal[}\DecValTok{2}\NormalTok{] }\SpecialCharTok{\&}\NormalTok{ true\_mean }\SpecialCharTok{\textless{}=}\NormalTok{ ci}\SpecialCharTok{$}\NormalTok{normal[}\DecValTok{3}\NormalTok{]}
 \NormalTok{      basic\_contains[j] }\OtherTok{\textless{}{-}}\NormalTok{ true\_mean }\SpecialCharTok{\textgreater{}=}\NormalTok{ ci}\SpecialCharTok{$}\NormalTok{basic[}\DecValTok{4}\NormalTok{] }\SpecialCharTok{\&}\NormalTok{ true\_mean }\SpecialCharTok{\textless{}=}\NormalTok{ ci}\SpecialCharTok{$}\NormalTok{basic[}\DecValTok{5}\NormalTok{]}
@@ -940,6 +946,7 @@ increased.
 \NormalTok{normal\_df }\OtherTok{\textless{}{-}} \FunctionTok{read.csv}\NormalTok{(}\AttributeTok{file =} \StringTok{\textquotesingle{}normal\_data\_df.csv\textquotesingle{}}\NormalTok{)}
 \NormalTok{log\_normal\_df }\OtherTok{\textless{}{-}} \FunctionTok{read.csv}\NormalTok{(}\AttributeTok{file =} \StringTok{\textquotesingle{}log\_normal\_df.csv\textquotesingle{}}\NormalTok{)}
 
+\CommentTok{\# create the figure that shows the gamma output}
 \NormalTok{gamma\_df\_long }\OtherTok{\textless{}{-}}\NormalTok{ gamma\_df }\SpecialCharTok{\%\textgreater{}\%}
   \FunctionTok{pivot\_longer}\NormalTok{(}\AttributeTok{cols =} \DecValTok{2}\SpecialCharTok{:}\DecValTok{6}\NormalTok{, }\AttributeTok{names\_to =} \StringTok{"method"}\NormalTok{, }\AttributeTok{values\_to =} \StringTok{"prop"}\NormalTok{) }
     
@@ -952,11 +959,13 @@ increased.
        \AttributeTok{caption =} \StringTok{"Fig. 8: Graph showing the Accuracy of Bootstrap CI Methods for different sample sizes on Gamma Dist."}\NormalTok{) }\SpecialCharTok{+}
   \FunctionTok{theme\_light}\NormalTok{() }\SpecialCharTok{+}
   \FunctionTok{theme}\NormalTok{(}\AttributeTok{legend.position=}\StringTok{"bottom"}\NormalTok{)}
-      
+
+\CommentTok{\# create the table for the gamma output}
 \NormalTok{gamma\_table }\OtherTok{\textless{}{-}}\NormalTok{ gamma\_df }\SpecialCharTok{\%\textgreater{}\%}
   \FunctionTok{kable}\NormalTok{(}\AttributeTok{booktabs =} \ConstantTok{TRUE}\NormalTok{, }\AttributeTok{align =} \StringTok{"c"}\NormalTok{, }\AttributeTok{caption =} \StringTok{"Sampled From Gamma Dist."}\NormalTok{, }
-        \AttributeTok{col.names =} \FunctionTok{gsub}\NormalTok{(}\StringTok{"[\_]"}\NormalTok{, }\StringTok{" "}\NormalTok{, }\FunctionTok{names}\NormalTok{(gamma\_df))) }
-    
+        \AttributeTok{col.names =} \FunctionTok{gsub}\NormalTok{(}\StringTok{"[\_]"}\NormalTok{, }\StringTok{" "}\NormalTok{, }\FunctionTok{names}\NormalTok{(gamma\_df)), }\AttributeTok{digits =} \DecValTok{3}\NormalTok{) }
+   
+\CommentTok{\# create the figure that shows the normal output }
 \NormalTok{normal\_df\_long }\OtherTok{\textless{}{-}}\NormalTok{ normal\_df }\SpecialCharTok{\%\textgreater{}\%}
   \FunctionTok{pivot\_longer}\NormalTok{(}\AttributeTok{cols =} \DecValTok{2}\SpecialCharTok{:}\DecValTok{6}\NormalTok{, }\AttributeTok{names\_to =} \StringTok{"method"}\NormalTok{, }\AttributeTok{values\_to =} \StringTok{"prop"}\NormalTok{) }
     
@@ -969,11 +978,13 @@ increased.
        \AttributeTok{caption =} \StringTok{"Fig. 8: Graph showing the Accuracy of Bootstrap CI Methods for different sample sizes on Normal Dist."}\NormalTok{) }\SpecialCharTok{+}
   \FunctionTok{theme\_light}\NormalTok{() }\SpecialCharTok{+}
   \FunctionTok{theme}\NormalTok{(}\AttributeTok{legend.position=}\StringTok{"bottom"}\NormalTok{)}
-      
+
+\CommentTok{\# create the table for the normal output}
 \NormalTok{normal\_table }\OtherTok{\textless{}{-}}\NormalTok{ normal\_df }\SpecialCharTok{\%\textgreater{}\%}
   \FunctionTok{kable}\NormalTok{(}\AttributeTok{booktabs =} \ConstantTok{TRUE}\NormalTok{, }\AttributeTok{align =} \StringTok{"c"}\NormalTok{, }\AttributeTok{caption =} \StringTok{"Sampled from Normal Dist."}\NormalTok{, }
         \AttributeTok{col.names =} \FunctionTok{gsub}\NormalTok{(}\StringTok{"[\_]"}\NormalTok{, }\StringTok{" "}\NormalTok{, }\FunctionTok{names}\NormalTok{(normal\_df)))}
 
+\CommentTok{\# create the figure that shows the log normal output}
 \NormalTok{log\_normal\_df\_long }\OtherTok{\textless{}{-}}\NormalTok{ log\_normal\_df }\SpecialCharTok{\%\textgreater{}\%}
   \FunctionTok{pivot\_longer}\NormalTok{(}\AttributeTok{cols =} \DecValTok{2}\SpecialCharTok{:}\DecValTok{6}\NormalTok{, }\AttributeTok{names\_to =} \StringTok{"method"}\NormalTok{, }\AttributeTok{values\_to =} \StringTok{"prop"}\NormalTok{) }
     
@@ -986,7 +997,8 @@ increased.
        \AttributeTok{caption =} \StringTok{"Fig. 8: Graph showing the Accuracy of Bootstrap CI Methods for different sample sizes on Log{-}Normal Dist."}\NormalTok{) }\SpecialCharTok{+}
   \FunctionTok{theme\_light}\NormalTok{() }\SpecialCharTok{+}
   \FunctionTok{theme}\NormalTok{(}\AttributeTok{legend.position=}\StringTok{"bottom"}\NormalTok{)}
-      
+
+\CommentTok{\# create the table for the log normal output}
 \NormalTok{log\_normal\_table }\OtherTok{\textless{}{-}}\NormalTok{ log\_normal\_df }\SpecialCharTok{\%\textgreater{}\%}
   \FunctionTok{kable}\NormalTok{(}\AttributeTok{booktabs =} \ConstantTok{TRUE}\NormalTok{, }\AttributeTok{align =} \StringTok{"c"}\NormalTok{, }\AttributeTok{caption =} \StringTok{"Sampled from Normal Dist."}\NormalTok{, }
         \AttributeTok{col.names =} \FunctionTok{gsub}\NormalTok{(}\StringTok{"[\_]"}\NormalTok{, }\StringTok{" "}\NormalTok{, }\FunctionTok{names}\NormalTok{(log\_normal\_df)))}
@@ -999,7 +1011,7 @@ increased.
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{paper_files/figure-latex/unnamed-chunk-24-1.pdf}
+\includegraphics{paper_files/figure-latex/output the graphs/tables-1.pdf}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1035,7 +1047,7 @@ Sample Size & Normal & Basic & Studentized & Percentile & BCa\\
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{paper_files/figure-latex/unnamed-chunk-24-2.pdf}
+\includegraphics{paper_files/figure-latex/output the graphs/tables-2.pdf}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1071,7 +1083,7 @@ Sample Size & Normal & Basic & Studentized & Percentile & BCa\\
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{paper_files/figure-latex/unnamed-chunk-24-3.pdf}
+\includegraphics{paper_files/figure-latex/output the graphs/tables-3.pdf}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1087,16 +1099,16 @@ Sample Size & Normal & Basic & Studentized & Percentile & BCa\\
 \toprule
 Sample Size & Normal & Basic & Studentized & Percentile & BCa\\
 \midrule
-4 & 0.8494 & 0.8332 & 0.9039 & 0.8578 & 0.8750\\
-10 & 0.8476 & 0.8291 & 0.9008 & 0.8543 & 0.8708\\
-15 & 0.8510 & 0.8322 & 0.9012 & 0.8563 & 0.8706\\
-20 & 0.8458 & 0.8274 & 0.9030 & 0.8511 & 0.8672\\
-30 & 0.8380 & 0.8218 & 0.8954 & 0.8463 & 0.8642\\
+4 & 0.849 & 0.833 & 0.904 & 0.858 & 0.875\\
+10 & 0.848 & 0.829 & 0.901 & 0.854 & 0.871\\
+15 & 0.851 & 0.832 & 0.901 & 0.856 & 0.871\\
+20 & 0.846 & 0.827 & 0.903 & 0.851 & 0.867\\
+30 & 0.838 & 0.822 & 0.895 & 0.846 & 0.864\\
 \addlinespace
-40 & 0.8480 & 0.8313 & 0.8989 & 0.8525 & 0.8664\\
-60 & 0.8466 & 0.8292 & 0.9069 & 0.8571 & 0.8741\\
-80 & 0.8486 & 0.8310 & 0.9016 & 0.8535 & 0.8717\\
-100 & 0.8478 & 0.8308 & 0.8974 & 0.8533 & 0.8660\\
+40 & 0.848 & 0.831 & 0.899 & 0.853 & 0.866\\
+60 & 0.847 & 0.829 & 0.907 & 0.857 & 0.874\\
+80 & 0.849 & 0.831 & 0.902 & 0.854 & 0.872\\
+100 & 0.848 & 0.831 & 0.897 & 0.853 & 0.866\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -1111,8 +1123,8 @@ Sample Size & Normal & Basic & Studentized & Percentile & BCa\\
 \NormalTok{master\_fig }\OtherTok{\textless{}{-}} \FunctionTok{ggplot}\NormalTok{(}\AttributeTok{data =}\NormalTok{ master\_df\_long, }
                     \FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ Sample\_Size, }\AttributeTok{y =}\NormalTok{ prop, }\AttributeTok{color =}\NormalTok{ method)) }\SpecialCharTok{+} 
   \FunctionTok{geom\_point}\NormalTok{() }\SpecialCharTok{+} \FunctionTok{geom\_line}\NormalTok{() }\SpecialCharTok{+} 
-  \FunctionTok{labs}\NormalTok{(}\AttributeTok{title =} \StringTok{"Proportion of CIs that Contain the True Parameter from Log{-}Normal}
-\StringTok{       Distibution"}\NormalTok{, }\AttributeTok{x =} \StringTok{"Sample Size"}\NormalTok{, }
+  \FunctionTok{labs}\NormalTok{(}\AttributeTok{title =} \StringTok{"Proportion of CIs that Contain the True Parameter from Log{-}Normal Distibution"}\NormalTok{, }
+       \AttributeTok{x =} \StringTok{"Sample Size"}\NormalTok{, }
        \AttributeTok{y =} \StringTok{"Proportion (of 10,000 Simulations)"}\NormalTok{, }\AttributeTok{color =} \StringTok{"Method"}\NormalTok{,}
        \AttributeTok{caption =} \StringTok{"Fig. 8: Graph showing the Accuracy of Bootstrap CI Methods for different sample sizes on Log{-}Normal Dist."}\NormalTok{) }\SpecialCharTok{+}
   \FunctionTok{theme\_light}\NormalTok{() }\SpecialCharTok{+}
