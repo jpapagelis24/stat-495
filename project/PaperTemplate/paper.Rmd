@@ -6,7 +6,9 @@ blinded: 0
 
 authors: 
 - name: Justin Papagelis
-  thanks: The authors gratefully acknowledge Profossor Wagaman
+  thanks: The authors gratefully acknowledge
+  
+   '' Profossor Wagaman
   affiliation: Department of Mathematics and Statistics, Amherst College
 
 keywords:
@@ -17,7 +19,7 @@ keywords:
 - studentized
 
 abstract: |
-  For my project, I plan to explore different bootstrap methods for creating confidence intervals and then perform comparisons between a couple of the methods. My paper will re-introduce the idea of bootstrap to my peers and give some background on constructing confidence intervals. We will also go deeper into the theory behind the construction of confidence intervals from bootstrapped data. These various methods to create a confidence interval from a bootstrap can include the percentile method, bias-corrected method, accelerated method, and the studentized method, as well as others. I will demonstrate how these bootstrap methods work using “toy examples,” which will be datasets in which a specific bootstrap method is appropriate. To demonstrate my understanding of the methods, I will write a simulation to compare a few of them and determine how they perform against each other. I will show my understanding of the different methods of creating confidence intervals from bootstrapped data by communicating the statistical theory in a concise and accessible way to my peers. Writing the simulation and sharing conclusions will demonstrate my ability to implement statistical methods in practice as well as my ability to analyze the results of the simulation.
+  This paper explores different bootstrap methods for creating confidence intervals and tests their performance against each other for different types of distributions. This paper will re-introduce the ideas of bootstraps and confidence intervals, as well as the theory behind different methods of bootstrapped confidence intervals. Along with the theoretical details of each method, we will provide an example of each bootstrapped confidence interval method with a toy dataset. Then, we will run a simulation that evaluates the performance of a couple of the methods we introduced on a variety of sample sizes and types of distributions. 
 
 bibliography: bibliography.bib
 output:
@@ -41,10 +43,10 @@ Bootstrapping is an essential tool in Statistics, even more so now that there is
 We use bootstrapping to estimate the desired population parameter from a given sample without making assumptions about any underlying distributions of the sample. 
 Different bootstrap techniques are developed, but we will focus on the non-parametric bootstrap for our purposes. 
 One way to make a statistical inference is through confidence intervals which give a range of estimates for the unknown population parameter at a certain confidence level. 
-We can use bootstrapping to create accurate approximate confidence intervals for our population parameter even without its underlying distributions. 
+We can use bootstrapping to create accurate approximate confidence intervals for our population parameter even without knowing its underlying distributions. 
 There are many different ways to create intervals, and we will go through a couple of them: The Standard Method, The Percentile Method, The Bias-Corrected (BC) Method, The Bias-Corrected with Acceleration (BCa) Method, and finally, The Studentized Method. 
 Additionally, we will go through an example of creating a bootstrapped confidence interval for each method.
-Then, we will perform a simulation to evaluate the performance of the bootstrapped confidence interval methods on different distribution types.
+Then, we will perform a simulation to evaluate the performance of some of the bootstrapped confidence interval methods on different types of distributions.
 
 
 # Exposition
@@ -53,31 +55,34 @@ Bootstrapping is a statistical method of resampling that allows the estimation o
 In particular, bootstrapping is a computational heavy method which is useful for many different situations.
 
 First, we introduce the non-parametric bootstrap.
-Suppose we have a random sample $X = (x_1,x_2,\dots,x_n)$ from our unknown distribution, $F$ and a statistic of interest $\hat{\theta} = \hat{\theta}(X)$ [@EfronCasi]. 
+Suppose we have a random sample $X = (x_1,x_2,\dots,x_n)$ from our unknown distribution, $F$ and a statistic of interest, $\hat{\theta} = \hat{\theta}(X)$ [@EfronCasi]. 
 Ideally, the desired test statistic could be found by repeatedly sampling new reproductions of $X$ from $F$.
 However $F$ is unknown, so this is not possible. 
-The non-parametric bootstrap creates an estimate $\hat{F}$ from $F$ using our sample $X$ without making any parametric assumptions about $F$ (such as its distribution type). 
-Therefore, the bootstrap sample could be represented as $X^* = (x^*_1, x^*_2, \dots, x^*_n)$ where each $x^*_i$ is sampled randomly with equal probability and with replacement from $\{x_1,x_2,\dots,x_n\}$. 
+The non-parametric bootstrap creates an estimate $\hat{F}$ from $F$ using our sample, $X$, without making any parametric assumptions about $F$ (such as its distribution type). 
+Therefore, the bootstrap sample could be represented as $X^* = (x^*_1, x^*_2, \dots, x^*_n)$ where each $x^*_i$ is sampled randomly with equal probability and with replacement from our original sample: $\{x_1,x_2,\dots,x_n\}$. 
 From this bootstrap sample, a bootstrap replication of the test statistic can be computed using $\hat{\theta}^* = \hat{\theta}(X^*)$. 
 A large number, $B$, of bootstrap samples are drawn independently and the corresponding bootstrap replication of the test statistic is calculated. 
 $$\hat{\theta}^{*b} = \hat{\theta}(X^{*b}) \text{ for } b = 1,2, \dots, B.$$ 
 The bootstrap estimate of the test statistic is the empirical value of the test statistic from all of the $\hat{\theta}^{*b}$ replications. 
 As $B$ increases, $\hat{F}$ approaches $F$ which means that the test statistic of interest approaches its true value as well.
 
-We demonstrate performing a non-parametric bootstrap below using `SnowGR` which gives the official snowfall dataset by month for Grand Rapids, MI, starting in 1893. We will be using the `Dec` variable which gives the number of inches of snow that fell in December of each year. In particular, we are interested in the sample mean and later finding confidence intervals for population mean of `Dec`. The distribution is below.
+### Using the Non-Parametric Bootstrap
 
-```{r, cache = TRUE}
+We demonstrate performing a non-parametric bootstrap below using `SnowGR` which gives the official snowfall dataset by month for Grand Rapids, MI, starting in 1893. 
+We will be using the `Dec` variable which is the number of inches of snow that fell in December of each year. 
+In particular, we are interested in the sample mean and later finding confidence intervals for population mean of `Dec`. 
+The distribution is below (Figure 1).
+
+```{r SnowGR histogram, cache = TRUE}
 data(SnowGR)
-favstats(~ Dec, data = SnowGR)
 gf_histogram(~ Dec, data = SnowGR) +
   labs(x = "Annual Snowfall in December", 
        title = "Distribution of Annual Snowfall in December", y = "Count",
-       caption = "Fig. 1: Histogram with Studentized Interval Shown")
+       caption = "Fig. 1: Histogram of SnowGR")
 ```
-
 Next, we will perform the non-parametric bootstrap using 10,000 replications.
 
-```{r, cache = TRUE}
+```{r non-paramteric bootstrap, cache = TRUE}
 set.seed(495)
 orig_mean <- mean(~ Dec, data = SnowGR) # theta hat
 
@@ -97,38 +102,37 @@ for (i in 1:nboot) {
 
 dec_means <- as.data.frame(mean)
 ```
-
-Below is the 
+Below, in Figure 2, is the histogram of bootstrapped values. Since we performed a large number of bootstrap replications, the bootstrapped distribution appears to be approximately Normal.
 
 ```{r, cache = TRUE}
 gf_dhistogram(~ mean, data = dec_means) %>%
   gf_dens() %>%
   gf_labs(title = "Histogram of 10,000 Bootstrapped Mean Dec Values",
-          caption = "Fig. 2: Bootstrap Histogram")
+          caption = "Fig. 2: Bootstrap histogram of Dec values")
 ```
 
-
-
 ## Standard Confidence Interval
-
 Confidence intervals are tools that are used to estimate a parameter. 
 Specifically, a confidence interval gives a range of values in which the true value of the parameter may lie. 
 An $\alpha$-level standard confidence interval is given by $$\hat{\theta}_S[\alpha] = \hat{\theta} \pm z_{\alpha}\hat{\sigma},$$ where $\hat{\theta}$ is a point estimate of the parameter of interest $\theta$, $\hat{\sigma}$ is the estimate of the standard deviation of $\hat{\theta}$ and $z_{\alpha}$ is the $(100 *\alpha)$th percentile of the normal deviation [@Efron86]. 
 We say that the confidence interval constructed in this manner has a chance of capturing the true parameter with a probability of $\alpha$. 
 
 The standard confidence interval is built based on the assumption that the distribution from which we are sampling is Normal.
-As such, the standard confidence interval is sometimes called the normal confidence interval for bootstrapped data.
-This means that for an unknown distribution, the standard confidence interval could present an incorrect range.
+As such, the standard confidence interval is sometimes called the normal confidence interval for a bootstrapped sample.
+This means that for an unknown skewed distribution, the standard confidence interval could present an incorrect range.
 However, the same process can be used with bootstrap sampling to form the bootstrap percentile method. 
 This means that an approximate bootstrap confidence interval will be created in the same automatic way that the standard confidence interval was created. 
 For bootstrapped confidence intervals, the number of bootstrap replications $B$ must be large (around 2,000) due to the nature of confidence intervals requiring greater accuracy [@Efron86].
 
-Using our example, to find a 95% confidence interval for the population mean of `Dec`, we would get the following:
+### Standard Confidence Interval in Use
+
+Using our previous example to find a 95% confidence interval for the population mean of `Dec`, we would get the following confidence interval:
 
 ```{r, cache = TRUE}
 mean(~ Dec, data = SnowGR) + qnorm(c(0.025, 0.975)) * 
   sd(~ Dec, data = SnowGR)/sqrt(nrow(SnowGR))
 ```
+This means that we can say we are 95% confident that the true mean number of inches of snow that fall in December is betwwen 13.86 inches and 17.66 inches. Our original histogram with the confidence interval is below (Figure 3).
 
 ```{r, cache = TRUE}
 gf_histogram(~ Dec, data = SnowGR) +
@@ -139,12 +143,10 @@ gf_histogram(~ Dec, data = SnowGR) +
   geom_vline(aes(xintercept= 17.65957))
 ```
 
-
 ## The Percentile Method
-
 The percentile method interval is defined as the interval between the $100 * \alpha$ and the $100(1 - \alpha)$ percentiles of the bootstrap distribution of $\hat{\theta}$.
 That is, the $(1 - 2\alpha)$ coverage interval can be defined as $[\hat{\theta}^*_\alpha,\hat{\theta}^*_{1-\alpha}]$ [@Efron86,@EfronCasi]. 
-To go further, we can define $\hat{G}(t)$ as the bootstrap cdf, or the proportion of bootstrap samples less than $t$: $$\hat{G}(t) = \frac{\#\{\hat{\theta^{*b} \leq t}\}}{B}.$$ 
+To go further, we can define $\hat{G}(t)$ as the bootstrap cdf, or the proportion of bootstrap samples less than $t$: $$\hat{G}(t) = \frac{\#\{\hat{\theta}^{*b} \leq t\}}{B}.$$ 
 Thus the $\alpha$th percentile point of the distribution is given by $$\hat{\theta}_p[\alpha] = \hat{\theta^*_\alpha} = \hat{G}^{-1}(\alpha).$$ It follows that the percentile interval can be represented as $$\left [ \hat{G}^{-1}(\alpha),\hat{G}^{-1}(1-\alpha) \right ].$$
 In the case that the bootstrap distribution of $\hat{\theta}^* \sim N(\hat{\theta}, \hat{\sigma}^2)$, the corresponding percentile interval would be equivalent to the standard interval. 
 However, this is not usually the case. 
@@ -159,12 +161,14 @@ This method assumes the existence of some monotone normalizing mapping $\hat{\ph
 Since the process is automatic, we do not need to know the transformation itself, only that it exists. 
 However, in some cases, no monotone normalizing mapping will exist [@Efron86].
 
+### The Percentile Method in Use
+
 Finding a 95% confidence interval for the true population mean of `Dec` using the percentile method, we get:
 
 ```{r, cache = TRUE}
 qdata(~ mean, c(0.025, 0.975), data = dec_means)
 ```
-
+Therefore, we can say that we are 95% confident that the true population mean of inches of snow that fall in December is between 13.91 inches and 17.72 inches. Our original histogram with the percentile confidence interval is shown below (Figure 4).
 ```{r, cache = TRUE}
 gf_histogram(~ Dec, data = SnowGR) +
   labs(x = "Annual Snowfall in December", 
@@ -173,35 +177,35 @@ gf_histogram(~ Dec, data = SnowGR) +
   geom_vline(aes(xintercept= 13.91170)) +
   geom_vline(aes(xintercept= 17.72353))
 ```
-This interval is similar to the one created using the Standard method, but shifted slightly to the right.
+This interval is similar to the one created using the standard method, but shifted slightly to the right.
 
 ## The Bias-Corrected (BC) Method
 
 The next method we will be looking at is the bias-corrected percentile method (BC method) which is an improvement upon the previous percentile method because we now take into account the possibility of bias. 
 It can be shown that $\hat{\theta}$ is biased upwards relative to $\theta$ which means that the confidence intervals should be adjusted downwards [@Efron86,@EfronCasi]. 
-From our simulated bootstrap replications $\hat{\theta}^{*1}, \hat{\theta}^{*2}, \dots ,\hat{\theta}^{*B},$ define $$p_0 = \frac{\#\{\hat{\theta^{*b} \leq \theta}\}}{B},$$ and define the bias-correction value $$z_0 = \Phi^{-1}(p_0),$$ where $\Phi^{-1}$ is the inverse function of the standard normal cdf. 
-Thus we define a transformation $\hat{\phi} = g(\hat{\theta)}, \phi = g(\theta)$ such that for any $\theta$, $$\hat{\phi} \sim N(\phi - z_0\tau, \tau^2),$$ with $z_0$ and $\tau$ constants. 
-This means that we can say the bias corrected method has an $\alpha$-level endpoint can be represented as $$\hat{\theta}_{BC}[\alpha] = \hat{G}^{-1} \left [ \Phi \left ( 2z_0 + z_\alpha\right ) \right ].$$ If $\hat{G} = 0.50$, then half of the bootstrap distribution is less than $\hat{\theta}$ and our bias-correction value $z_0 = 0$. 
-In this case, the confidence interval produced by BC would be the same interval produced by the percentile method. 
+From our simulated bootstrap replications $\hat{\theta}^{*1}, \hat{\theta}^{*2}, \dots ,\hat{\theta}^{*B},$ define $$p_0 = \frac{\#\{\hat{\theta}^{*b} \leq \theta\}}{B},$$ and define the bias-correction value $$z_0 = \Phi^{-1}(p_0),$$ where $\Phi^{-1}$ is the inverse function of the standard normal cdf. 
+Thus, we define a transformation $\hat{\phi} = g(\hat{\theta)}, \phi = g(\theta)$ such that for any $\theta$, $$\hat{\phi} \sim N(\phi - z_0\tau, \tau^2),$$ with $z_0$ and $\tau$ constants. 
+This means that we can say the bias-corrected method has an $\alpha$-level endpoint which can be represented as $$\hat{\theta}_{BC}[\alpha] = \hat{G}^{-1} \left [ \Phi \left ( 2z_0 + z_\alpha\right ) \right ].$$ If $\hat{G} = 0.50$, then half of the bootstrap distribution is less than $\hat{\theta}$ and our bias-correction value $z_0 = 0$. 
+In this case, the confidence interval produced by BC would be the same interval that was produced by the percentile method. 
 
-Using this method to create a 95% confidence interval has a couple more steps because we need to find the bias-correction value. First we calculate the sample mean.
+### The BC Method in Use
+Using this method to create a 95% confidence interval has a couple more steps because we need to find the bias-correction value. First we calculate the sample mean:
 
 ```{r, cache = TRUE}
 sample_mean <- mean(~Dec, data = SnowGR); sample_mean
 ```
-
 Then we find the proportion of bootstrap replications that have a sample mean less than the original sample mean.
+
 ```{r, cache = TRUE}
 less_than_sample_mean <- sum(ifelse(dec_means <= sample_mean, 1, 0))/10000
 less_than_sample_mean
 ```
-
 From this, we can calculate the bias-correction value, $z_0$:
+
 ```{r, cache = TRUE}
 z0 <- qnorm(less_than_sample_mean); z0
 ```
-
-Then we can find the modified percentiles:
+Then we can find the modified percentiles and get the corresponding confidence interval:
 
 ```{r, cache = TRUE}
 alphalow <- 0.025; alphahigh <- 0.975
@@ -211,7 +215,7 @@ newhigh <- pnorm(2*z0 + qnorm(alphahigh)); #newhigh
 
 qdata(~ mean, c(newlow, newhigh), data = dec_means)
 ```
-
+Therefore, we are 95% confident that the true mean inches of snow that fall in December in Grand Rapids, Michigan is between 14.01 inches and 17.82 inches. Our histogram (Figure 5) is shown below.
 
 ```{r, cache = TRUE}
 gf_histogram(~ Dec, data = SnowGR) +
@@ -223,48 +227,49 @@ gf_histogram(~ Dec, data = SnowGR) +
 
 ```
 
-
 ## The Bias-Corrected and Accelerated (BCa) Method
-
-A further modification upon the BC interval is the bias corrected and accelerated method (BCa). 
-For this method, we do not assume the the standard error, $\tau$ is constant as we did in the BC interval [@Efron86,@EfronCasi]. 
+A further modification upon the BC interval is the bias-corrected and accelerated method (BCa). 
+For this method, we do not assume the the standard error, $\tau$, is constant as we did in the BC interval [@Efron86,@EfronCasi]. 
 Rather, we assume the existence of a monotone transformation $\hat{\phi} = g(\hat{\theta)}, \phi = g(\theta)$ such that for any $\theta$, $$\hat{\phi} \sim N(\phi - z_0\tau_\phi, \tau_\phi^2) \text{ where } \tau_\phi = 1+ a\phi.$$
 The $a$ is known as the acceleration and is a constant that describes how the standard deviation of $\hat{\phi}$ varies with $\phi$. 
 In other words, $a$ is proportional to the skewness of the bootstrap distribution. 
-For example, for one-parameter exponential families, $a=z_0$, however, there are many different algorithms to compute and estimate $a$ [@Flowers18]. 
-Now, our $\alpha$-level endpoint from BCa is $$\hat{\theta}_{BCa}[\alpha] = \hat{G}^{-1} \left [ \Phi \left ( z_0 + \frac{z_0+z_\alpha}{1-a(z_0+z_a)} \right ) \right ].$$ If $a = 0$, then $\hat{\theta}_{BCa}[\alpha] = \hat{\theta}_{BC}[\alpha].$ 
-When calculating a BCa interval, the acceleration value $a$ is not a function of the bootstrap distribution and must be calculated separately, however the process is algorithmic and can be calculated without too much work. 
-Each of the three previous methods (percentile, BC, and BCa) all build upon each other and have less restrictive assumptions, however computation increases as we loosen assumptions. 
+For example, $a=z_0$ for one-parameter exponential families, however, there are many different algorithms to compute and estimate $a$ [@Flowers18]. 
+Now, our $\alpha$-level endpoint for a BCa confidence interval is $$\hat{\theta}_{BCa}[\alpha] = \hat{G}^{-1} \left [ \Phi \left ( z_0 + \frac{z_0+z_\alpha}{1-a(z_0+z_a)} \right ) \right ].$$ 
+We can observe that if $a = 0$, then $\hat{\theta}_{BCa}[\alpha] = \hat{\theta}_{BC}[\alpha].$ 
+When calculating a BCa confidence interval, the acceleration value, $a$, is not a function of the bootstrap distribution and must be calculated separately.
+However the process is algorithmic and can be calculated without too much work. 
+As we saw, each of the three previous methods (percentile, BC, and BCa) all build upon each other and have less restrictive assumptions, but this means that computation increases as we loosen assumptions. 
 
-In practice, we can use the jackknife procedure to estimate the acceleration value for this method. Thus, we will run the jackknife procedure:
+### The BCa Confidence Interval in Use
+In practice, we can use the jackknife procedure to estimate the acceleration value for this method.
+The jackknife procedure is a different resampling technique that is often used to estimate the bias and variance of a large population.
+Thus, we will run the jackknife procedure:
 
 ```{r, cache = TRUE}
 theta <- function(x){mean(x)}
 jackknife_results <- bootstrap::jackknife(SnowGR$Dec, theta) 
 ```
-
 We find the mean of the jackknife values below:
 
 ```{r, cache = TRUE}
 jackmean <- mean(~ jackknife_results$jack.values); jackmean
 ```
-
-Then we can compute $a$.
+Then we can compute an approximation for $a$.
 
 ```{r, cache = TRUE}
 estimated_a <- (1/6)*sum((jackknife_results$jack.values - jackmean)^3)/
   (sum((jackknife_results$jack.values - jackmean)^2))^(1.5); estimated_a
 ```
-
-Now, we can find the adjust percentiles and the bias-corrected with acceleration confidence interval.
+Now, we can find the adjusted percentiles and the bias-corrected with acceleration confidence interval.
 
 ```{r, cache = TRUE}
 a_newlow <- pnorm(z0 + (z0 + qnorm(alphalow))/
-                    (1-estimated_a*(z0 + qnorm(alphalow)))); #a_newlow
+                    (1-estimated_a*(z0 + qnorm(alphalow)))); 
 a_newhigh <- pnorm(z0 + (z0 + qnorm(alphahigh))/
-                     (1-estimated_a*(z0 + qnorm(alphahigh)))); #a_newhigh
+                     (1-estimated_a*(z0 + qnorm(alphahigh)))); 
 qdata(~ mean, c(a_newlow, a_newhigh), data = dec_means)
 ```
+We are 95% confident that the true mean number of inches of snow that fall in December is between 13.92 inches and 17.72 inches. Figure 6 shows our confidence interval.
 
 ```{r, cache = TRUE}
 gf_histogram(~ Dec, data = SnowGR) +
@@ -276,20 +281,20 @@ gf_histogram(~ Dec, data = SnowGR) +
 
 ```
 
-
 ## The Bootstrap-t (Studentized) Method
-
 The final method we explain is the bootstrap-t interval (or the studentized method). 
-Recall from earlier, our sample, $X$ from which we can calculate an estimate, $\hat{\theta}(X)$ of the parameter of interest $\theta$ [@Efron86,@Puth15]. 
+Recall from earlier, our sample, $X$ from which we can calculate an estimate ($\hat{\theta}(X)$) of the parameter of interest $\theta$ [@Efron86,@Puth15]. 
 We can also estimate $\hat{\sigma}(X)$ for the standard error of $\theta$. 
-We can use these parameters to find the Student's $t$-statistic defined as $$T = \frac{\hat{\theta} - \theta}{\hat{\sigma}}.$$ 
+We can use these parameters to find the Student's $t$-statistic defined as: $$T = \frac{\hat{\theta} - \theta}{\hat{\sigma}}.$$ 
 As such, the $\alpha$th percentile point of a confidence interval of $\theta$ would be $\hat{\theta} - \hat{\sigma}T_{(\alpha)}$ where $T_{(\alpha)}$ represents the $\alpha$th percentile of the $t$-distribution, $T$. 
-Unfortunately, the percentiles of the t-distribution are unknown in most cases, but we can use bootstrapping to estimate these percentiles. 
+Unfortunately, the percentiles of this $t$-distribution are unknown in most cases, but we can use bootstrapping to estimate these percentiles. 
 To do this, we perform a large number, $B$, of bootstrap samples, from which we can find the bootstrap replications of the parameter of interest, $\hat{\theta^*} = \hat{\theta}(X^*)$, and the standard error, $\hat{\sigma^*} = \hat{\sigma}(X^*)$. 
-From these we can calculate a t-statistic for each bootstrap sample: $$T^* = \frac{\hat{\theta}^* - \hat{\theta}}{\hat{\sigma}^*}.$$ for each bootstrap sample. Using a large number of these bootstrap samples, we can estimate the percentiles of the $t$-distribution such that: $$\hat{T}_{(\alpha)} = B*\alpha\text{th ordered value of all the bootstrap relications of }T^*.$$ 
+From these we can calculate a t-statistic for each bootstrap sample: $$T^* = \frac{\hat{\theta}^* - \hat{\theta}}{\hat{\sigma}^*}.$$ Using a large number of these bootstrap samples, we can estimate the percentiles of the $t$-distribution such that: $$\hat{T}_{(\alpha)} = B*\alpha\text{th ordered value of all the bootstrap relications of }T^*.$$ 
 This means that for $B = 2,000$ and $\alpha = 0.90$, then $\hat{T}_{(\alpha)}$ is the 1,800th ordered point of all of the bootstrap replications of $T^*$. 
 It follows that the $\alpha$th studentized confidence interval endpoint can be given with $$\hat{\theta}_T[\alpha] = \hat{\theta} - \hat{\sigma}T_{(\alpha)},$$ where we can estimate the standard error using $$\hat{\sigma} = \frac{1-\hat{\theta}^2}{\sqrt{n}}.$$ One of the main factors why the studentized method is so popular is because we assume that our bootstrapped statistic is pivotal which means that the confidence interval does not depend on any other parameters. 
-Instead, we can calculate the appropriate confidence interval for the parameter of interest specifically from the bootstrapped statistic [@Efron86,@Puth15].
+Instead, we can calculate the appropriate confidence interval for the parameter of interest specifically from the bootstrapped statistics [@Efron86,@Puth15].
+
+### Studentized Confidence Interval in Use
 
 Following the process above, we can use the following to get our studentized confidence interval [@Lau20]:
 
@@ -314,10 +319,9 @@ lower <- q[1]
 upper <- q[2]
 
 c(orig_mean - upper*orig_se, orig_mean - lower*orig_se)
-
 ```
-
-This would give us the following histogram: 
+So we are 95% confident that the true mean number of inches of snow that fall in December in Grand Rapids, Michigan is between 14.03 inches and 18.02 inches.
+This would give us the following confidence interval (Figure 7)
 
 ```{r, cache = TRUE}
 gf_histogram(~ Dec, data = SnowGR) +
@@ -332,40 +336,39 @@ gf_histogram(~ Dec, data = SnowGR) +
 
 # Simulation
 
-For the simulation, we will randomly sample from distributions in which we know the true population mean. 
-For example, we will sampling from a Gamma Distribution where we can find the true population mean using the shape and rate parameters of the sample distribution. 
-After we sample from a distribution, we will create a bootstrapped confidence interval for a few of the methods we described in the exposition. 
-Since we know the true population mean of the distribution, we will determine if the true population parameter is contained in the confidence interval for each of the methods we are testing. 
+For our simulation, we will randomly sample from distributions in which we know the true population mean. 
+For example, we will be sampling from a Gamma distribution where we can find the true population mean using the shape and rate parameters of the sample distribution. 
+After we sample from the distribution, we will create a bootstrapped confidence interval for a few of the methods we described in the exposition. 
+Since we know the true population mean of the distribution, we will determine if the true population mean is contained in the confidence interval for each of the methods we are testing. 
 We will perform this process a large number of times (10,000 simulations) and then average by the number of iterations to determines on average, the proportion that each bootstrapped confidence interval method contains the true population mean for a given distribution. 
-We will do this for a couple different distributions as well as a range of sample sizes show how the intervals perform with skewed distributions and larger sample sizes.
+We will do this for a couple different distributions as well as a range of sample sizes to show how the intervals perform with skewed distributions and larger sample sizes.
 
 To do this simulation, we will be using the `boot` package [@boot]. 
 This package can compute a bootstrap object which contains the output from a bootstrap calculation of a given sample and then produces confidence intervals from the bootstrap object. 
 In particular, we will use the `boot.ci` function to create four types of confidence intervals: the standard (or normal) confidence interval, the studentized confidence interval, the percentile confidence interval, and the bias-corrected with acceleration confidence interval.
 
-Before we create the simulation, we create a helper function to extract the replication statistics we will need from the bootstrapped data. 
-These are the bootstrapped replicated mean and standard deviation of each bootstrapped sample.
-We will also declare some constants here including the sample sizes we will be using and the number of bootstrap replication we are using as well.
+To start, we will declare some constants including the sample sizes and the number of bootstrap replications we are using.
 
-```{r pre-simulation}
-boot.stat <- function(d, i) {
-  d <- X[i]
-  return (c(mean(d), sd(d)))
-}
-sample_sizes <- c(4, 10, 15, 20, 30, 40, 60, 80, 100)
+```{r pre-simulation, eval = TRUE}
+
+sample_sizes <- c(5, 10, 15, 20, 30, 40, 60, 100, 150)
 num_sample_sizes <- length(sample_sizes)
 boot_reps <- 2000
 ```
-
-
-Next, we will create a simulation that randomly selects a sample from a Normal distribution and performs a bootstrap with 2,000 bootstrap replications.
-After, we will create the confidence intervals that we will be testing from this bootstrap and then determine if the true mean, our population parameter, is contained within our interval. 
-Since we are using a $N(0,1)$ distribution, our true population mean is equal to 0. 
-We will repeat this process 10,000 times as specified for each of the sample sizes that we are using. 
-Since we are using originally sampling from a Normal distribution, the assumptions we hold for the standard interval are true and thus we would expect all of the methods to perform comparably to each other at large sample sizes.
+Next, we create a simulation that randomly selects a sample from a Normal distribution and performs a bootstrap with 2,000 bootstrap replications.
+Then, we create the confidence intervals from this bootstrap and determine if the true mean, our population parameter, is contained within our intervals.
+Since we are using a $Normal(0,1)$ distribution, our true population mean is equal to 0. 
+We will repeat this process 10,000 times as specified for each of the sample sizes that we are testing. 
+Since we are originally sampling from a Normal distribution, the assumptions we hold for the standard interval are true and thus, we would expect all of the methods to perform comparably to each other at large sample sizes.
 
 ```{r normal simulation}
 run_sim_normal <- function(sim_reps) {
+  
+  boot.stat <- function(d, i) {
+    d <- X[i]
+    return (c(mean(d), sd(d)))
+  }
+  
   master <- matrix(nrow = num_sample_sizes, ncol = 5)
   
   for(i in 1:num_sample_sizes) {
@@ -405,15 +408,20 @@ run_sim_normal <- function(sim_reps) {
 
 ```
 
-Secondly, we select from a Gamma Distribution with a shape parameter of 1 and a scale parameter of 4 $Gamma(1,4)$. 
-This means the true population mean is 4 because the true mean is given by the product of the shape and scale parameter. 
-The simulation follows the same process as above where we sampled from the Normal distribution except we are sampling from a Gamma Distribution this time. 
-Since, the Gamma Distribution we are using heavily left-skewed, we would expect the studentized confidence interval and the BCa confidence interval to perform the best. 
+Secondly, we select from a Gamma Distribution with a shape parameter of 1 and a scale parameter of 4 ($Gamma(1,4)$). 
+Therefore, the true population mean is 4 because the true mean is given by the product of the shape and scale parameter. 
+This simulation follows the same process as above where we sampled from the Normal distribution except we are sampling from a Gamma distribution this time. 
+Since, our Gamma distribution is heavily left-skewed, we would expect the studentized confidence interval and the BCa confidence interval to perform the best. 
 
 ```{r gamma simulation}
 run_sim_gamma <- function(sim_reps) {
+  
+  boot.stat <- function(d, i) {
+    d <- X[i]
+    return (c(mean(d), sd(d)))
+  }
 
-  master <- matrix(nrow = num_sample_sizes, ncol = 6)
+  master <- matrix(nrow = num_sample_sizes, ncol = 5)
   
   for(i in 1:num_sample_sizes) {
   
@@ -451,16 +459,21 @@ run_sim_gamma <- function(sim_reps) {
 
 ```
 
-Lastly, we will be sampling from a Log-Normal Distribution. 
-This means that if we have a random variable $X \sim Lognormal$, then the random variable, $Y = ln(X) \sim N$. 
-Therefore, the distribution is left-skewed, although not as heavily as the Gamma Distribution we previously used.
-The true mean of this distribution can be found using $E(X) = e^{u+\frac{\sigma^2}{2}}$ which means that for a $Lognormal(0,1)$ distribution, we should expect the population mean to be $e^{\frac{1}{2}}$.
+Lastly, we will be sampling from a Log-Normal distribution. 
+This means that if we have a random variable, $X \sim Lognormal$, then the random variable, $Y = ln(X) \sim Normal$. 
+Therefore, the distribution is left-skewed, although not as heavily as the Gamma distribution we previously used.
+The true mean of this distribution can be found using $E(X) = e^{u+\frac{\sigma^2}{2}}$ which means that for a $Lognormal(0,1)$ distribution, we expect the population mean to be $e^{\frac{1}{2}}$.
 Again, we would expect the studentized confidence interval and the BCa confidence interval to perform the best.
 
 ```{r log-normal simulation}
 run_sim_log_normal <- function(sim_reps) {
+  
+  boot.stat <- function(d, i) {
+    d <- X[i]
+    return (c(mean(d), sd(d)))
+  }
 
-  master <- matrix(nrow = num_sample_sizes, ncol = 6)
+  master <- matrix(nrow = num_sample_sizes, ncol = 5)
   
   for(i in 1:num_sample_sizes) {
   
@@ -496,85 +509,29 @@ run_sim_log_normal <- function(sim_reps) {
   master_df
 }
 ```
-
-
-
-After that, these functions will compile all of the information we have created from the previous methods and run the simulations of each method for a variety of sample sizes. 
-
-
-
-
-
-
-
-
-
-And here, we run the simulations for each of the distributions and store the results.
-
-
-
-
-
-Then, we can plot the results and compile the results into tables. 
-
-
-
-
-
-When we sample from the Gamma distribution which is a distribution that is heavily skewed, the Studentized Confidence interval performs the best. At a large sample size, the Studentized Confidence interval contains the true population parameter about 94.5% of the time. The Studentized confidence interval outperforms the rest of the intervals by a bit. The rest of the intervals are very similar to each other ranging from a correct interval 92.5% to 93% of the time. In general, as the sample size that we are bootstrapping from increases, the higher percentage our confidence intervals predict correctly.
-
-
-
-Similar to when we sampled from the Gamma distribution, the Studentized confidence interval performed the best when we sampled from a Normal distribution with around 95% of the confidence intervals containing the true population parameter. The next best is the Standard confidence interval with a performance of around 94.5% correct intervals at a high sample size. The rest of the intervals performed similarly at around 94.2% accuracy. As before, the accuracy increased as the sample size increased.
-
-
-
-
-
-
-
-
+Once we have all the simulations, we can run them below.
 
 ```{r run simulations, warning = FALSE, eval = FALSE}
 set.seed(495)
-log_normal_df <- run_sim_log_normal(10000)
-write.csv(log_normal_df,"log_normal_df.csv", row.names = FALSE)
+normal_df_trial2 <- run_sim_normal(10000)
+write.csv(normal_df_trial2,"normal_data_df_trial2.csv", row.names = FALSE)
 
-normal_df <- run_sim_normal(10000)
-write.csv(normal_df,"normal_data_df.csv", row.names = FALSE)
+log_normal_df_trial2 <- run_sim_log_normal(10000)
+write.csv(log_normal_df_trial2,"log_normal_df_trial2.csv", row.names = FALSE)
 
-gamma_df <- run_sim_gamma(10000)
-write.csv(gamma_df,"gamma_data_df.csv", row.names = FALSE)
-
+gamma_df_trial2 <- run_sim_gamma(10000)
+write.csv(gamma_df_trial2,"gamma_data_df_trial2.csv", row.names = FALSE)
 ```
 
+
 ```{r create graphs}
-gamma_df <- read.csv(file = 'gamma_data_df.csv')
-normal_df <- read.csv(file = 'normal_data_df.csv')
-log_normal_df <- read.csv(file = 'log_normal_df.csv')
+normal_df <- read.csv(file = 'normal_data_df_trial2.csv')
+gamma_df <- read.csv(file = 'gamma_data_df_trial2.csv')
+log_normal_df <- read.csv(file = 'log_normal_df_trial2.csv')
 
-# create the figure that shows the gamma output
-gamma_df_long <- gamma_df %>%
-  pivot_longer(cols = 2:6, names_to = "method", values_to = "prop") 
-    
-gamma_fig <- ggplot(data = gamma_df_long, 
-                    aes(x = Sample_Size, y = prop, color = method)) + 
-  geom_point() + geom_line() + 
-  labs(title = "Proportion of CIs that Contain the True Parameter from Gamma 
-       Distibution", x = "Sample Size", 
-       y = "Proportion (of 10,000 Simulations)", color = "Method",
-       caption = "Fig. 8: Graph showing the Accuracy of Bootstrap CI Methods for different sample sizes on Gamma Dist.") +
-  theme_light() +
-  theme(legend.position="bottom")
-
-# create the table for the gamma output
-gamma_table <- gamma_df %>%
-  kable(booktabs = TRUE, align = "c", caption = "Sampled From Gamma Dist.", 
-        col.names = gsub("[_]", " ", names(gamma_df)), digits = 3) 
-   
 # create the figure that shows the normal output 
 normal_df_long <- normal_df %>%
-  pivot_longer(cols = 2:6, names_to = "method", values_to = "prop") 
+  pivot_longer(cols = 2:5, names_to = "method", values_to = "prop") 
     
 normal_fig <- ggplot(data = normal_df_long, 
                     aes(x = Sample_Size, y = prop, color = method)) + 
@@ -582,7 +539,8 @@ normal_fig <- ggplot(data = normal_df_long,
   labs(title = "Proportion of CIs that Contain the True Parameter from Normal 
        Distibution", x = "Sample Size", 
        y = "Proportion (of 10,000 Simulations)", color = "Method",
-       caption = "Fig. 8: Graph showing the Accuracy of Bootstrap CI Methods for different sample sizes on Normal Dist.") +
+       caption = "Fig. 8: Graph showing the Accuracy of Bootstrap CI Methods for
+       different sample sizes on Normal Dist.") +
   theme_light() +
   theme(legend.position="bottom")
 
@@ -591,9 +549,29 @@ normal_table <- normal_df %>%
   kable(booktabs = TRUE, align = "c", caption = "Sampled from Normal Dist.", 
         col.names = gsub("[_]", " ", names(normal_df)))
 
+# create the figure that shows the gamma output
+gamma_df_long <- gamma_df %>%
+  pivot_longer(cols = 2:5, names_to = "method", values_to = "prop") 
+    
+gamma_fig <- ggplot(data = gamma_df_long, 
+                    aes(x = Sample_Size, y = prop, color = method)) + 
+  geom_point() + geom_line() + 
+  labs(title = "Proportion of CIs that Contain the True Parameter from Gamma 
+       Distibution", x = "Sample Size", 
+       y = "Proportion (of 10,000 Simulations)", color = "Method",
+       caption = "Fig. 8: Graph showing the Accuracy of Bootstrap CI Methods for
+       different sample sizes on Gamma Dist.") +
+  theme_light() +
+  theme(legend.position="bottom")
+
+# create the table for the gamma output
+gamma_table <- gamma_df %>%
+  kable(booktabs = TRUE, align = "c", caption = "Sampled From Gamma Dist.", 
+        col.names = gsub("[_]", " ", names(gamma_df)), digits = 3) 
+   
 # create the figure that shows the log normal output
 log_normal_df_long <- log_normal_df %>%
-  pivot_longer(cols = 2:6, names_to = "method", values_to = "prop") 
+  pivot_longer(cols = 2:5, names_to = "method", values_to = "prop") 
     
 log_normal_fig <- ggplot(data = log_normal_df_long, 
                     aes(x = Sample_Size, y = prop, color = method)) + 
@@ -601,7 +579,8 @@ log_normal_fig <- ggplot(data = log_normal_df_long,
   labs(title = "Proportion of CIs that Contain the True Parameter from Log-Normal 
        Distibution", x = "Sample Size", 
        y = "Proportion (of 10,000 Simulations)", color = "Method",
-       caption = "Fig. 8: Graph showing the Accuracy of Bootstrap CI Methods for different sample sizes on Log-Normal Dist.") +
+       caption = "Fig. 8: Graph showing the Accuracy of Bootstrap CI Methods for
+       different sample sizes on Log-Normal Dist.") +
   theme_light() +
   theme(legend.position="bottom")
 
@@ -625,21 +604,4 @@ gamma_table
 ```
 
 
-```{r delete, eval = FALSE}
-normal_df <- read.csv(file = 'normal_data_df.csv')
 
-master_df_long <- master_df %>%
-  pivot_longer(cols = 2:6, names_to = "method", values_to = "prop") 
-    
-master_fig <- ggplot(data = master_df_long, 
-                    aes(x = Sample_Size, y = prop, color = method)) + 
-  geom_point() + geom_line() + 
-  labs(title = "Proportion of CIs that Contain the True Parameter from Log-Normal Distibution", 
-       x = "Sample Size", 
-       y = "Proportion (of 10,000 Simulations)", color = "Method",
-       caption = "Fig. 8: Graph showing the Accuracy of Bootstrap CI Methods for different sample sizes on Log-Normal Dist.") +
-  theme_light() +
-  theme(legend.position="bottom")
-
-master_fig
-```
