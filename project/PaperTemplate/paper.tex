@@ -99,7 +99,7 @@
   \title{\bf A Comparision of Bootstrap Confidence Interval Methods}
 
   \author{
-        Justin Papagelis \thanks{The authors gratefully acknowledge '\,'
+        Justin Papagelis \thanks{The authors gratefully acknowledge
 Profossor Wagaman} \\
     Department of Mathematics and Statistics, Amherst College\\
       }
@@ -170,15 +170,15 @@ Bootstrap}\label{the-non-parametric-bootstrap}}
 
 Bootstrapping is a statistical method of resampling that allows the
 estimation of a test statistic from an unknown distribution. In
-particular, bootstrapping is a computational heavy method which is
-useful for many different situations.
+particular, bootstrapping is a heavy computational method useful for
+many situations.
 
 First, we introduce the non-parametric bootstrap. Suppose we have a
 random sample \(X = (x_1,x_2,\dots,x_n)\) from our unknown distribution,
 \(F\) and a statistic of interest, \(\hat{\theta} = \hat{\theta}(X)\)
 \citep{EfronCasi}. Ideally, the desired test statistic could be found by
-repeatedly sampling new reproductions of \(X\) from \(F\). However \(F\)
-is unknown, so this is not possible. The non-parametric bootstrap
+repeatedly sampling new reproductions of \(X\) from \(F\). However,
+\(F\) is unknown, so this is not possible. The non-parametric bootstrap
 creates an estimate \(\hat{F}\) from \(F\) using our sample, \(X\),
 without making any parametric assumptions about \(F\) (such as its
 distribution type). Therefore, the bootstrap sample could be represented
@@ -187,25 +187,25 @@ sampled randomly with equal probability and with replacement from our
 original sample: \(\{x_1,x_2,\dots,x_n\}\). From this bootstrap sample,
 a bootstrap replication of the test statistic can be computed using
 \(\hat{\theta}^* = \hat{\theta}(X^*)\). A large number, \(B\), of
-bootstrap samples are drawn independently and the corresponding
+bootstrap samples are drawn independently, and the corresponding
 bootstrap replication of the test statistic is calculated.
 \[\hat{\theta}^{*b} = \hat{\theta}(X^{*b}) \text{ for } b = 1,2, \dots, B.\]
-The bootstrap estimate of the test statistic is the empirical value of
-the test statistic from all of the \(\hat{\theta}^{*b}\) replications.
-As \(B\) increases, \(\hat{F}\) approaches \(F\) which means that the
-test statistic of interest approaches its true value as well.
+The test statistic's bootstrap estimate is the test statistic's
+empirical value from all of the \(\hat{\theta}^{*b}\) replications. As
+\(B\) increases, \(\hat{F}\) approaches \(F\), which means that the test
+statistic of interest approaches its true value as well.
 
 \hypertarget{using-the-non-parametric-bootstrap}{%
 \subsubsection{Using the Non-Parametric
 Bootstrap}\label{using-the-non-parametric-bootstrap}}
 
 We demonstrate performing a non-parametric bootstrap below using
-\texttt{SnowGR} which gives the official snowfall dataset by month for
-Grand Rapids, MI, starting in 1893. We will be using the \texttt{Dec}
-variable which is the number of inches of snow that fell in December of
-each year. In particular, we are interested in the sample mean and later
-finding confidence intervals for population mean of \texttt{Dec}. The
-distribution is below (Figure 1).
+\texttt{SnowGR}, which gives the official snowfall dataset by the month
+for Grand Rapids, MI, starting in 1893. We will be using the
+\texttt{Dec} variable, which is the number of inches of snow that fell
+in December of each year. In particular, we are interested in the sample
+mean and later finding confidence intervals for the population mean of
+\texttt{Dec}. The distribution is shown (Figure 1).
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -243,9 +243,9 @@ we will perform the non-parametric bootstrap using 10,000 replications.
 \end{Highlighting}
 \end{Shaded}
 
-Below, in Figure 2, is the histogram of bootstrapped values. Since we
-performed a large number of bootstrap replications, the bootstrapped
-distribution appears to be approximately Normal.
+Figure 2 shows the histogram of bootstrapped values. Since we performed
+a large number of bootstrap replications, the bootstrapped distribution
+appears to be approximately Normal.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -271,21 +271,21 @@ where \(\hat{\theta}\) is a point estimate of the parameter of interest
 \(\theta\), \(\hat{\sigma}\) is the estimate of the standard deviation
 of \(\hat{\theta}\) and \(z_{\alpha}\) is the \((100 *\alpha)\)th
 percentile of the normal deviation \citep{Efron86}. We say that the
-confidence interval constructed in this manner has a chance of capturing
-the true parameter with a probability of \(\alpha\).
+confidence interval constructed in this manner can capture the true
+parameter with a probability of \(\alpha\).
 
 The standard confidence interval is built based on the assumption that
-the distribution from which we are sampling is Normal. As such, the
-standard confidence interval is sometimes called the normal confidence
-interval for a bootstrapped sample. This means that for an unknown
-skewed distribution, the standard confidence interval could present an
-incorrect range. However, the same process can be used with bootstrap
-sampling to form the bootstrap percentile method. This means that an
-approximate bootstrap confidence interval will be created in the same
-automatic way that the standard confidence interval was created. For
-bootstrapped confidence intervals, the number of bootstrap replications
-\(B\) must be large (around 2,000) due to the nature of confidence
-intervals requiring greater accuracy \citep{Efron86}.
+the distribution we are sampling is Normal. The standard confidence
+interval is sometimes called the normal confidence interval for a
+bootstrapped sample. This means that the standard confidence interval
+could present an incorrect range for an unknown skewed distribution.
+However, the same process can be used with bootstrap sampling to form
+the bootstrap percentile method. This way, an approximate bootstrap
+confidence interval will be created in the same automatic way that the
+standard confidence interval was created. For bootstrapped confidence
+intervals, the number of bootstrap replications \(B\) must be large
+(around 2,000) due to the nature of confidence intervals requiring
+greater accuracy \citep{Efron86}.
 
 \hypertarget{standard-confidence-interval-in-use}{%
 \subsubsection{Standard Confidence Interval in
@@ -306,10 +306,9 @@ interval:
 ## [1] 13.85639 17.65957
 \end{verbatim}
 
-This means that we can say we are 95\% confident that the true mean
-number of inches of snow that fall in December is betwwen 13.86 inches
-and 17.66 inches. Our original histogram with the confidence interval is
-below (Figure 3).
+Therefore, we are 95\% confident that the true mean number of inches of
+snow that fall in December is between 13.86 inches and 17.66 inches. Our
+original histogram with the confidence interval is shown (Figure 3).
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -343,7 +342,7 @@ It follows that the percentile interval can be represented as
 case that the bootstrap distribution of
 \(\hat{\theta}^* \sim N(\hat{\theta}, \hat{\sigma}^2)\), the
 corresponding percentile interval would be equivalent to the standard
-interval. However, this is not usually the case. When the bootstrap
+interval. However, this is only sometimes the case. When the bootstrap
 distribution is non-normal, we can suppose that there exists, for all
 \(\theta\), \[\hat{\phi} \sim N(\phi, \tau^2),\] for some monotone
 transformation \(\hat{\phi} = g(\hat{\theta}), \phi = g(\theta)\), and
@@ -361,7 +360,7 @@ interval on the \(\theta\) scale can be defined as
 also can be represented as an interval,
 \[\left [ g^{-1}(\hat{\phi} \pm \tau z_{1-\alpha}), g^{-1}(\hat{\phi} \pm \tau z_\alpha) \right ].\]
 Therefore, the percentile method produces a correct interval for
-\(\phi\) and due to the transformation invariance, also produces a
+\(\phi\) and, due to the transformation invariance, also produces a
 correct percentile interval for \(\theta\). This method assumes the
 existence of some monotone normalizing mapping
 \(\hat{\phi} = g(\hat{\theta}), \phi = g(\theta)\) and relies on that to
@@ -390,7 +389,7 @@ Finding a 95\% confidence interval for the true population mean of
 Therefore, we can say that we are 95\% confident that the true
 population mean of inches of snow that fall in December is between 13.91
 inches and 17.72 inches. Our original histogram with the percentile
-confidence interval is shown below (Figure 4).
+confidence interval is shown (Figure 4).
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -411,13 +410,13 @@ shifted slightly to the right.
 \subsection{The Bias-Corrected (BC)
 Method}\label{the-bias-corrected-bc-method}}
 
-The next method we will be looking at is the bias-corrected percentile
-method (BC method) which is an improvement upon the previous percentile
-method because we now take into account the possibility of bias. It can
-be shown that \(\hat{\theta}\) is biased upwards relative to \(\theta\)
-which means that the confidence intervals should be adjusted downwards
-\citep[\citet{EfronCasi}]{Efron86}. From our simulated bootstrap
-replications
+The following method we will be looking at is the bias-corrected
+percentile method (BC method) which is an improvement upon the previous
+percentile method because we now consider the possibility of bias. It
+can be shown that \(\hat{\theta}\) is biased upwards relative to
+\(\theta\), which means that the confidence intervals should be adjusted
+downwards \citep[\citet{EfronCasi}]{Efron86}. From our simulated
+bootstrap replications
 \(\hat{\theta}^{*1}, \hat{\theta}^{*2}, \dots ,\hat{\theta}^{*B},\)
 define \[p_0 = \frac{\#\{\hat{\theta}^{*b} \leq \theta\}}{B},\] and
 define the bias-correction value \[z_0 = \Phi^{-1}(p_0),\] where
@@ -437,8 +436,8 @@ that was produced by the percentile method.
 \subsubsection{The BC Method in Use}\label{the-bc-method-in-use}}
 
 Using this method to create a 95\% confidence interval has a couple more
-steps because we need to find the bias-correction value. First we
-calculate the sample mean:
+steps because we need to find the bias-correction value
+\citep{EfronCasi}. First, we calculate the sample mean:
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -481,12 +480,12 @@ confidence interval:
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{alphalow }\OtherTok{\textless{}{-}} \FloatTok{0.025}\NormalTok{; alphahigh }\OtherTok{\textless{}{-}} \FloatTok{0.975}
+\NormalTok{alpha\_lower }\OtherTok{\textless{}{-}} \FloatTok{0.025}\NormalTok{; alpha\_upper }\OtherTok{\textless{}{-}} \FloatTok{0.975}
 
-\NormalTok{newlow }\OtherTok{\textless{}{-}} \FunctionTok{pnorm}\NormalTok{(}\DecValTok{2}\SpecialCharTok{*}\NormalTok{z0 }\SpecialCharTok{+} \FunctionTok{qnorm}\NormalTok{(alphalow)); }\CommentTok{\#newlow}
-\NormalTok{newhigh }\OtherTok{\textless{}{-}} \FunctionTok{pnorm}\NormalTok{(}\DecValTok{2}\SpecialCharTok{*}\NormalTok{z0 }\SpecialCharTok{+} \FunctionTok{qnorm}\NormalTok{(alphahigh)); }\CommentTok{\#newhigh}
+\NormalTok{new\_lower }\OtherTok{\textless{}{-}} \FunctionTok{pnorm}\NormalTok{(}\DecValTok{2}\SpecialCharTok{*}\NormalTok{z0 }\SpecialCharTok{+} \FunctionTok{qnorm}\NormalTok{(alpha\_lower)); }
+\NormalTok{new\_upper }\OtherTok{\textless{}{-}} \FunctionTok{pnorm}\NormalTok{(}\DecValTok{2}\SpecialCharTok{*}\NormalTok{z0 }\SpecialCharTok{+} \FunctionTok{qnorm}\NormalTok{(alpha\_upper)); }
 
-\FunctionTok{qdata}\NormalTok{(}\SpecialCharTok{\textasciitilde{}}\NormalTok{ mean, }\FunctionTok{c}\NormalTok{(newlow, newhigh), }\AttributeTok{data =}\NormalTok{ dec\_means)}
+\FunctionTok{qdata}\NormalTok{(}\SpecialCharTok{\textasciitilde{}}\NormalTok{ mean, }\FunctionTok{c}\NormalTok{(new\_lower, new\_upper), }\AttributeTok{data =}\NormalTok{ dec\_means)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -497,7 +496,7 @@ confidence interval:
 
 Therefore, we are 95\% confident that the true mean inches of snow that
 fall in December in Grand Rapids, Michigan is between 14.01 inches and
-17.82 inches. Our histogram (Figure 5) is shown below.
+17.82 inches. Our histogram (Figure 5) is shown.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -516,9 +515,9 @@ fall in December in Grand Rapids, Michigan is between 14.01 inches and
 \subsection{The Bias-Corrected and Accelerated (BCa)
 Method}\label{the-bias-corrected-and-accelerated-bca-method}}
 
-A further modification upon the BC interval is the bias-corrected and
-accelerated method (BCa). For this method, we do not assume the the
-standard error, \(\tau\), is constant as we did in the BC interval
+The bias-corrected and accelerated method (BCa) further modifies the BC
+interval. This method does not assume that the standard error, \(\tau\),
+is constant as we did in the BC interval
 \citep[\citet{EfronCasi}]{Efron86}. Rather, we assume the existence of a
 monotone transformation
 \(\hat{\phi} = g(\hat{\theta)}, \phi = g(\theta)\) such that for any
@@ -528,7 +527,7 @@ The \(a\) is known as the acceleration and is a constant that describes
 how the standard deviation of \(\hat{\phi}\) varies with \(\phi\). In
 other words, \(a\) is proportional to the skewness of the bootstrap
 distribution. For example, \(a=z_0\) for one-parameter exponential
-families, however, there are many different algorithms to compute and
+families. However, there are many different algorithms to compute and
 estimate \(a\) \citep{Flowers18}. Now, our \(\alpha\)-level endpoint for
 a BCa confidence interval is
 \[\hat{\theta}_{BCa}[\alpha] = \hat{G}^{-1} \left [ \Phi \left ( z_0 + \frac{z_0+z_\alpha}{1-a(z_0+z_a)} \right ) \right ].\]
@@ -536,20 +535,20 @@ We can observe that if \(a = 0\), then
 \(\hat{\theta}_{BCa}[\alpha] = \hat{\theta}_{BC}[\alpha].\) When
 calculating a BCa confidence interval, the acceleration value, \(a\), is
 not a function of the bootstrap distribution and must be calculated
-separately. However the process is algorithmic and can be calculated
+separately. However, the process is algorithmic and can be calculated
 without too much work. As we saw, each of the three previous methods
 (percentile, BC, and BCa) all build upon each other and have less
-restrictive assumptions, but this means that computation increases as we
-loosen assumptions.
+restrictive assumptions, but computation increases as we loosen
+assumptions.
 
 \hypertarget{the-bca-confidence-interval-in-use}{%
 \subsubsection{The BCa Confidence Interval in
 Use}\label{the-bca-confidence-interval-in-use}}
 
 In practice, we can use the jackknife procedure to estimate the
-acceleration value for this method. The jackknife procedure is a
-different resampling technique that is often used to estimate the bias
-and variance of a large population. Thus, we will run the jackknife
+acceleration value for this method \citep{EfronCasi}. The jackknife
+procedure is a different resampling technique often used to estimate the
+bias and variance of a large population. Thus, we will run the jackknife
 procedure:
 
 \begin{Shaded}
@@ -563,7 +562,7 @@ We find the mean of the jackknife values below:
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{jackmean }\OtherTok{\textless{}{-}} \FunctionTok{mean}\NormalTok{(}\SpecialCharTok{\textasciitilde{}}\NormalTok{ jackknife\_results}\SpecialCharTok{$}\NormalTok{jack.values); jackmean}
+\NormalTok{jack\_mean }\OtherTok{\textless{}{-}} \FunctionTok{mean}\NormalTok{(}\SpecialCharTok{\textasciitilde{}}\NormalTok{ jackknife\_results}\SpecialCharTok{$}\NormalTok{jack.values); jack\_mean}
 \end{Highlighting}
 \end{Shaded}
 
@@ -575,8 +574,8 @@ Then we can compute an approximation for \(a\).
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{estimated\_a }\OtherTok{\textless{}{-}}\NormalTok{ (}\DecValTok{1}\SpecialCharTok{/}\DecValTok{6}\NormalTok{)}\SpecialCharTok{*}\FunctionTok{sum}\NormalTok{((jackknife\_results}\SpecialCharTok{$}\NormalTok{jack.values }\SpecialCharTok{{-}}\NormalTok{ jackmean)}\SpecialCharTok{\^{}}\DecValTok{3}\NormalTok{)}\SpecialCharTok{/}
-\NormalTok{  (}\FunctionTok{sum}\NormalTok{((jackknife\_results}\SpecialCharTok{$}\NormalTok{jack.values }\SpecialCharTok{{-}}\NormalTok{ jackmean)}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{))}\SpecialCharTok{\^{}}\NormalTok{(}\FloatTok{1.5}\NormalTok{); estimated\_a}
+\NormalTok{estimated\_a }\OtherTok{\textless{}{-}}\NormalTok{ (}\DecValTok{1}\SpecialCharTok{/}\DecValTok{6}\NormalTok{)}\SpecialCharTok{*}\FunctionTok{sum}\NormalTok{((jackknife\_results}\SpecialCharTok{$}\NormalTok{jack.values }\SpecialCharTok{{-}}\NormalTok{ jack\_mean)}\SpecialCharTok{\^{}}\DecValTok{3}\NormalTok{)}\SpecialCharTok{/}
+\NormalTok{  (}\FunctionTok{sum}\NormalTok{((jackknife\_results}\SpecialCharTok{$}\NormalTok{jack.values }\SpecialCharTok{{-}}\NormalTok{ jack\_mean)}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{))}\SpecialCharTok{\^{}}\NormalTok{(}\FloatTok{1.5}\NormalTok{); estimated\_a}
 \end{Highlighting}
 \end{Shaded}
 
@@ -589,11 +588,11 @@ acceleration confidence interval.
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{a\_newlow }\OtherTok{\textless{}{-}} \FunctionTok{pnorm}\NormalTok{(z0 }\SpecialCharTok{+}\NormalTok{ (z0 }\SpecialCharTok{+} \FunctionTok{qnorm}\NormalTok{(alphalow))}\SpecialCharTok{/}
-\NormalTok{                    (}\DecValTok{1}\SpecialCharTok{{-}}\NormalTok{estimated\_a}\SpecialCharTok{*}\NormalTok{(z0 }\SpecialCharTok{+} \FunctionTok{qnorm}\NormalTok{(alphalow)))); }
-\NormalTok{a\_newhigh }\OtherTok{\textless{}{-}} \FunctionTok{pnorm}\NormalTok{(z0 }\SpecialCharTok{+}\NormalTok{ (z0 }\SpecialCharTok{+} \FunctionTok{qnorm}\NormalTok{(alphahigh))}\SpecialCharTok{/}
-\NormalTok{                     (}\DecValTok{1}\SpecialCharTok{{-}}\NormalTok{estimated\_a}\SpecialCharTok{*}\NormalTok{(z0 }\SpecialCharTok{+} \FunctionTok{qnorm}\NormalTok{(alphahigh)))); }
-\FunctionTok{qdata}\NormalTok{(}\SpecialCharTok{\textasciitilde{}}\NormalTok{ mean, }\FunctionTok{c}\NormalTok{(a\_newlow, a\_newhigh), }\AttributeTok{data =}\NormalTok{ dec\_means)}
+\NormalTok{a\_new\_lower }\OtherTok{\textless{}{-}} \FunctionTok{pnorm}\NormalTok{(z0 }\SpecialCharTok{+}\NormalTok{ (z0 }\SpecialCharTok{+} \FunctionTok{qnorm}\NormalTok{(alpha\_lower))}\SpecialCharTok{/}
+\NormalTok{                    (}\DecValTok{1}\SpecialCharTok{{-}}\NormalTok{estimated\_a}\SpecialCharTok{*}\NormalTok{(z0 }\SpecialCharTok{+} \FunctionTok{qnorm}\NormalTok{(alpha\_lower)))); }
+\NormalTok{a\_new\_upper }\OtherTok{\textless{}{-}} \FunctionTok{pnorm}\NormalTok{(z0 }\SpecialCharTok{+}\NormalTok{ (z0 }\SpecialCharTok{+} \FunctionTok{qnorm}\NormalTok{(alpha\_upper))}\SpecialCharTok{/}
+\NormalTok{                     (}\DecValTok{1}\SpecialCharTok{{-}}\NormalTok{estimated\_a}\SpecialCharTok{*}\NormalTok{(z0 }\SpecialCharTok{+} \FunctionTok{qnorm}\NormalTok{(alpha\_upper)))); }
+\FunctionTok{qdata}\NormalTok{(}\SpecialCharTok{\textasciitilde{}}\NormalTok{ mean, }\FunctionTok{c}\NormalTok{(a\_new\_lower, a\_new\_upper), }\AttributeTok{data =}\NormalTok{ dec\_means)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -639,12 +638,12 @@ bootstrapping to estimate these percentiles. To do this, we perform a
 large number, \(B\), of bootstrap samples, from which we can find the
 bootstrap replications of the parameter of interest,
 \(\hat{\theta^*} = \hat{\theta}(X^*)\), and the standard error,
-\(\hat{\sigma^*} = \hat{\sigma}(X^*)\). From these we can calculate a
+\(\hat{\sigma^*} = \hat{\sigma}(X^*)\). From these, we can calculate a
 t-statistic for each bootstrap sample:
 \[T^* = \frac{\hat{\theta}^* - \hat{\theta}}{\hat{\sigma}^*}.\] Using a
 large number of these bootstrap samples, we can estimate the percentiles
 of the \(t\)-distribution such that:
-\[\hat{T}_{(\alpha)} = B*\alpha\text{th ordered value of all the bootstrap relications of }T^*.\]
+\[\hat{T}_{(\alpha)} = B*\alpha\text{th ordered value of all the bootstrap replications of }T^*.\]
 This means that for \(B = 2,000\) and \(\alpha = 0.90\), then
 \(\hat{T}_{(\alpha)}\) is the 1,800th ordered point of all of the
 bootstrap replications of \(T^*\). It follows that the \(\alpha\)th
@@ -652,10 +651,10 @@ studentized confidence interval endpoint can be given with
 \[\hat{\theta}_T[\alpha] = \hat{\theta} - \hat{\sigma}T_{(\alpha)},\]
 where we can estimate the standard error using
 \[\hat{\sigma} = \frac{1-\hat{\theta}^2}{\sqrt{n}}.\] One of the main
-factors why the studentized method is so popular is because we assume
-that our bootstrapped statistic is pivotal which means that the
-confidence interval does not depend on any other parameters. Instead, we
-can calculate the appropriate confidence interval for the parameter of
+factors why the studentized method is so popular is that we assume that
+our bootstrapped statistic is pivotal, which means that the confidence
+interval does not depend on any other parameters. Instead, we can
+calculate the appropriate confidence interval for the parameter of
 interest specifically from the bootstrapped statistics
 \citep[\citet{Puth15}]{Efron86}.
 
@@ -669,24 +668,22 @@ studentized confidence interval \citep{Lau20}:
 \begin{Shaded}
 \begin{Highlighting}[]
 \FunctionTok{set.seed}\NormalTok{(}\DecValTok{495}\NormalTok{)}
-
+\CommentTok{\# sample statistics}
 \NormalTok{orig\_mean }\OtherTok{\textless{}{-}} \FunctionTok{mean}\NormalTok{(}\SpecialCharTok{\textasciitilde{}}\NormalTok{ Dec, }\AttributeTok{data =}\NormalTok{ SnowGR) }\CommentTok{\# theta hat}
 \NormalTok{orig\_se }\OtherTok{\textless{}{-}} \FunctionTok{sd}\NormalTok{(}\SpecialCharTok{\textasciitilde{}}\NormalTok{ Dec, }\AttributeTok{data =}\NormalTok{ SnowGR)}\SpecialCharTok{/}\FunctionTok{sqrt}\NormalTok{(}\FunctionTok{nrow}\NormalTok{(SnowGR))}
-
+\CommentTok{\# initialize storage vectors}
 \NormalTok{se }\OtherTok{\textless{}{-}} \FunctionTok{rep}\NormalTok{(}\DecValTok{0}\NormalTok{,nboot)}
 \NormalTok{t\_stat }\OtherTok{\textless{}{-}} \FunctionTok{rep}\NormalTok{(}\DecValTok{0}\NormalTok{,nboot)}
-
+\CommentTok{\# use bootstrap replication statistics to find se and t{-}stat}
 \ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \DecValTok{1}\SpecialCharTok{:}\NormalTok{nboot) \{}
 \NormalTok{  se[i] }\OtherTok{\textless{}{-}}\NormalTok{ sd[i]}\SpecialCharTok{/}\FunctionTok{sqrt}\NormalTok{(}\FunctionTok{nrow}\NormalTok{(SnowGR))}
 \NormalTok{  t\_stat[i] }\OtherTok{\textless{}{-}}\NormalTok{ (mean[i] }\SpecialCharTok{{-}}\NormalTok{ orig\_mean)}\SpecialCharTok{/}\NormalTok{se[i]}
 \NormalTok{\}}
-
+\CommentTok{\#find interval}
 \NormalTok{dec\_t\_stat }\OtherTok{\textless{}{-}} \FunctionTok{as.data.frame}\NormalTok{(t\_stat)}
-
 \NormalTok{q }\OtherTok{\textless{}{-}} \FunctionTok{unname}\NormalTok{(}\FunctionTok{quantile}\NormalTok{(dec\_t\_stat}\SpecialCharTok{$}\NormalTok{t\_stat, }\FunctionTok{c}\NormalTok{(}\FloatTok{0.025}\NormalTok{, }\FloatTok{0.975}\NormalTok{)))}
 \NormalTok{lower }\OtherTok{\textless{}{-}}\NormalTok{ q[}\DecValTok{1}\NormalTok{]}
 \NormalTok{upper }\OtherTok{\textless{}{-}}\NormalTok{ q[}\DecValTok{2}\NormalTok{]}
-
 \FunctionTok{c}\NormalTok{(orig\_mean }\SpecialCharTok{{-}}\NormalTok{ upper}\SpecialCharTok{*}\NormalTok{orig\_se, orig\_mean }\SpecialCharTok{{-}}\NormalTok{ lower}\SpecialCharTok{*}\NormalTok{orig\_se)}
 \end{Highlighting}
 \end{Shaded}
@@ -698,7 +695,7 @@ studentized confidence interval \citep{Lau20}:
 So we are 95\% confident that the true mean number of inches of snow
 that fall in December in Grand Rapids, Michigan is between 14.03 inches
 and 18.02 inches. This would give us the following confidence interval
-(Figure 7)
+(Figure 7):
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -716,6 +713,9 @@ and 18.02 inches. This would give us the following confidence interval
 \hypertarget{simulation}{%
 \section{Simulation}\label{simulation}}
 
+\hypertarget{code}{%
+\subsection{Code}\label{code}}
+
 For our simulation, we will randomly sample from distributions in which
 we know the true population mean. For example, we will be sampling from
 a Gamma distribution where we can find the true population mean using
@@ -724,25 +724,27 @@ sample from the distribution, we will create a bootstrapped confidence
 interval for a few of the methods we described in the exposition. Since
 we know the true population mean of the distribution, we will determine
 if the true population mean is contained in the confidence interval for
-each of the methods we are testing. We will perform this process a large
-number of times (10,000 simulations) and then average by the number of
-iterations to determines on average, the proportion that each
-bootstrapped confidence interval method contains the true population
-mean for a given distribution. We will do this for a couple different
-distributions as well as a range of sample sizes to show how the
-intervals perform with skewed distributions and larger sample sizes.
+each of the methods we are testing \citep{Guillaume21}. We will perform
+this process a large number of times (10,000 simulations) and then
+average by the number of iterations to determine, on average, the
+proportion that each bootstrapped confidence interval method contains
+the true population mean for a given distribution. We will do this for a
+couple of different distributions and ranges of sample sizes to show how
+the intervals perform with skewed distributions and larger sample sizes.
 
-To do this simulation, we will be using the \texttt{boot} package
+To do this simulation, we will use the \texttt{boot} package
 \citep{boot}. This package can compute a bootstrap object which contains
 the output from a bootstrap calculation of a given sample and then
 produces confidence intervals from the bootstrap object. In particular,
-we will use the \texttt{boot.ci} function to create four types of
-confidence intervals: the standard (or normal) confidence interval, the
-studentized confidence interval, the percentile confidence interval, and
-the bias-corrected with acceleration confidence interval.
+we will use the \texttt{boot.ci} function to create four confidence
+intervals: the standard (or normal) confidence interval, the studentized
+confidence interval, the percentile confidence interval, and the
+bias-corrected with acceleration confidence interval.
 
-To start, we will declare some constants including the sample sizes and
-the number of bootstrap replications we are using.
+To start, we will declare some constants, including the sample sizes and
+the number of bootstrap replications we use. We will be using a range of
+sample sizes from 5 to 150. For this simulation, we will use a
+confidence level of 95\%.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -757,53 +759,59 @@ Normal distribution and performs a bootstrap with 2,000 bootstrap
 replications. Then, we create the confidence intervals from this
 bootstrap and determine if the true mean, our population parameter, is
 contained within our intervals. Since we are using a \(Normal(0,1)\)
-distribution, our true population mean is equal to 0. We will repeat
-this process 10,000 times as specified for each of the sample sizes that
-we are testing. Since we are originally sampling from a Normal
-distribution, the assumptions we hold for the standard interval are true
-and thus, we would expect all of the methods to perform comparably to
-each other at large sample sizes.
+distribution, our true population mean equals 0. We will repeat this
+process 10,000 times as specified for each sample size we are testing.
+Since we are initially sampling from a Normal distribution, the
+assumptions we hold for the standard interval are true. Thus, we would
+expect all of the methods to perform comparably to each other at large
+sample sizes.
 
 \begin{Shaded}
 \begin{Highlighting}[]
 \NormalTok{run\_sim\_normal }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(sim\_reps) \{}
-  
+  \CommentTok{\# create function to return mean and sd of bootstrap replication}
 \NormalTok{  boot.stat }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(d, i) \{}
 \NormalTok{    d }\OtherTok{\textless{}{-}}\NormalTok{ X[i]}
     \FunctionTok{return}\NormalTok{ (}\FunctionTok{c}\NormalTok{(}\FunctionTok{mean}\NormalTok{(d), }\FunctionTok{sd}\NormalTok{(d)))}
 \NormalTok{  \}}
-  
+  \CommentTok{\# initialize matrix to hold different bootstrap prop. for each sample size}
 \NormalTok{  master }\OtherTok{\textless{}{-}} \FunctionTok{matrix}\NormalTok{(}\AttributeTok{nrow =}\NormalTok{ num\_sample\_sizes, }\AttributeTok{ncol =} \DecValTok{5}\NormalTok{)}
-  
+  \CommentTok{\# iterate through each sample size}
   \ControlFlowTok{for}\NormalTok{(i }\ControlFlowTok{in} \DecValTok{1}\SpecialCharTok{:}\NormalTok{num\_sample\_sizes) \{}
-  
+    \CommentTok{\# initialize vectors that hold if the CI contains true mean by iteration}
 \NormalTok{    norm\_contains }\OtherTok{\textless{}{-}} \FunctionTok{rep}\NormalTok{(}\DecValTok{0}\NormalTok{, sim\_reps)}
 \NormalTok{    student\_contains }\OtherTok{\textless{}{-}} \FunctionTok{rep}\NormalTok{(}\DecValTok{0}\NormalTok{, sim\_reps)}
 \NormalTok{    percentile\_contains }\OtherTok{\textless{}{-}} \FunctionTok{rep}\NormalTok{(}\DecValTok{0}\NormalTok{, sim\_reps)}
 \NormalTok{    bca\_contains }\OtherTok{\textless{}{-}} \FunctionTok{rep}\NormalTok{(}\DecValTok{0}\NormalTok{, sim\_reps)}
-    
+    \CommentTok{\# }
 \NormalTok{    n }\OtherTok{\textless{}{-}}\NormalTok{ sample\_sizes[i]}
 \NormalTok{    true\_mean }\OtherTok{\textless{}{-}} \DecValTok{0}
-    
+    \CommentTok{\# perform 10,000 iterations of bootstraps}
     \ControlFlowTok{for}\NormalTok{ (j }\ControlFlowTok{in} \DecValTok{1}\SpecialCharTok{:}\NormalTok{sim\_reps) \{}
 \NormalTok{      X }\OtherTok{\textless{}{-}} \FunctionTok{rnorm}\NormalTok{(n, }\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{)}
 \NormalTok{      values }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(X)}
+      \CommentTok{\# perform bootstrap and CIs}
 \NormalTok{      results }\OtherTok{\textless{}{-}} \FunctionTok{boot}\NormalTok{(}\AttributeTok{data =}\NormalTok{ values, }\AttributeTok{statistic =}\NormalTok{ boot.stat, }\AttributeTok{R =}\NormalTok{ boot\_reps)}
-\NormalTok{      ci }\OtherTok{\textless{}{-}} \FunctionTok{boot.ci}\NormalTok{(results, }\AttributeTok{conf =} \FloatTok{0.95}\NormalTok{, }\AttributeTok{type =} \FunctionTok{c}\NormalTok{(}\StringTok{"norm"}\NormalTok{, }\StringTok{"perc"}\NormalTok{, }\StringTok{"bca"}\NormalTok{, }\StringTok{"stud"}\NormalTok{))}
-      
-\NormalTok{      norm\_contains[j] }\OtherTok{\textless{}{-}}\NormalTok{ true\_mean }\SpecialCharTok{\textgreater{}=}\NormalTok{ ci}\SpecialCharTok{$}\NormalTok{normal[}\DecValTok{2}\NormalTok{] }\SpecialCharTok{\&}\NormalTok{ true\_mean }\SpecialCharTok{\textless{}=}\NormalTok{ ci}\SpecialCharTok{$}\NormalTok{normal[}\DecValTok{3}\NormalTok{]}
-\NormalTok{      student\_contains[j] }\OtherTok{\textless{}{-}}\NormalTok{ true\_mean }\SpecialCharTok{\textgreater{}=}\NormalTok{ ci}\SpecialCharTok{$}\NormalTok{student[}\DecValTok{4}\NormalTok{] }\SpecialCharTok{\&}\NormalTok{ true\_mean }\SpecialCharTok{\textless{}=}\NormalTok{ ci}\SpecialCharTok{$}\NormalTok{student[}\DecValTok{5}\NormalTok{]}
-\NormalTok{      percentile\_contains[j] }\OtherTok{\textless{}{-}}\NormalTok{ true\_mean }\SpecialCharTok{\textgreater{}=}\NormalTok{ ci}\SpecialCharTok{$}\NormalTok{percent[}\DecValTok{4}\NormalTok{] }\SpecialCharTok{\&}\NormalTok{ true\_mean }\SpecialCharTok{\textless{}=}\NormalTok{ ci}\SpecialCharTok{$}\NormalTok{percent[}\DecValTok{5}\NormalTok{]}
-\NormalTok{      bca\_contains[j] }\OtherTok{\textless{}{-}}\NormalTok{ true\_mean }\SpecialCharTok{\textgreater{}=}\NormalTok{ ci}\SpecialCharTok{$}\NormalTok{bca[}\DecValTok{4}\NormalTok{] }\SpecialCharTok{\&}\NormalTok{ true\_mean }\SpecialCharTok{\textless{}=}\NormalTok{ ci}\SpecialCharTok{$}\NormalTok{bca[}\DecValTok{5}\NormalTok{]}
+\NormalTok{      ci }\OtherTok{\textless{}{-}} \FunctionTok{boot.ci}\NormalTok{(results, }\AttributeTok{conf =} \FloatTok{0.95}\NormalTok{, }
+                    \AttributeTok{type =} \FunctionTok{c}\NormalTok{(}\StringTok{"norm"}\NormalTok{, }\StringTok{"perc"}\NormalTok{, }\StringTok{"bca"}\NormalTok{, }\StringTok{"stud"}\NormalTok{))}
+      \CommentTok{\# update vectors depending on if the CI contains true mean}
+\NormalTok{      norm\_contains[j] }\OtherTok{\textless{}{-}}\NormalTok{ true\_mean }\SpecialCharTok{\textgreater{}=}\NormalTok{ ci}\SpecialCharTok{$}\NormalTok{normal[}\DecValTok{2}\NormalTok{] }\SpecialCharTok{\&} 
+\NormalTok{        true\_mean }\SpecialCharTok{\textless{}=}\NormalTok{ ci}\SpecialCharTok{$}\NormalTok{normal[}\DecValTok{3}\NormalTok{]}
+\NormalTok{      student\_contains[j] }\OtherTok{\textless{}{-}}\NormalTok{ true\_mean }\SpecialCharTok{\textgreater{}=}\NormalTok{ ci}\SpecialCharTok{$}\NormalTok{student[}\DecValTok{4}\NormalTok{] }\SpecialCharTok{\&} 
+\NormalTok{        true\_mean }\SpecialCharTok{\textless{}=}\NormalTok{ ci}\SpecialCharTok{$}\NormalTok{student[}\DecValTok{5}\NormalTok{]}
+\NormalTok{      percentile\_contains[j] }\OtherTok{\textless{}{-}}\NormalTok{ true\_mean }\SpecialCharTok{\textgreater{}=}\NormalTok{ ci}\SpecialCharTok{$}\NormalTok{percent[}\DecValTok{4}\NormalTok{] }\SpecialCharTok{\&} 
+\NormalTok{        true\_mean }\SpecialCharTok{\textless{}=}\NormalTok{ ci}\SpecialCharTok{$}\NormalTok{percent[}\DecValTok{5}\NormalTok{]}
+\NormalTok{      bca\_contains[j] }\OtherTok{\textless{}{-}}\NormalTok{ true\_mean }\SpecialCharTok{\textgreater{}=}\NormalTok{ ci}\SpecialCharTok{$}\NormalTok{bca[}\DecValTok{4}\NormalTok{] }\SpecialCharTok{\&}
+\NormalTok{        true\_mean }\SpecialCharTok{\textless{}=}\NormalTok{ ci}\SpecialCharTok{$}\NormalTok{bca[}\DecValTok{5}\NormalTok{]}
 \NormalTok{    \}}
-    
+    \CommentTok{\# add the sample size and average proportion to matrix}
 \NormalTok{    master[i, }\DecValTok{1}\NormalTok{] }\OtherTok{\textless{}{-}}\NormalTok{ sample\_sizes[i]}
 \NormalTok{    master[i, }\DecValTok{2}\NormalTok{] }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{(norm\_contains)}\SpecialCharTok{/}\NormalTok{sim\_reps}
 \NormalTok{    master[i, }\DecValTok{3}\NormalTok{] }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{(student\_contains)}\SpecialCharTok{/}\NormalTok{sim\_reps}
 \NormalTok{    master[i, }\DecValTok{4}\NormalTok{] }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{(percentile\_contains)}\SpecialCharTok{/}\NormalTok{sim\_reps}
 \NormalTok{    master[i, }\DecValTok{5}\NormalTok{] }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{(bca\_contains)}\SpecialCharTok{/}\NormalTok{sim\_reps}
 \NormalTok{  \}}
-  
+  \CommentTok{\# some wrangling}
 \NormalTok{  master\_df }\OtherTok{\textless{}{-}} \FunctionTok{as.data.frame}\NormalTok{(master) }\SpecialCharTok{\%\textgreater{}\%} 
       \FunctionTok{rename}\NormalTok{(}\StringTok{"Sample\_Size"} \OtherTok{=}\NormalTok{ V1, }\StringTok{"Normal"} \OtherTok{=}\NormalTok{ V2, }\StringTok{"Studentized"} \OtherTok{=}\NormalTok{ V3, }
              \StringTok{"Percentile"} \OtherTok{=}\NormalTok{ V4, }\StringTok{"BCa"} \OtherTok{=}\NormalTok{ V5) }
@@ -813,46 +821,43 @@ each other at large sample sizes.
 \end{Shaded}
 
 Secondly, we select from a Gamma Distribution with a shape parameter of
-1 and a scale parameter of 4 (\(Gamma(1,4)\)). Therefore, the true
-population mean is 4 because the true mean is given by the product of
-the shape and scale parameter. This simulation follows the same process
-as above where we sampled from the Normal distribution except we are
-sampling from a Gamma distribution this time. Since, our Gamma
-distribution is heavily left-skewed, we would expect the studentized
+one and a scale parameter of four (\(Gamma(1,4)\)). Therefore, the true
+population mean is 4 because the product of the shape and scale
+parameters gives the true mean. This simulation follows the same process
+as above, where we sampled from the Normal distribution, except we are
+sampling from a Gamma distribution this time. Since our Gamma
+distribution is heavily left-skewed, we expect the studentized
 confidence interval and the BCa confidence interval to perform the best.
 
 \begin{Shaded}
 \begin{Highlighting}[]
 \NormalTok{run\_sim\_gamma }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(sim\_reps) \{}
-  
 \NormalTok{  boot.stat }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(d, i) \{}
 \NormalTok{    d }\OtherTok{\textless{}{-}}\NormalTok{ X[i]}
     \FunctionTok{return}\NormalTok{ (}\FunctionTok{c}\NormalTok{(}\FunctionTok{mean}\NormalTok{(d), }\FunctionTok{sd}\NormalTok{(d)))}
 \NormalTok{  \}}
-
 \NormalTok{  master }\OtherTok{\textless{}{-}} \FunctionTok{matrix}\NormalTok{(}\AttributeTok{nrow =}\NormalTok{ num\_sample\_sizes, }\AttributeTok{ncol =} \DecValTok{5}\NormalTok{)}
-  
   \ControlFlowTok{for}\NormalTok{(i }\ControlFlowTok{in} \DecValTok{1}\SpecialCharTok{:}\NormalTok{num\_sample\_sizes) \{}
-  
 \NormalTok{    norm\_contains }\OtherTok{\textless{}{-}} \FunctionTok{rep}\NormalTok{(}\DecValTok{0}\NormalTok{, sim\_reps)}
 \NormalTok{    student\_contains }\OtherTok{\textless{}{-}} \FunctionTok{rep}\NormalTok{(}\DecValTok{0}\NormalTok{, sim\_reps)}
 \NormalTok{    percentile\_contains }\OtherTok{\textless{}{-}} \FunctionTok{rep}\NormalTok{(}\DecValTok{0}\NormalTok{, sim\_reps)}
 \NormalTok{    bca\_contains }\OtherTok{\textless{}{-}} \FunctionTok{rep}\NormalTok{(}\DecValTok{0}\NormalTok{, sim\_reps)}
-    
 \NormalTok{    n }\OtherTok{\textless{}{-}}\NormalTok{ sample\_sizes[i]}
 \NormalTok{    true\_mean }\OtherTok{\textless{}{-}} \DecValTok{4}
-    
     \ControlFlowTok{for}\NormalTok{ (j }\ControlFlowTok{in} \DecValTok{1}\SpecialCharTok{:}\NormalTok{sim\_reps) \{}
 \NormalTok{      X }\OtherTok{\textless{}{-}} \FunctionTok{rgamma}\NormalTok{(sample\_sizes, }\AttributeTok{shape =} \DecValTok{1}\NormalTok{, }\AttributeTok{scale =} \DecValTok{4}\NormalTok{)}
 \NormalTok{      values }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(X)}
-    
 \NormalTok{      results }\OtherTok{\textless{}{-}} \FunctionTok{boot}\NormalTok{(}\AttributeTok{data =}\NormalTok{ values, }\AttributeTok{statistic =}\NormalTok{ boot.stat, }\AttributeTok{R =}\NormalTok{ boot\_reps)}
-\NormalTok{      ci }\OtherTok{\textless{}{-}} \FunctionTok{boot.ci}\NormalTok{(results, }\AttributeTok{conf =} \FloatTok{0.95}\NormalTok{, }\AttributeTok{type =} \FunctionTok{c}\NormalTok{(}\StringTok{"norm"}\NormalTok{, }\StringTok{"perc"}\NormalTok{, }\StringTok{"bca"}\NormalTok{, }\StringTok{"stud"}\NormalTok{))}
-      
-\NormalTok{      norm\_contains[j] }\OtherTok{\textless{}{-}}\NormalTok{ true\_mean }\SpecialCharTok{\textgreater{}=}\NormalTok{ ci}\SpecialCharTok{$}\NormalTok{normal[}\DecValTok{2}\NormalTok{] }\SpecialCharTok{\&}\NormalTok{ true\_mean }\SpecialCharTok{\textless{}=}\NormalTok{ ci}\SpecialCharTok{$}\NormalTok{normal[}\DecValTok{3}\NormalTok{]}
-\NormalTok{      student\_contains[j] }\OtherTok{\textless{}{-}}\NormalTok{ true\_mean }\SpecialCharTok{\textgreater{}=}\NormalTok{ ci}\SpecialCharTok{$}\NormalTok{student[}\DecValTok{4}\NormalTok{] }\SpecialCharTok{\&}\NormalTok{ true\_mean }\SpecialCharTok{\textless{}=}\NormalTok{ ci}\SpecialCharTok{$}\NormalTok{student[}\DecValTok{5}\NormalTok{]}
-\NormalTok{      percentile\_contains[j] }\OtherTok{\textless{}{-}}\NormalTok{ true\_mean }\SpecialCharTok{\textgreater{}=}\NormalTok{ ci}\SpecialCharTok{$}\NormalTok{percent[}\DecValTok{4}\NormalTok{] }\SpecialCharTok{\&}\NormalTok{ true\_mean }\SpecialCharTok{\textless{}=}\NormalTok{ ci}\SpecialCharTok{$}\NormalTok{percent[}\DecValTok{5}\NormalTok{]}
-\NormalTok{      bca\_contains[j] }\OtherTok{\textless{}{-}}\NormalTok{ true\_mean }\SpecialCharTok{\textgreater{}=}\NormalTok{ ci}\SpecialCharTok{$}\NormalTok{bca[}\DecValTok{4}\NormalTok{] }\SpecialCharTok{\&}\NormalTok{ true\_mean }\SpecialCharTok{\textless{}=}\NormalTok{ ci}\SpecialCharTok{$}\NormalTok{bca[}\DecValTok{5}\NormalTok{]}
+\NormalTok{      ci }\OtherTok{\textless{}{-}} \FunctionTok{boot.ci}\NormalTok{(results, }\AttributeTok{conf =} \FloatTok{0.95}\NormalTok{, }
+                    \AttributeTok{type =} \FunctionTok{c}\NormalTok{(}\StringTok{"norm"}\NormalTok{, }\StringTok{"perc"}\NormalTok{, }\StringTok{"bca"}\NormalTok{, }\StringTok{"stud"}\NormalTok{))}
+\NormalTok{      norm\_contains[j] }\OtherTok{\textless{}{-}}\NormalTok{ true\_mean }\SpecialCharTok{\textgreater{}=}\NormalTok{ ci}\SpecialCharTok{$}\NormalTok{normal[}\DecValTok{2}\NormalTok{] }\SpecialCharTok{\&} 
+\NormalTok{        true\_mean }\SpecialCharTok{\textless{}=}\NormalTok{ ci}\SpecialCharTok{$}\NormalTok{normal[}\DecValTok{3}\NormalTok{]}
+\NormalTok{      student\_contains[j] }\OtherTok{\textless{}{-}}\NormalTok{ true\_mean }\SpecialCharTok{\textgreater{}=}\NormalTok{ ci}\SpecialCharTok{$}\NormalTok{student[}\DecValTok{4}\NormalTok{] }\SpecialCharTok{\&} 
+\NormalTok{        true\_mean }\SpecialCharTok{\textless{}=}\NormalTok{ ci}\SpecialCharTok{$}\NormalTok{student[}\DecValTok{5}\NormalTok{]}
+\NormalTok{      percentile\_contains[j] }\OtherTok{\textless{}{-}}\NormalTok{ true\_mean }\SpecialCharTok{\textgreater{}=}\NormalTok{ ci}\SpecialCharTok{$}\NormalTok{percent[}\DecValTok{4}\NormalTok{] }\SpecialCharTok{\&} 
+\NormalTok{        true\_mean }\SpecialCharTok{\textless{}=}\NormalTok{ ci}\SpecialCharTok{$}\NormalTok{percent[}\DecValTok{5}\NormalTok{]}
+\NormalTok{      bca\_contains[j] }\OtherTok{\textless{}{-}}\NormalTok{ true\_mean }\SpecialCharTok{\textgreater{}=}\NormalTok{ ci}\SpecialCharTok{$}\NormalTok{bca[}\DecValTok{4}\NormalTok{] }\SpecialCharTok{\&} 
+\NormalTok{        true\_mean }\SpecialCharTok{\textless{}=}\NormalTok{ ci}\SpecialCharTok{$}\NormalTok{bca[}\DecValTok{5}\NormalTok{]}
 \NormalTok{    \}}
 \NormalTok{    master[i, }\DecValTok{1}\NormalTok{] }\OtherTok{\textless{}{-}}\NormalTok{ sample\_sizes[i]}
 \NormalTok{    master[i, }\DecValTok{2}\NormalTok{] }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{(norm\_contains)}\SpecialCharTok{/}\NormalTok{sim\_reps}
@@ -871,45 +876,42 @@ confidence interval and the BCa confidence interval to perform the best.
 Lastly, we will be sampling from a Log-Normal distribution. This means
 that if we have a random variable, \(X \sim Lognormal\), then the random
 variable, \(Y = ln(X) \sim Normal\). Therefore, the distribution is
-left-skewed, although not as heavily as the Gamma distribution we
-previously used. The true mean of this distribution can be found using
+left-skewed, although not as heavily as the previously used Gamma
+distribution. The true mean of this distribution can be found using
 \(E(X) = e^{u+\frac{\sigma^2}{2}}\) which means that for a
 \(Lognormal(0,1)\) distribution, we expect the population mean to be
-\(e^{\frac{1}{2}}\). Again, we would expect the studentized confidence
+\(e^{\frac{1}{2}}\). Again, we expect the studentized confidence
 interval and the BCa confidence interval to perform the best.
 
 \begin{Shaded}
 \begin{Highlighting}[]
 \NormalTok{run\_sim\_log\_normal }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(sim\_reps) \{}
-  
 \NormalTok{  boot.stat }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(d, i) \{}
 \NormalTok{    d }\OtherTok{\textless{}{-}}\NormalTok{ X[i]}
     \FunctionTok{return}\NormalTok{ (}\FunctionTok{c}\NormalTok{(}\FunctionTok{mean}\NormalTok{(d), }\FunctionTok{sd}\NormalTok{(d)))}
 \NormalTok{  \}}
-
 \NormalTok{  master }\OtherTok{\textless{}{-}} \FunctionTok{matrix}\NormalTok{(}\AttributeTok{nrow =}\NormalTok{ num\_sample\_sizes, }\AttributeTok{ncol =} \DecValTok{5}\NormalTok{)}
-  
   \ControlFlowTok{for}\NormalTok{(i }\ControlFlowTok{in} \DecValTok{1}\SpecialCharTok{:}\NormalTok{num\_sample\_sizes) \{}
-  
 \NormalTok{    norm\_contains }\OtherTok{\textless{}{-}} \FunctionTok{rep}\NormalTok{(}\DecValTok{0}\NormalTok{, sim\_reps)}
 \NormalTok{    student\_contains }\OtherTok{\textless{}{-}} \FunctionTok{rep}\NormalTok{(}\DecValTok{0}\NormalTok{, sim\_reps)}
 \NormalTok{    percentile\_contains }\OtherTok{\textless{}{-}} \FunctionTok{rep}\NormalTok{(}\DecValTok{0}\NormalTok{, sim\_reps)}
 \NormalTok{    bca\_contains }\OtherTok{\textless{}{-}} \FunctionTok{rep}\NormalTok{(}\DecValTok{0}\NormalTok{, sim\_reps)}
-    
 \NormalTok{    n }\OtherTok{\textless{}{-}}\NormalTok{ sample\_sizes[i]}
 \NormalTok{    true\_mean }\OtherTok{\textless{}{-}} \FunctionTok{exp}\NormalTok{(}\DecValTok{1}\SpecialCharTok{/}\DecValTok{2}\NormalTok{)}
-    
     \ControlFlowTok{for}\NormalTok{ (j }\ControlFlowTok{in} \DecValTok{1}\SpecialCharTok{:}\NormalTok{sim\_reps) \{}
 \NormalTok{      X }\OtherTok{\textless{}{-}} \FunctionTok{rlnorm}\NormalTok{(n, }\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{)}
 \NormalTok{      values }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(X)}
-    
 \NormalTok{      results }\OtherTok{\textless{}{-}} \FunctionTok{boot}\NormalTok{(}\AttributeTok{data =}\NormalTok{ values, }\AttributeTok{statistic =}\NormalTok{ boot.stat, }\AttributeTok{R =}\NormalTok{ boot\_reps)}
-\NormalTok{      ci }\OtherTok{\textless{}{-}} \FunctionTok{boot.ci}\NormalTok{(results, }\AttributeTok{conf =} \FloatTok{0.95}\NormalTok{, }\AttributeTok{type =} \FunctionTok{c}\NormalTok{(}\StringTok{"norm"}\NormalTok{, }\StringTok{"perc"}\NormalTok{, }\StringTok{"bca"}\NormalTok{, }\StringTok{"stud"}\NormalTok{))}
-      
-\NormalTok{      norm\_contains[j] }\OtherTok{\textless{}{-}}\NormalTok{ true\_mean }\SpecialCharTok{\textgreater{}=}\NormalTok{ ci}\SpecialCharTok{$}\NormalTok{normal[}\DecValTok{2}\NormalTok{] }\SpecialCharTok{\&}\NormalTok{ true\_mean }\SpecialCharTok{\textless{}=}\NormalTok{ ci}\SpecialCharTok{$}\NormalTok{normal[}\DecValTok{3}\NormalTok{]}
-\NormalTok{      student\_contains[j] }\OtherTok{\textless{}{-}}\NormalTok{ true\_mean }\SpecialCharTok{\textgreater{}=}\NormalTok{ ci}\SpecialCharTok{$}\NormalTok{student[}\DecValTok{4}\NormalTok{] }\SpecialCharTok{\&}\NormalTok{ true\_mean }\SpecialCharTok{\textless{}=}\NormalTok{ ci}\SpecialCharTok{$}\NormalTok{student[}\DecValTok{5}\NormalTok{]}
-\NormalTok{      percentile\_contains[j] }\OtherTok{\textless{}{-}}\NormalTok{ true\_mean }\SpecialCharTok{\textgreater{}=}\NormalTok{ ci}\SpecialCharTok{$}\NormalTok{percent[}\DecValTok{4}\NormalTok{] }\SpecialCharTok{\&}\NormalTok{ true\_mean }\SpecialCharTok{\textless{}=}\NormalTok{ ci}\SpecialCharTok{$}\NormalTok{percent[}\DecValTok{5}\NormalTok{]}
-\NormalTok{      bca\_contains[j] }\OtherTok{\textless{}{-}}\NormalTok{ true\_mean }\SpecialCharTok{\textgreater{}=}\NormalTok{ ci}\SpecialCharTok{$}\NormalTok{bca[}\DecValTok{4}\NormalTok{] }\SpecialCharTok{\&}\NormalTok{ true\_mean }\SpecialCharTok{\textless{}=}\NormalTok{ ci}\SpecialCharTok{$}\NormalTok{bca[}\DecValTok{5}\NormalTok{]}
+\NormalTok{      ci }\OtherTok{\textless{}{-}} \FunctionTok{boot.ci}\NormalTok{(results, }\AttributeTok{conf =} \FloatTok{0.95}\NormalTok{, }
+                    \AttributeTok{type =} \FunctionTok{c}\NormalTok{(}\StringTok{"norm"}\NormalTok{, }\StringTok{"perc"}\NormalTok{, }\StringTok{"bca"}\NormalTok{, }\StringTok{"stud"}\NormalTok{))}
+\NormalTok{      norm\_contains[j] }\OtherTok{\textless{}{-}}\NormalTok{ true\_mean }\SpecialCharTok{\textgreater{}=}\NormalTok{ ci}\SpecialCharTok{$}\NormalTok{normal[}\DecValTok{2}\NormalTok{] }\SpecialCharTok{\&} 
+\NormalTok{        true\_mean }\SpecialCharTok{\textless{}=}\NormalTok{ ci}\SpecialCharTok{$}\NormalTok{normal[}\DecValTok{3}\NormalTok{]}
+\NormalTok{      student\_contains[j] }\OtherTok{\textless{}{-}}\NormalTok{ true\_mean }\SpecialCharTok{\textgreater{}=}\NormalTok{ ci}\SpecialCharTok{$}\NormalTok{student[}\DecValTok{4}\NormalTok{] }\SpecialCharTok{\&} 
+\NormalTok{        true\_mean }\SpecialCharTok{\textless{}=}\NormalTok{ ci}\SpecialCharTok{$}\NormalTok{student[}\DecValTok{5}\NormalTok{]}
+\NormalTok{      percentile\_contains[j] }\OtherTok{\textless{}{-}}\NormalTok{ true\_mean }\SpecialCharTok{\textgreater{}=}\NormalTok{ ci}\SpecialCharTok{$}\NormalTok{percent[}\DecValTok{4}\NormalTok{] }\SpecialCharTok{\&} 
+\NormalTok{        true\_mean }\SpecialCharTok{\textless{}=}\NormalTok{ ci}\SpecialCharTok{$}\NormalTok{percent[}\DecValTok{5}\NormalTok{]}
+\NormalTok{      bca\_contains[j] }\OtherTok{\textless{}{-}}\NormalTok{ true\_mean }\SpecialCharTok{\textgreater{}=}\NormalTok{ ci}\SpecialCharTok{$}\NormalTok{bca[}\DecValTok{4}\NormalTok{] }\SpecialCharTok{\&} 
+\NormalTok{        true\_mean }\SpecialCharTok{\textless{}=}\NormalTok{ ci}\SpecialCharTok{$}\NormalTok{bca[}\DecValTok{5}\NormalTok{]}
 \NormalTok{    \}}
 \NormalTok{    master[i, }\DecValTok{1}\NormalTok{] }\OtherTok{\textless{}{-}}\NormalTok{ sample\_sizes[i]}
 \NormalTok{    master[i, }\DecValTok{2}\NormalTok{] }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{(norm\_contains)}\SpecialCharTok{/}\NormalTok{sim\_reps}
@@ -930,22 +932,25 @@ Once we have all the simulations, we can run them below.
 \begin{Shaded}
 \begin{Highlighting}[]
 \FunctionTok{set.seed}\NormalTok{(}\DecValTok{495}\NormalTok{)}
-\NormalTok{normal\_df\_trial2 }\OtherTok{\textless{}{-}} \FunctionTok{run\_sim\_normal}\NormalTok{(}\DecValTok{10000}\NormalTok{)}
-\FunctionTok{write.csv}\NormalTok{(normal\_df\_trial2,}\StringTok{"normal\_data\_df\_trial2.csv"}\NormalTok{, }\AttributeTok{row.names =} \ConstantTok{FALSE}\NormalTok{)}
+\NormalTok{normal\_df }\OtherTok{\textless{}{-}} \FunctionTok{run\_sim\_normal}\NormalTok{(}\DecValTok{10000}\NormalTok{)}
+\FunctionTok{write.csv}\NormalTok{(normal\_df,}\StringTok{"data/normal\_data\_df.csv"}\NormalTok{, }\AttributeTok{row.names =} \ConstantTok{FALSE}\NormalTok{)}
 
-\NormalTok{log\_normal\_df\_trial2 }\OtherTok{\textless{}{-}} \FunctionTok{run\_sim\_log\_normal}\NormalTok{(}\DecValTok{10000}\NormalTok{)}
-\FunctionTok{write.csv}\NormalTok{(log\_normal\_df\_trial2,}\StringTok{"log\_normal\_df\_trial2.csv"}\NormalTok{, }\AttributeTok{row.names =} \ConstantTok{FALSE}\NormalTok{)}
+\NormalTok{log\_normal\_df }\OtherTok{\textless{}{-}} \FunctionTok{run\_sim\_log\_normal}\NormalTok{(}\DecValTok{10000}\NormalTok{)}
+\FunctionTok{write.csv}\NormalTok{(log\_normal\_df,}\StringTok{"data/log\_normal\_df.csv"}\NormalTok{, }\AttributeTok{row.names =} \ConstantTok{FALSE}\NormalTok{)}
 
-\NormalTok{gamma\_df\_trial2 }\OtherTok{\textless{}{-}} \FunctionTok{run\_sim\_gamma}\NormalTok{(}\DecValTok{10000}\NormalTok{)}
-\FunctionTok{write.csv}\NormalTok{(gamma\_df\_trial2,}\StringTok{"gamma\_data\_df\_trial2.csv"}\NormalTok{, }\AttributeTok{row.names =} \ConstantTok{FALSE}\NormalTok{)}
+\NormalTok{gamma\_df }\OtherTok{\textless{}{-}} \FunctionTok{run\_sim\_gamma}\NormalTok{(}\DecValTok{10000}\NormalTok{)}
+\FunctionTok{write.csv}\NormalTok{(gamma\_df,}\StringTok{"data/gamma\_data\_df.csv"}\NormalTok{, }\AttributeTok{row.names =} \ConstantTok{FALSE}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
+After, we can create the graphs and output for each of the distributions
+and sample sizes.
+
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{normal\_df }\OtherTok{\textless{}{-}} \FunctionTok{read.csv}\NormalTok{(}\AttributeTok{file =} \StringTok{\textquotesingle{}normal\_data\_df\_trial2.csv\textquotesingle{}}\NormalTok{)}
-\NormalTok{gamma\_df }\OtherTok{\textless{}{-}} \FunctionTok{read.csv}\NormalTok{(}\AttributeTok{file =} \StringTok{\textquotesingle{}gamma\_data\_df\_trial2.csv\textquotesingle{}}\NormalTok{)}
-\NormalTok{log\_normal\_df }\OtherTok{\textless{}{-}} \FunctionTok{read.csv}\NormalTok{(}\AttributeTok{file =} \StringTok{\textquotesingle{}log\_normal\_df\_trial2.csv\textquotesingle{}}\NormalTok{)}
+\NormalTok{normal\_df }\OtherTok{\textless{}{-}} \FunctionTok{read.csv}\NormalTok{(}\AttributeTok{file =} \StringTok{\textquotesingle{}data/normal\_data\_df.csv\textquotesingle{}}\NormalTok{)}
+\NormalTok{gamma\_df }\OtherTok{\textless{}{-}} \FunctionTok{read.csv}\NormalTok{(}\AttributeTok{file =} \StringTok{\textquotesingle{}data/gamma\_data\_df.csv\textquotesingle{}}\NormalTok{)}
+\NormalTok{log\_normal\_df }\OtherTok{\textless{}{-}} \FunctionTok{read.csv}\NormalTok{(}\AttributeTok{file =} \StringTok{\textquotesingle{}data/log\_normal\_df.csv\textquotesingle{}}\NormalTok{)}
 
 \CommentTok{\# create the figure that shows the normal output }
 \NormalTok{normal\_df\_long }\OtherTok{\textless{}{-}}\NormalTok{ normal\_df }\SpecialCharTok{\%\textgreater{}\%}
@@ -954,19 +959,20 @@ Once we have all the simulations, we can run them below.
 \NormalTok{normal\_fig }\OtherTok{\textless{}{-}} \FunctionTok{ggplot}\NormalTok{(}\AttributeTok{data =}\NormalTok{ normal\_df\_long, }
                     \FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ Sample\_Size, }\AttributeTok{y =}\NormalTok{ prop, }\AttributeTok{color =}\NormalTok{ method)) }\SpecialCharTok{+} 
   \FunctionTok{geom\_point}\NormalTok{() }\SpecialCharTok{+} \FunctionTok{geom\_line}\NormalTok{() }\SpecialCharTok{+} 
-  \FunctionTok{labs}\NormalTok{(}\AttributeTok{title =} \StringTok{"Proportion of CIs that Contain the True Parameter from Normal }
-\StringTok{       Distibution"}\NormalTok{, }\AttributeTok{x =} \StringTok{"Sample Size"}\NormalTok{, }
-       \AttributeTok{y =} \StringTok{"Proportion (of 10,000 Simulations)"}\NormalTok{, }\AttributeTok{color =} \StringTok{"Method"}\NormalTok{,}
-       \AttributeTok{caption =} \StringTok{"Fig. 8: Graph showing the Accuracy of Bootstrap CI Methods for}
+  \FunctionTok{labs}\NormalTok{(}
+    \AttributeTok{title =} \StringTok{"Prop. of CIs that Contain the True Mean from Normal Distibution"}\NormalTok{, }
+    \AttributeTok{x =} \StringTok{"Sample Size"}\NormalTok{, }
+    \AttributeTok{y =} \StringTok{"Proportion (of 10,000 Simulations)"}\NormalTok{, }\AttributeTok{color =} \StringTok{"Method"}\NormalTok{,}
+    \AttributeTok{caption =} \StringTok{"Fig. 8: Graph showing the Accuracy of Bootstrap CI Methods for}
 \StringTok{       different sample sizes on Normal Dist."}\NormalTok{) }\SpecialCharTok{+}
   \FunctionTok{theme\_light}\NormalTok{() }\SpecialCharTok{+}
   \FunctionTok{theme}\NormalTok{(}\AttributeTok{legend.position=}\StringTok{"bottom"}\NormalTok{)}
 
 \CommentTok{\# create the table for the normal output}
 \NormalTok{normal\_table }\OtherTok{\textless{}{-}}\NormalTok{ normal\_df }\SpecialCharTok{\%\textgreater{}\%}
-  \FunctionTok{kable}\NormalTok{(}\AttributeTok{booktabs =} \ConstantTok{TRUE}\NormalTok{, }\AttributeTok{align =} \StringTok{"c"}\NormalTok{, }\AttributeTok{caption =} \StringTok{"Sampled from Normal Dist."}\NormalTok{, }
-        \AttributeTok{col.names =} \FunctionTok{gsub}\NormalTok{(}\StringTok{"[\_]"}\NormalTok{, }\StringTok{" "}\NormalTok{, }\FunctionTok{names}\NormalTok{(normal\_df)))}
-
+  \FunctionTok{kable}\NormalTok{(}\AttributeTok{booktabs =} \ConstantTok{TRUE}\NormalTok{, }\AttributeTok{align =} \StringTok{"c"}\NormalTok{, }
+        \AttributeTok{caption =} \StringTok{"From a Normal distribution"}\NormalTok{, }
+        \AttributeTok{col.names =} \FunctionTok{gsub}\NormalTok{(}\StringTok{"[\_]"}\NormalTok{, }\StringTok{" "}\NormalTok{, }\FunctionTok{names}\NormalTok{(normal\_df)), }\AttributeTok{digits =} \DecValTok{3}\NormalTok{)}
 
 \CommentTok{\# create the figure that shows the gamma output}
 \NormalTok{gamma\_df\_long }\OtherTok{\textless{}{-}}\NormalTok{ gamma\_df }\SpecialCharTok{\%\textgreater{}\%}
@@ -975,17 +981,18 @@ Once we have all the simulations, we can run them below.
 \NormalTok{gamma\_fig }\OtherTok{\textless{}{-}} \FunctionTok{ggplot}\NormalTok{(}\AttributeTok{data =}\NormalTok{ gamma\_df\_long, }
                     \FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ Sample\_Size, }\AttributeTok{y =}\NormalTok{ prop, }\AttributeTok{color =}\NormalTok{ method)) }\SpecialCharTok{+} 
   \FunctionTok{geom\_point}\NormalTok{() }\SpecialCharTok{+} \FunctionTok{geom\_line}\NormalTok{() }\SpecialCharTok{+} 
-  \FunctionTok{labs}\NormalTok{(}\AttributeTok{title =} \StringTok{"Proportion of CIs that Contain the True Parameter from Gamma }
-\StringTok{       Distibution"}\NormalTok{, }\AttributeTok{x =} \StringTok{"Sample Size"}\NormalTok{, }
+  \FunctionTok{labs}\NormalTok{(}\AttributeTok{title =} \StringTok{"Prop. of CIs that Contain the True Mean from Gamma Distibution"}\NormalTok{, }
+       \AttributeTok{x =} \StringTok{"Sample Size"}\NormalTok{, }
        \AttributeTok{y =} \StringTok{"Proportion (of 10,000 Simulations)"}\NormalTok{, }\AttributeTok{color =} \StringTok{"Method"}\NormalTok{,}
-       \AttributeTok{caption =} \StringTok{"Fig. 8: Graph showing the Accuracy of Bootstrap CI Methods for}
+       \AttributeTok{caption =} \StringTok{"Fig. 9: Graph showing the Accuracy of Bootstrap CI Methods for }
 \StringTok{       different sample sizes on Gamma Dist."}\NormalTok{) }\SpecialCharTok{+}
   \FunctionTok{theme\_light}\NormalTok{() }\SpecialCharTok{+}
   \FunctionTok{theme}\NormalTok{(}\AttributeTok{legend.position=}\StringTok{"bottom"}\NormalTok{)}
 
 \CommentTok{\# create the table for the gamma output}
 \NormalTok{gamma\_table }\OtherTok{\textless{}{-}}\NormalTok{ gamma\_df }\SpecialCharTok{\%\textgreater{}\%}
-  \FunctionTok{kable}\NormalTok{(}\AttributeTok{booktabs =} \ConstantTok{TRUE}\NormalTok{, }\AttributeTok{align =} \StringTok{"c"}\NormalTok{, }\AttributeTok{caption =} \StringTok{"Sampled From Gamma Dist."}\NormalTok{, }
+  \FunctionTok{kable}\NormalTok{(}\AttributeTok{booktabs =} \ConstantTok{TRUE}\NormalTok{, }\AttributeTok{align =} \StringTok{"c"}\NormalTok{, }
+        \AttributeTok{caption =} \StringTok{"From a Gamma distribution"}\NormalTok{, }
         \AttributeTok{col.names =} \FunctionTok{gsub}\NormalTok{(}\StringTok{"[\_]"}\NormalTok{, }\StringTok{" "}\NormalTok{, }\FunctionTok{names}\NormalTok{(gamma\_df)), }\AttributeTok{digits =} \DecValTok{3}\NormalTok{) }
    
 \CommentTok{\# create the figure that shows the log normal output}
@@ -995,56 +1002,31 @@ Once we have all the simulations, we can run them below.
 \NormalTok{log\_normal\_fig }\OtherTok{\textless{}{-}} \FunctionTok{ggplot}\NormalTok{(}\AttributeTok{data =}\NormalTok{ log\_normal\_df\_long, }
                     \FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ Sample\_Size, }\AttributeTok{y =}\NormalTok{ prop, }\AttributeTok{color =}\NormalTok{ method)) }\SpecialCharTok{+} 
   \FunctionTok{geom\_point}\NormalTok{() }\SpecialCharTok{+} \FunctionTok{geom\_line}\NormalTok{() }\SpecialCharTok{+} 
-  \FunctionTok{labs}\NormalTok{(}\AttributeTok{title =} \StringTok{"Proportion of CIs that Contain the True Parameter from Log{-}Normal }
-\StringTok{       Distibution"}\NormalTok{, }\AttributeTok{x =} \StringTok{"Sample Size"}\NormalTok{, }
+  \FunctionTok{labs}\NormalTok{(}\AttributeTok{title =}\StringTok{"Prop. of CIs that Contain True Mean from Log{-}Normal Distibution"}\NormalTok{,}
+       \AttributeTok{x =} \StringTok{"Sample Size"}\NormalTok{, }
        \AttributeTok{y =} \StringTok{"Proportion (of 10,000 Simulations)"}\NormalTok{, }\AttributeTok{color =} \StringTok{"Method"}\NormalTok{,}
-       \AttributeTok{caption =} \StringTok{"Fig. 8: Graph showing the Accuracy of Bootstrap CI Methods for}
-\StringTok{       different sample sizes on Log{-}Normal Dist."}\NormalTok{) }\SpecialCharTok{+}
+       \AttributeTok{caption =} \StringTok{"Fig. 10: Graph showing the Accuracy of Bootstrap CI Methods }
+\StringTok{       for different sample sizes on Log{-}Normal Dist."}\NormalTok{) }\SpecialCharTok{+}
   \FunctionTok{theme\_light}\NormalTok{() }\SpecialCharTok{+}
   \FunctionTok{theme}\NormalTok{(}\AttributeTok{legend.position=}\StringTok{"bottom"}\NormalTok{)}
 
 \CommentTok{\# create the table for the log normal output}
 \NormalTok{log\_normal\_table }\OtherTok{\textless{}{-}}\NormalTok{ log\_normal\_df }\SpecialCharTok{\%\textgreater{}\%}
-  \FunctionTok{kable}\NormalTok{(}\AttributeTok{booktabs =} \ConstantTok{TRUE}\NormalTok{, }\AttributeTok{align =} \StringTok{"c"}\NormalTok{, }\AttributeTok{caption =} \StringTok{"Sampled from Normal Dist."}\NormalTok{, }
-        \AttributeTok{col.names =} \FunctionTok{gsub}\NormalTok{(}\StringTok{"[\_]"}\NormalTok{, }\StringTok{" "}\NormalTok{, }\FunctionTok{names}\NormalTok{(log\_normal\_df)))}
+  \FunctionTok{kable}\NormalTok{(}\AttributeTok{booktabs =} \ConstantTok{TRUE}\NormalTok{, }\AttributeTok{align =} \StringTok{"c"}\NormalTok{, }
+        \AttributeTok{caption =} \StringTok{"From a Log{-}Normal distribution"}\NormalTok{, }
+        \AttributeTok{col.names =} \FunctionTok{gsub}\NormalTok{(}\StringTok{"[\_]"}\NormalTok{, }\StringTok{" "}\NormalTok{, }\FunctionTok{names}\NormalTok{(log\_normal\_df)), }\AttributeTok{digits =} \DecValTok{3}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{log\_normal\_fig}
-\end{Highlighting}
-\end{Shaded}
+\hypertarget{results}{%
+\subsection{Results}\label{results}}
 
-\includegraphics{paper_files/figure-latex/output the graphs/tables-1.pdf}
+\hypertarget{normal-distribution-simulation}{%
+\subsubsection{Normal Distribution
+Simulation}\label{normal-distribution-simulation}}
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{log\_normal\_table}
-\end{Highlighting}
-\end{Shaded}
-
-\begin{table}
-
-\caption{\label{tab:create graphs}Sampled from Normal Dist.}
-\centering
-\begin{tabular}[t]{cccccc}
-\toprule
-Sample Size & Normal & Basic & Studentized & Percentile & BCa\\
-\midrule
-4 & 0.6795 & 0.6542 & 0.8186 & 0.6810 & 0.6814\\
-10 & 0.7911 & 0.7684 & 0.8526 & 0.8019 & 0.8266\\
-15 & 0.8268 & 0.8061 & 0.8705 & 0.8387 & 0.8552\\
-20 & 0.8437 & 0.8236 & 0.8797 & 0.8526 & 0.8725\\
-30 & 0.8639 & 0.8464 & 0.8951 & 0.8734 & 0.8900\\
-\addlinespace
-40 & 0.8789 & 0.8623 & 0.9055 & 0.8881 & 0.9013\\
-60 & 0.8897 & 0.8783 & 0.9100 & 0.8978 & 0.9069\\
-80 & 0.9088 & 0.8969 & 0.9218 & 0.9136 & 0.9181\\
-100 & 0.9103 & 0.8980 & 0.9264 & 0.9162 & 0.9229\\
-\bottomrule
-\end{tabular}
-\end{table}
+First, we have the results of the simulation where we randomly sampled
+from a Normal distribution.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1052,7 +1034,19 @@ Sample Size & Normal & Basic & Studentized & Percentile & BCa\\
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{paper_files/figure-latex/output the graphs/tables-2.pdf}
+\includegraphics{paper_files/figure-latex/unnamed-chunk-18-1.pdf}
+
+At small sample sizes, the studentized confidence interval performed
+much better than the other intervals, which all performed similarly. For
+a sample size of 5, the studentized interval had an accuracy of around
+91.3\%. In comparison, the other three intervals had an accuracy of
+around 83\% to 84\% of creating an interval that contained the true
+population mean. The standard, percentile, and BCa confidence interval
+methods all have similar processes, especially when the distribution we
+are sampling from is Normal because the assumptions we made for the
+standard interval are correct. As the sample size increases, the
+performance of the intervals increases and rises to stay consistent at
+around 94\% to 95\% accuracy. The data (Table 1) is shown for reference.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1062,25 +1056,32 @@ Sample Size & Normal & Basic & Studentized & Percentile & BCa\\
 
 \begin{table}
 
-\caption{\label{tab:create graphs}Sampled from Normal Dist.}
+\caption{\label{tab:create graphs}From a Normal distribution}
 \centering
-\begin{tabular}[t]{cccccc}
+\begin{tabular}[t]{ccccc}
 \toprule
-Sample Size & Normal & Basic & Studentized & Percentile & BCa\\
+Sample Size & Normal & Studentized & Percentile & BCa\\
 \midrule
-4 & 0.8046 & 0.7913 & 0.9058 & 0.7941 & 0.7943\\
-10 & 0.9015 & 0.9005 & 0.9265 & 0.9007 & 0.8994\\
-15 & 0.9187 & 0.9183 & 0.9331 & 0.9184 & 0.9167\\
-20 & 0.9257 & 0.9249 & 0.9357 & 0.9242 & 0.9235\\
-30 & 0.9363 & 0.9372 & 0.9421 & 0.9351 & 0.9323\\
+5 & 0.841 & 0.913 & 0.834 & 0.832\\
+10 & 0.905 & 0.930 & 0.905 & 0.901\\
+15 & 0.918 & 0.932 & 0.919 & 0.918\\
+20 & 0.930 & 0.940 & 0.930 & 0.931\\
+30 & 0.938 & 0.945 & 0.938 & 0.936\\
 \addlinespace
-40 & 0.9421 & 0.9421 & 0.9466 & 0.9416 & 0.9416\\
-60 & 0.9381 & 0.9390 & 0.9420 & 0.9389 & 0.9386\\
-80 & 0.9403 & 0.9408 & 0.9430 & 0.9406 & 0.9396\\
-100 & 0.9483 & 0.9478 & 0.9499 & 0.9475 & 0.9480\\
+40 & 0.939 & 0.944 & 0.939 & 0.938\\
+60 & 0.940 & 0.944 & 0.940 & 0.940\\
+100 & 0.949 & 0.950 & 0.949 & 0.950\\
+150 & 0.942 & 0.943 & 0.942 & 0.941\\
 \bottomrule
 \end{tabular}
 \end{table}
+
+\hypertarget{gamma-distribution-simulation}{%
+\subsubsection{Gamma Distribution
+Simulation}\label{gamma-distribution-simulation}}
+
+Second, we have the results from the simulation where we sampled from a
+Gamma distribution.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1088,7 +1089,19 @@ Sample Size & Normal & Basic & Studentized & Percentile & BCa\\
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{paper_files/figure-latex/output the graphs/tables-3.pdf}
+\includegraphics{paper_files/figure-latex/unnamed-chunk-20-1.pdf}
+
+The \(Gamma(1,4)\) distribution we randomly sampled from is
+heavily-skewed, so we did not expect all of the bootstrap confidence
+interval methods to work comparably. As shown in Figure 9, the
+studentized method performed the best at around 90\% accuracy for
+creating a confidence interval that contained the true mean. The BCa
+method performed the second best at around 87\% accuracy. The percentile
+method performed the following best with around 85\% accuracy, while the
+standard method performed the worst with an accuracy of around 84.5\%.
+As the sample size increased, the accuracy of each of the methods became
+less variable and evened out to a constant accuracy. The table
+containing the proportions (Table 2) is shown for reference.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1098,25 +1111,108 @@ Sample Size & Normal & Basic & Studentized & Percentile & BCa\\
 
 \begin{table}
 
-\caption{\label{tab:create graphs}Sampled From Gamma Dist.}
+\caption{\label{tab:create graphs}From a Gamma distribution}
 \centering
-\begin{tabular}[t]{cccccc}
+\begin{tabular}[t]{ccccc}
 \toprule
-Sample Size & Normal & Basic & Studentized & Percentile & BCa\\
+Sample Size & Normal & Studentized & Percentile & BCa\\
 \midrule
-4 & 0.849 & 0.833 & 0.904 & 0.858 & 0.875\\
-10 & 0.848 & 0.829 & 0.901 & 0.854 & 0.871\\
-15 & 0.851 & 0.832 & 0.901 & 0.856 & 0.871\\
-20 & 0.846 & 0.827 & 0.903 & 0.851 & 0.867\\
-30 & 0.838 & 0.822 & 0.895 & 0.846 & 0.864\\
+5 & 0.848 & 0.902 & 0.854 & 0.873\\
+10 & 0.846 & 0.901 & 0.853 & 0.867\\
+15 & 0.856 & 0.906 & 0.862 & 0.879\\
+20 & 0.839 & 0.894 & 0.845 & 0.862\\
+30 & 0.847 & 0.898 & 0.853 & 0.869\\
 \addlinespace
-40 & 0.848 & 0.831 & 0.899 & 0.853 & 0.866\\
-60 & 0.847 & 0.829 & 0.907 & 0.857 & 0.874\\
-80 & 0.849 & 0.831 & 0.902 & 0.854 & 0.872\\
-100 & 0.848 & 0.831 & 0.897 & 0.853 & 0.866\\
+40 & 0.853 & 0.901 & 0.859 & 0.871\\
+60 & 0.846 & 0.901 & 0.852 & 0.868\\
+100 & 0.845 & 0.898 & 0.849 & 0.868\\
+150 & 0.844 & 0.896 & 0.850 & 0.866\\
 \bottomrule
 \end{tabular}
 \end{table}
+
+\hypertarget{log-normal-distribution-simulation}{%
+\subsubsection{Log-Normal Distribution
+Simulation}\label{log-normal-distribution-simulation}}
+
+Lastly, we have the results from the simulation where we sampled from a
+Log-Normal distribution.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{log\_normal\_fig}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{paper_files/figure-latex/unnamed-chunk-22-1.pdf}
+
+As shown in Figure 10, the studentized method had the greatest accuracy
+in creating the confidence intervals that captured the true mean. At
+small sample sizes such as 5, the studentized method has an accuracy of
+82.3\%, while the following best is the BCa method with a 73.4\%
+accuracy. As the sample size increases, all methods' accuracy increases
+quickly and performs comparably, although the studentized and BCa
+methods perform slightly better. All the intervals stay constant at
+around 92.5\% to 93.5\% accuracy for large sample sizes. Again, the
+proportions are shown (Table 3) for each sample size for reference.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{log\_normal\_table}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{table}
+
+\caption{\label{tab:create graphs}From a Log-Normal distribution}
+\centering
+\begin{tabular}[t]{ccccc}
+\toprule
+Sample Size & Normal & Studentized & Percentile & BCa\\
+\midrule
+5 & 0.715 & 0.823 & 0.720 & 0.734\\
+10 & 0.795 & 0.855 & 0.806 & 0.828\\
+15 & 0.829 & 0.876 & 0.839 & 0.862\\
+20 & 0.847 & 0.885 & 0.856 & 0.874\\
+30 & 0.869 & 0.901 & 0.879 & 0.893\\
+\addlinespace
+40 & 0.884 & 0.907 & 0.890 & 0.903\\
+60 & 0.901 & 0.921 & 0.911 & 0.920\\
+100 & 0.912 & 0.926 & 0.917 & 0.919\\
+150 & 0.925 & 0.935 & 0.928 & 0.927\\
+\bottomrule
+\end{tabular}
+\end{table}
+\newpage
+
+\hypertarget{conclusion}{%
+\section{Conclusion}\label{conclusion}}
+
+In this paper, we demonstrated the power of using bootstrapped
+confidence intervals to estimate a true population parameter without
+using any information about the underlying distribution of the sample.
+In the exposition, we introduced the standard method, which relies on
+three conditions: 1) that the distribution is Normal, 2) that there is
+no bias, and 3) that there is a constant standard error. If we take away
+the first condition and use the bootstrap percentiles to create the
+interval, we are left with the percentile method. If we add a
+bias-correcting value not equal to zero, then we have the
+bias-correcting method. Furthermore, if we allow for a non-constant
+standard error (through the acceleration), we have the bias-corrected
+with acceleration method. Using the studentized method, we can also use
+bootstrap resampling to estimate a \(t\)-distribution from which we can
+create a confidence interval. From our simulation, the methods all
+performed reasonably the same for the Normal distribution at large
+sample sizes. However, when we introduced skew into the distributions,
+the studentized and BCa methods performed better than the others at
+large sample sizes. It is important to note that even at large sample
+sizes, none of our methods reached a coverage of 95\%, which was our
+specified confidence level. The closest we were was when we sampled from
+a Normal distribution. This may be because our sample sizes need to be
+bigger; however, we can reach a close approximation using the largest
+sample size we tested. Thanks to the high computational power available,
+we can use bootstrapping to create confidence intervals for a population
+parameter without knowing much about the actual sample.
 
 \bibliographystyle{agsm}
 \bibliography{bibliography.bib}
