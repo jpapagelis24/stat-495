@@ -121,14 +121,13 @@ Profossor Wagaman} \\
 \begin{abstract}
 This paper explores different bootstrap methods for creating confidence
 intervals and tests their performance against each other for different
-types of distributions. This paper will re-introduce the ideas of
+types of distributions. This paper will re-introduce the idea of
 bootstraps and confidence intervals, as well as the theory behind
 different methods of bootstrapped confidence intervals. Along with the
 theoretical details of each method, we will provide an example of each
-bootstrapped confidence interval method with a toy dataset. Then, we
+bootstrapped confidence interval method using a toy dataset. Then, we
 will run a simulation that evaluates the performance of a couple of the
-methods we introduced on a variety of sample sizes and types of
-distributions.
+methods on a variety of sample sizes and types of distributions.
 \end{abstract}
 
 \noindent%
@@ -201,7 +200,8 @@ Bootstrap}\label{using-the-non-parametric-bootstrap}}
 
 We demonstrate performing a non-parametric bootstrap below using
 \texttt{SnowGR}, which gives the official snowfall dataset by the month
-for Grand Rapids, MI, starting in 1893. We will be using the
+for Grand Rapids, MI, starting in 1893 and is found in the
+\texttt{mosaic} package \citep{mosaic}. We will be using the
 \texttt{Dec} variable, which is the number of inches of snow that fell
 in December of each year. In particular, we are interested in the sample
 mean and later finding confidence intervals for the population mean of
@@ -217,28 +217,25 @@ mean and later finding confidence intervals for the population mean of
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{paper_files/figure-latex/SnowGR histogram-1.pdf} Next,
-we will perform the non-parametric bootstrap using 10,000 replications.
+\includegraphics{paper_files/figure-latex/SnowGR histogram-1.pdf}
+
+Next, we will perform the non-parametric bootstrap using 10,000
+replications.
 
 \begin{Shaded}
 \begin{Highlighting}[]
 \FunctionTok{set.seed}\NormalTok{(}\DecValTok{495}\NormalTok{)}
 \NormalTok{orig\_mean }\OtherTok{\textless{}{-}} \FunctionTok{mean}\NormalTok{(}\SpecialCharTok{\textasciitilde{}}\NormalTok{ Dec, }\AttributeTok{data =}\NormalTok{ SnowGR) }\CommentTok{\# theta hat}
-
-\FunctionTok{set.seed}\NormalTok{(}\DecValTok{495}\NormalTok{)}
 \NormalTok{nboot }\OtherTok{\textless{}{-}} \DecValTok{10000}
-
+\CommentTok{\# initialize storage vectors}
 \NormalTok{mean }\OtherTok{\textless{}{-}} \FunctionTok{rep}\NormalTok{(}\DecValTok{0}\NormalTok{,nboot)}
 \NormalTok{sd }\OtherTok{\textless{}{-}} \FunctionTok{rep}\NormalTok{(}\DecValTok{0}\NormalTok{,nboot)}
-\NormalTok{se }\OtherTok{\textless{}{-}} \FunctionTok{rep}\NormalTok{(}\DecValTok{0}\NormalTok{,nboot)}
-\NormalTok{t\_stat }\OtherTok{\textless{}{-}} \FunctionTok{rep}\NormalTok{(}\DecValTok{0}\NormalTok{,nboot)}
 
 \ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \DecValTok{1}\SpecialCharTok{:}\NormalTok{nboot) \{}
 \NormalTok{  resampled }\OtherTok{\textless{}{-}} \FunctionTok{as.data.frame}\NormalTok{(mosaic}\SpecialCharTok{::}\FunctionTok{resample}\NormalTok{(SnowGR, }\AttributeTok{replace =} \ConstantTok{TRUE}\NormalTok{))}
 \NormalTok{  mean[i] }\OtherTok{\textless{}{-}} \FunctionTok{mean}\NormalTok{(}\SpecialCharTok{\textasciitilde{}}\NormalTok{Dec, }\AttributeTok{data =}\NormalTok{ resampled)}
 \NormalTok{  sd[i] }\OtherTok{\textless{}{-}} \FunctionTok{sd}\NormalTok{(}\SpecialCharTok{\textasciitilde{}}\NormalTok{Dec, }\AttributeTok{data =}\NormalTok{ resampled)}
 \NormalTok{\}}
-
 \NormalTok{dec\_means }\OtherTok{\textless{}{-}} \FunctionTok{as.data.frame}\NormalTok{(mean)}
 \end{Highlighting}
 \end{Shaded}
@@ -314,7 +311,8 @@ original histogram with the confidence interval is shown (Figure 3).
 \begin{Highlighting}[]
 \FunctionTok{gf\_histogram}\NormalTok{(}\SpecialCharTok{\textasciitilde{}}\NormalTok{ Dec, }\AttributeTok{data =}\NormalTok{ SnowGR) }\SpecialCharTok{+}
   \FunctionTok{labs}\NormalTok{(}\AttributeTok{x =} \StringTok{"Annual Snowfall in December"}\NormalTok{, }
-       \AttributeTok{title =} \StringTok{"Distribution of Annual Snowfall in December"}\NormalTok{, }\AttributeTok{y =} \StringTok{"Count"}\NormalTok{,}
+       \AttributeTok{title =} \StringTok{"Distribution of Annual Snowfall in December }
+\StringTok{       with Standard Interval"}\NormalTok{, }\AttributeTok{y =} \StringTok{"Count"}\NormalTok{,}
        \AttributeTok{caption =} \StringTok{"Fig. 3: Histogram with Standard Interval Shown"}\NormalTok{) }\SpecialCharTok{+}
   \FunctionTok{geom\_vline}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{xintercept=} \FloatTok{13.85639}\NormalTok{)) }\SpecialCharTok{+}
   \FunctionTok{geom\_vline}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{xintercept=} \FloatTok{17.65957}\NormalTok{))}
@@ -395,16 +393,18 @@ confidence interval is shown (Figure 4).
 \begin{Highlighting}[]
 \FunctionTok{gf\_histogram}\NormalTok{(}\SpecialCharTok{\textasciitilde{}}\NormalTok{ Dec, }\AttributeTok{data =}\NormalTok{ SnowGR) }\SpecialCharTok{+}
   \FunctionTok{labs}\NormalTok{(}\AttributeTok{x =} \StringTok{"Annual Snowfall in December"}\NormalTok{, }
-       \AttributeTok{title =} \StringTok{"Distribution of Annual Snowfall in December"}\NormalTok{, }\AttributeTok{y =} \StringTok{"Count"}\NormalTok{,}
+       \AttributeTok{title =} \StringTok{"Distribution of Annual Snowfall in December}
+\StringTok{       with Percentile Interval"}\NormalTok{, }\AttributeTok{y =} \StringTok{"Count"}\NormalTok{,}
        \AttributeTok{caption =} \StringTok{"Fig. 4: Histogram with Percentile Interval Shown"}\NormalTok{) }\SpecialCharTok{+}
   \FunctionTok{geom\_vline}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{xintercept=} \FloatTok{13.91170}\NormalTok{)) }\SpecialCharTok{+}
   \FunctionTok{geom\_vline}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{xintercept=} \FloatTok{17.72353}\NormalTok{))}
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{paper_files/figure-latex/unnamed-chunk-5-1.pdf} This
-interval is similar to the one created using the standard method, but
-shifted slightly to the right.
+\includegraphics{paper_files/figure-latex/unnamed-chunk-5-1.pdf}
+
+This interval is similar to the one created using the standard method,
+but shifted slightly to the right.
 
 \hypertarget{the-bias-corrected-bc-method}{%
 \subsection{The Bias-Corrected (BC)
@@ -502,7 +502,8 @@ fall in December in Grand Rapids, Michigan is between 14.01 inches and
 \begin{Highlighting}[]
 \FunctionTok{gf\_histogram}\NormalTok{(}\SpecialCharTok{\textasciitilde{}}\NormalTok{ Dec, }\AttributeTok{data =}\NormalTok{ SnowGR) }\SpecialCharTok{+}
   \FunctionTok{labs}\NormalTok{(}\AttributeTok{x =} \StringTok{"Annual Snowfall in December"}\NormalTok{, }
-       \AttributeTok{title =} \StringTok{"Distribution of Annual Snowfall in December"}\NormalTok{, }\AttributeTok{y =} \StringTok{"Count"}\NormalTok{,}
+       \AttributeTok{title =} \StringTok{"Distribution of Annual Snowfall in December}
+\StringTok{       with BC interval"}\NormalTok{, }\AttributeTok{y =} \StringTok{"Count"}\NormalTok{,}
        \AttributeTok{caption =} \StringTok{"Fig. 5: Histogram with BC Interval Shown"}\NormalTok{) }\SpecialCharTok{+}
   \FunctionTok{geom\_vline}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{xintercept=} \FloatTok{14.01172}\NormalTok{)) }\SpecialCharTok{+}
   \FunctionTok{geom\_vline}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{xintercept=} \FloatTok{17.82017}\NormalTok{))}
@@ -609,7 +610,8 @@ shows our confidence interval.
 \begin{Highlighting}[]
 \FunctionTok{gf\_histogram}\NormalTok{(}\SpecialCharTok{\textasciitilde{}}\NormalTok{ Dec, }\AttributeTok{data =}\NormalTok{ SnowGR) }\SpecialCharTok{+}
   \FunctionTok{labs}\NormalTok{(}\AttributeTok{x =} \StringTok{"Annual Snowfall in December"}\NormalTok{, }
-       \AttributeTok{title =} \StringTok{"Distribution of Annual Snowfall in December"}\NormalTok{, }\AttributeTok{y =} \StringTok{"Count"}\NormalTok{,}
+       \AttributeTok{title =} \StringTok{"Distribution of Annual Snowfall in December}
+\StringTok{       with BCa interval"}\NormalTok{, }\AttributeTok{y =} \StringTok{"Count"}\NormalTok{,}
        \AttributeTok{caption =} \StringTok{"Fig. 6: Histogram with BCa Interval Shown"}\NormalTok{) }\SpecialCharTok{+}
   \FunctionTok{geom\_vline}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{xintercept=} \FloatTok{13.91591}\NormalTok{)) }\SpecialCharTok{+}
   \FunctionTok{geom\_vline}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{xintercept=} \FloatTok{17.72353}\NormalTok{))}
@@ -701,7 +703,8 @@ and 18.02 inches. This would give us the following confidence interval
 \begin{Highlighting}[]
 \FunctionTok{gf\_histogram}\NormalTok{(}\SpecialCharTok{\textasciitilde{}}\NormalTok{ Dec, }\AttributeTok{data =}\NormalTok{ SnowGR) }\SpecialCharTok{+}
   \FunctionTok{labs}\NormalTok{(}\AttributeTok{x =} \StringTok{"Annual Snowfall in December"}\NormalTok{, }
-       \AttributeTok{title =} \StringTok{"Distribution of Annual Snowfall in December"}\NormalTok{, }\AttributeTok{y =} \StringTok{"Count"}\NormalTok{, }
+       \AttributeTok{title =} \StringTok{"Distribution of Annual Snowfall in December}
+\StringTok{       with Studentized Interval"}\NormalTok{, }\AttributeTok{y =} \StringTok{"Count"}\NormalTok{, }
        \AttributeTok{caption =} \StringTok{"Fig. 7: Histogram with Studentized Interval Shown"}\NormalTok{) }\SpecialCharTok{+}
   \FunctionTok{geom\_vline}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{xintercept=} \FloatTok{14.03467}\NormalTok{)) }\SpecialCharTok{+}
   \FunctionTok{geom\_vline}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{xintercept=} \FloatTok{18.01709}\NormalTok{)) }
@@ -731,8 +734,11 @@ proportion that each bootstrapped confidence interval method contains
 the true population mean for a given distribution. We will do this for a
 couple of different distributions and ranges of sample sizes to show how
 the intervals perform with skewed distributions and larger sample sizes.
+We will define the accuracy of each method as the proportion that each
+bootstrapped confidence interval method contains the true population
+mean for a distribution
 
-To do this simulation, we will use the \texttt{boot} package
+To perform this simulation, we will use the \texttt{boot} package
 \citep{boot}. This package can compute a bootstrap object which contains
 the output from a bootstrap calculation of a given sample and then
 produces confidence intervals from the bootstrap object. In particular,
@@ -774,11 +780,13 @@ sample sizes.
 \NormalTok{    d }\OtherTok{\textless{}{-}}\NormalTok{ X[i]}
     \FunctionTok{return}\NormalTok{ (}\FunctionTok{c}\NormalTok{(}\FunctionTok{mean}\NormalTok{(d), }\FunctionTok{sd}\NormalTok{(d)))}
 \NormalTok{  \}}
-  \CommentTok{\# initialize matrix to hold different bootstrap prop. for each sample size}
+  \CommentTok{\# initialize matrix to hold different bootstrap prop. }
+  \CommentTok{\# for each sample size}
 \NormalTok{  master }\OtherTok{\textless{}{-}} \FunctionTok{matrix}\NormalTok{(}\AttributeTok{nrow =}\NormalTok{ num\_sample\_sizes, }\AttributeTok{ncol =} \DecValTok{5}\NormalTok{)}
   \CommentTok{\# iterate through each sample size}
   \ControlFlowTok{for}\NormalTok{(i }\ControlFlowTok{in} \DecValTok{1}\SpecialCharTok{:}\NormalTok{num\_sample\_sizes) \{}
-    \CommentTok{\# initialize vectors that hold if the CI contains true mean by iteration}
+    \CommentTok{\# initialize vectors that hold if the CI contains true mean }
+    \CommentTok{\# by iteration}
 \NormalTok{    norm\_contains }\OtherTok{\textless{}{-}} \FunctionTok{rep}\NormalTok{(}\DecValTok{0}\NormalTok{, sim\_reps)}
 \NormalTok{    student\_contains }\OtherTok{\textless{}{-}} \FunctionTok{rep}\NormalTok{(}\DecValTok{0}\NormalTok{, sim\_reps)}
 \NormalTok{    percentile\_contains }\OtherTok{\textless{}{-}} \FunctionTok{rep}\NormalTok{(}\DecValTok{0}\NormalTok{, sim\_reps)}
@@ -960,11 +968,11 @@ and sample sizes.
                     \FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ Sample\_Size, }\AttributeTok{y =}\NormalTok{ prop, }\AttributeTok{color =}\NormalTok{ method)) }\SpecialCharTok{+} 
   \FunctionTok{geom\_point}\NormalTok{() }\SpecialCharTok{+} \FunctionTok{geom\_line}\NormalTok{() }\SpecialCharTok{+} 
   \FunctionTok{labs}\NormalTok{(}
-    \AttributeTok{title =} \StringTok{"Prop. of CIs that Contain the True Mean from Normal Distibution"}\NormalTok{, }
+    \AttributeTok{title =} \StringTok{"Accuracy of Bootstrap CIs using Normal Distibution"}\NormalTok{, }
     \AttributeTok{x =} \StringTok{"Sample Size"}\NormalTok{, }
     \AttributeTok{y =} \StringTok{"Proportion (of 10,000 Simulations)"}\NormalTok{, }\AttributeTok{color =} \StringTok{"Method"}\NormalTok{,}
-    \AttributeTok{caption =} \StringTok{"Fig. 8: Graph showing the Accuracy of Bootstrap CI Methods for}
-\StringTok{       different sample sizes on Normal Dist."}\NormalTok{) }\SpecialCharTok{+}
+    \AttributeTok{caption =} \StringTok{"Fig. 8: Graph showing the Accuracy of Bootstrap CI }
+\StringTok{    Methods for different sample sizes on Normal Distribution"}\NormalTok{) }\SpecialCharTok{+}
   \FunctionTok{theme\_light}\NormalTok{() }\SpecialCharTok{+}
   \FunctionTok{theme}\NormalTok{(}\AttributeTok{legend.position=}\StringTok{"bottom"}\NormalTok{)}
 
@@ -981,11 +989,11 @@ and sample sizes.
 \NormalTok{gamma\_fig }\OtherTok{\textless{}{-}} \FunctionTok{ggplot}\NormalTok{(}\AttributeTok{data =}\NormalTok{ gamma\_df\_long, }
                     \FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ Sample\_Size, }\AttributeTok{y =}\NormalTok{ prop, }\AttributeTok{color =}\NormalTok{ method)) }\SpecialCharTok{+} 
   \FunctionTok{geom\_point}\NormalTok{() }\SpecialCharTok{+} \FunctionTok{geom\_line}\NormalTok{() }\SpecialCharTok{+} 
-  \FunctionTok{labs}\NormalTok{(}\AttributeTok{title =} \StringTok{"Prop. of CIs that Contain the True Mean from Gamma Distibution"}\NormalTok{, }
+  \FunctionTok{labs}\NormalTok{(}\AttributeTok{title =} \StringTok{"Accuracy of Bootstrap CIs using Gamma Distibution"}\NormalTok{, }
        \AttributeTok{x =} \StringTok{"Sample Size"}\NormalTok{, }
        \AttributeTok{y =} \StringTok{"Proportion (of 10,000 Simulations)"}\NormalTok{, }\AttributeTok{color =} \StringTok{"Method"}\NormalTok{,}
-       \AttributeTok{caption =} \StringTok{"Fig. 9: Graph showing the Accuracy of Bootstrap CI Methods for }
-\StringTok{       different sample sizes on Gamma Dist."}\NormalTok{) }\SpecialCharTok{+}
+       \AttributeTok{caption =} \StringTok{"Fig. 9: Graph showing the Accuracy of Bootstrap CI }
+\StringTok{       Methods for different sample sizes on Gamma Distribution"}\NormalTok{) }\SpecialCharTok{+}
   \FunctionTok{theme\_light}\NormalTok{() }\SpecialCharTok{+}
   \FunctionTok{theme}\NormalTok{(}\AttributeTok{legend.position=}\StringTok{"bottom"}\NormalTok{)}
 
@@ -1002,11 +1010,12 @@ and sample sizes.
 \NormalTok{log\_normal\_fig }\OtherTok{\textless{}{-}} \FunctionTok{ggplot}\NormalTok{(}\AttributeTok{data =}\NormalTok{ log\_normal\_df\_long, }
                     \FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ Sample\_Size, }\AttributeTok{y =}\NormalTok{ prop, }\AttributeTok{color =}\NormalTok{ method)) }\SpecialCharTok{+} 
   \FunctionTok{geom\_point}\NormalTok{() }\SpecialCharTok{+} \FunctionTok{geom\_line}\NormalTok{() }\SpecialCharTok{+} 
-  \FunctionTok{labs}\NormalTok{(}\AttributeTok{title =}\StringTok{"Prop. of CIs that Contain True Mean from Log{-}Normal Distibution"}\NormalTok{,}
+  \FunctionTok{labs}\NormalTok{(}\AttributeTok{title =}\StringTok{"Accuracy of Bootstrap CIs using Log{-}Normal }
+\StringTok{       Distibution"}\NormalTok{,}
        \AttributeTok{x =} \StringTok{"Sample Size"}\NormalTok{, }
        \AttributeTok{y =} \StringTok{"Proportion (of 10,000 Simulations)"}\NormalTok{, }\AttributeTok{color =} \StringTok{"Method"}\NormalTok{,}
-       \AttributeTok{caption =} \StringTok{"Fig. 10: Graph showing the Accuracy of Bootstrap CI Methods }
-\StringTok{       for different sample sizes on Log{-}Normal Dist."}\NormalTok{) }\SpecialCharTok{+}
+       \AttributeTok{caption =} \StringTok{"Fig. 10: Graph showing the Accuracy of Bootstrap CI }
+\StringTok{       Methods for different sample sizes on Log{-}Normal Distribution"}\NormalTok{) }\SpecialCharTok{+}
   \FunctionTok{theme\_light}\NormalTok{() }\SpecialCharTok{+}
   \FunctionTok{theme}\NormalTok{(}\AttributeTok{legend.position=}\StringTok{"bottom"}\NormalTok{)}
 

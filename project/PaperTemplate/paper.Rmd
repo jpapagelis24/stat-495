@@ -17,7 +17,7 @@ keywords:
 - studentized
 
 abstract: |
-  This paper explores different bootstrap methods for creating confidence intervals and tests their performance against each other for different types of distributions. This paper will re-introduce the ideas of bootstraps and confidence intervals, as well as the theory behind different methods of bootstrapped confidence intervals. Along with the theoretical details of each method, we will provide an example of each bootstrapped confidence interval method with a toy dataset. Then, we will run a simulation that evaluates the performance of a couple of the methods we introduced on a variety of sample sizes and types of distributions. 
+  This paper explores different bootstrap methods for creating confidence intervals and tests their performance against each other for different types of distributions. This paper will re-introduce the idea of bootstraps and confidence intervals, as well as the theory behind different methods of bootstrapped confidence intervals. Along with the theoretical details of each method, we will provide an example of each bootstrapped confidence interval method using a toy dataset. Then, we will run a simulation that evaluates the performance of a couple of the methods on a variety of sample sizes and types of distributions. 
 
 bibliography: bibliography.bib
 output:
@@ -66,40 +66,36 @@ As $B$ increases, $\hat{F}$ approaches $F$, which means that the test statistic 
 
 ### Using the Non-Parametric Bootstrap
 
-We demonstrate performing a non-parametric bootstrap below using `SnowGR`, which gives the official snowfall dataset by the month for Grand Rapids, MI, starting in 1893. 
+We demonstrate performing a non-parametric bootstrap below using `SnowGR`, which gives the official snowfall dataset by the month for Grand Rapids, MI, starting in 1893 and is found in the `mosaic` package [@mosaic].
 We will be using the `Dec` variable, which is the number of inches of snow that fell in December of each year. 
 In particular, we are interested in the sample mean and later finding confidence intervals for the population mean of `Dec`. 
 The distribution is shown (Figure 1).
-```{r SnowGR histogram}
+```{r SnowGR histogram, fig.height = 4, fig.width = 5}
 data(SnowGR)
 gf_histogram(~ Dec, data = SnowGR) +
   labs(x = "Annual Snowfall in December", 
        title = "Distribution of Annual Snowfall in December", y = "Count",
        caption = "Fig. 1: Histogram of SnowGR")
 ```
+
 Next, we will perform the non-parametric bootstrap using 10,000 replications.
 ```{r non-paramteric bootstrap}
 set.seed(495)
 orig_mean <- mean(~ Dec, data = SnowGR) # theta hat
-
-set.seed(495)
 nboot <- 10000
-
+# initialize storage vectors
 mean <- rep(0,nboot)
 sd <- rep(0,nboot)
-se <- rep(0,nboot)
-t_stat <- rep(0,nboot)
 
 for (i in 1:nboot) {
   resampled <- as.data.frame(mosaic::resample(SnowGR, replace = TRUE))
   mean[i] <- mean(~Dec, data = resampled)
   sd[i] <- sd(~Dec, data = resampled)
 }
-
 dec_means <- as.data.frame(mean)
 ```
 Figure 2 shows the histogram of bootstrapped values. Since we performed a large number of bootstrap replications, the bootstrapped distribution appears to be approximately Normal.
-```{r, cache = TRUE}
+```{r, fig.height = 3, fig.width = 4}
 gf_dhistogram(~ mean, data = dec_means) %>%
   gf_dens() %>%
   gf_labs(title = "Histogram of 10,000 Bootstrapped Mean Dec Values",
@@ -129,10 +125,11 @@ mean(~ Dec, data = SnowGR) + qnorm(c(0.025, 0.975)) *
 ```
 Therefore, we are 95% confident that the true mean number of inches of snow that fall in December is between 13.86 inches and 17.66 inches. Our original histogram with the confidence interval is shown (Figure 3).
 
-```{r}
+```{r, fig.height = 4, fig.width = 5}
 gf_histogram(~ Dec, data = SnowGR) +
   labs(x = "Annual Snowfall in December", 
-       title = "Distribution of Annual Snowfall in December", y = "Count",
+       title = "Distribution of Annual Snowfall in December 
+       with Standard Interval", y = "Count",
        caption = "Fig. 3: Histogram with Standard Interval Shown") +
   geom_vline(aes(xintercept= 13.85639)) +
   geom_vline(aes(xintercept= 17.65957))
@@ -164,14 +161,16 @@ Finding a 95% confidence interval for the true population mean of `Dec` using th
 qdata(~ mean, c(0.025, 0.975), data = dec_means)
 ```
 Therefore, we can say that we are 95% confident that the true population mean of inches of snow that fall in December is between 13.91 inches and 17.72 inches. Our original histogram with the percentile confidence interval is shown (Figure 4).
-```{r}
+```{r,fig.height = 4, fig.width = 5}
 gf_histogram(~ Dec, data = SnowGR) +
   labs(x = "Annual Snowfall in December", 
-       title = "Distribution of Annual Snowfall in December", y = "Count",
+       title = "Distribution of Annual Snowfall in December
+       with Percentile Interval", y = "Count",
        caption = "Fig. 4: Histogram with Percentile Interval Shown") +
   geom_vline(aes(xintercept= 13.91170)) +
   geom_vline(aes(xintercept= 17.72353))
 ```
+
 This interval is similar to the one created using the standard method, but shifted slightly to the right.
 
 ## The Bias-Corrected (BC) Method
@@ -212,10 +211,11 @@ qdata(~ mean, c(new_lower, new_upper), data = dec_means)
 ```
 Therefore, we are 95% confident that the true mean inches of snow that fall in December in Grand Rapids, Michigan is between 14.01 inches and 17.82 inches. Our histogram (Figure 5) is shown.
 
-```{r}
+```{r, fig.height = 4, fig.width = 5}
 gf_histogram(~ Dec, data = SnowGR) +
   labs(x = "Annual Snowfall in December", 
-       title = "Distribution of Annual Snowfall in December", y = "Count",
+       title = "Distribution of Annual Snowfall in December
+       with BC interval", y = "Count",
        caption = "Fig. 5: Histogram with BC Interval Shown") +
   geom_vline(aes(xintercept= 14.01172)) +
   geom_vline(aes(xintercept= 17.82017))
@@ -265,14 +265,14 @@ qdata(~ mean, c(a_new_lower, a_new_upper), data = dec_means)
 ```
 We are 95% confident that the true mean number of inches of snow that fall in December is between 13.92 inches and 17.72 inches. Figure 6 shows our confidence interval.
 
-```{r}
+```{r, fig.height = 4, fig.width = 5}
 gf_histogram(~ Dec, data = SnowGR) +
   labs(x = "Annual Snowfall in December", 
-       title = "Distribution of Annual Snowfall in December", y = "Count",
+       title = "Distribution of Annual Snowfall in December
+       with BCa interval", y = "Count",
        caption = "Fig. 6: Histogram with BCa Interval Shown") +
   geom_vline(aes(xintercept= 13.91591)) +
   geom_vline(aes(xintercept= 17.72353))
-
 ```
 
 ## The Bootstrap-t (Studentized) Method
@@ -315,15 +315,15 @@ c(orig_mean - upper*orig_se, orig_mean - lower*orig_se)
 So we are 95% confident that the true mean number of inches of snow that fall in December in Grand Rapids, Michigan is between 14.03 inches and 18.02 inches.
 This would give us the following confidence interval (Figure 7):
 
-```{r}
+```{r, fig.height = 4, fig.width = 5}
 gf_histogram(~ Dec, data = SnowGR) +
   labs(x = "Annual Snowfall in December", 
-       title = "Distribution of Annual Snowfall in December", y = "Count", 
+       title = "Distribution of Annual Snowfall in December
+       with Studentized Interval", y = "Count", 
        caption = "Fig. 7: Histogram with Studentized Interval Shown") +
   geom_vline(aes(xintercept= 14.03467)) +
   geom_vline(aes(xintercept= 18.01709)) 
 ```
-
 
 # Simulation
 
@@ -334,8 +334,9 @@ After we sample from the distribution, we will create a bootstrapped confidence 
 Since we know the true population mean of the distribution, we will determine if the true population mean is contained in the confidence interval for each of the methods we are testing [@Guillaume21]. 
 We will perform this process a large number of times (10,000 simulations) and then average by the number of iterations to determine, on average, the proportion that each bootstrapped confidence interval method contains the true population mean for a given distribution. 
 We will do this for a couple of different distributions and ranges of sample sizes to show how the intervals perform with skewed distributions and larger sample sizes.
+We will define the accuracy of each method as the proportion that each bootstrapped confidence interval method contains the true population mean for a distribution
 
-To do this simulation, we will use the `boot` package [@boot]. 
+To perform this simulation, we will use the `boot` package [@boot]. 
 This package can compute a bootstrap object which contains the output from a bootstrap calculation of a given sample and then produces confidence intervals from the bootstrap object. 
 In particular, we will use the `boot.ci` function to create four confidence intervals: the standard (or normal) confidence interval, the studentized confidence interval, the percentile confidence interval, and the bias-corrected with acceleration confidence interval.
 
@@ -360,11 +361,13 @@ run_sim_normal <- function(sim_reps) {
     d <- X[i]
     return (c(mean(d), sd(d)))
   }
-  # initialize matrix to hold different bootstrap prop. for each sample size
+  # initialize matrix to hold different bootstrap prop. 
+  # for each sample size
   master <- matrix(nrow = num_sample_sizes, ncol = 5)
   # iterate through each sample size
   for(i in 1:num_sample_sizes) {
-    # initialize vectors that hold if the CI contains true mean by iteration
+    # initialize vectors that hold if the CI contains true mean 
+    # by iteration
     norm_contains <- rep(0, sim_reps)
     student_contains <- rep(0, sim_reps)
     percentile_contains <- rep(0, sim_reps)
@@ -526,11 +529,11 @@ normal_fig <- ggplot(data = normal_df_long,
                     aes(x = Sample_Size, y = prop, color = method)) + 
   geom_point() + geom_line() + 
   labs(
-    title = "Prop. of CIs that Contain the True Mean from Normal Distibution", 
+    title = "Accuracy of Bootstrap CIs using Normal Distibution", 
     x = "Sample Size", 
     y = "Proportion (of 10,000 Simulations)", color = "Method",
-    caption = "Fig. 8: Graph showing the Accuracy of Bootstrap CI Methods for
-       different sample sizes on Normal Dist.") +
+    caption = "Fig. 8: Graph showing the Accuracy of Bootstrap CI 
+    Methods for different sample sizes on Normal Distribution") +
   theme_light() +
   theme(legend.position="bottom")
 
@@ -547,11 +550,11 @@ gamma_df_long <- gamma_df %>%
 gamma_fig <- ggplot(data = gamma_df_long, 
                     aes(x = Sample_Size, y = prop, color = method)) + 
   geom_point() + geom_line() + 
-  labs(title = "Prop. of CIs that Contain the True Mean from Gamma Distibution", 
+  labs(title = "Accuracy of Bootstrap CIs using Gamma Distibution", 
        x = "Sample Size", 
        y = "Proportion (of 10,000 Simulations)", color = "Method",
-       caption = "Fig. 9: Graph showing the Accuracy of Bootstrap CI Methods for 
-       different sample sizes on Gamma Dist.") +
+       caption = "Fig. 9: Graph showing the Accuracy of Bootstrap CI 
+       Methods for different sample sizes on Gamma Distribution") +
   theme_light() +
   theme(legend.position="bottom")
 
@@ -568,11 +571,12 @@ log_normal_df_long <- log_normal_df %>%
 log_normal_fig <- ggplot(data = log_normal_df_long, 
                     aes(x = Sample_Size, y = prop, color = method)) + 
   geom_point() + geom_line() + 
-  labs(title ="Prop. of CIs that Contain True Mean from Log-Normal Distibution",
+  labs(title ="Accuracy of Bootstrap CIs using Log-Normal 
+       Distibution",
        x = "Sample Size", 
        y = "Proportion (of 10,000 Simulations)", color = "Method",
-       caption = "Fig. 10: Graph showing the Accuracy of Bootstrap CI Methods 
-       for different sample sizes on Log-Normal Dist.") +
+       caption = "Fig. 10: Graph showing the Accuracy of Bootstrap CI 
+       Methods for different sample sizes on Log-Normal Distribution") +
   theme_light() +
   theme(legend.position="bottom")
 
@@ -587,7 +591,7 @@ log_normal_table <- log_normal_df %>%
 ### Normal Distribution Simulation
 First, we have the results of the simulation where we randomly sampled from a Normal distribution.
 
-```{r}
+```{r,fig.height = 4, fig.width = 5}
 normal_fig
 ```
 
@@ -603,7 +607,7 @@ normal_table
 
 Second, we have the results from the simulation where we sampled from a Gamma distribution.
 
-```{r}
+```{r, fig.height = 4, fig.width = 5}
 gamma_fig
 ```
 
@@ -617,7 +621,7 @@ gamma_table
 
 Lastly, we have the results from the simulation where we sampled from a Log-Normal distribution.
 
-```{r}
+```{r, fig.height = 4, fig.width = 5}
 log_normal_fig
 ```
 
