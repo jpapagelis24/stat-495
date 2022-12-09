@@ -1,20 +1,6 @@
 # A Performance Comparison of Bootstrap Methods
 
 
-SYNOPSIS: 
+ABSTRACT: 
 
-For my project, I plan to explore different bootstrap methods for creating confidence intervals and then perform comparisons between a couple of the methods. My paper will re-introduce the idea of bootstrap to my peers and give some background on constructing confidence intervals. We will also go deeper into the theory behind the construction of confidence intervals from bootstrapped data. These various methods to create a confidence interval from a bootstrap can include the percentile method, bias-corrected method, accelerated method, and the studentized method, as well as others. I will demonstrate how these bootstrap methods work using “toy examples,” which will be datasets in which a specific bootstrap method is appropriate. To demonstrate my understanding of the methods, I will write a simulation to compare a few of them and determine how they perform against each other. I will show my understanding of the different methods of creating confidence intervals from bootstrapped data by communicating the statistical theory in a concise and accessible way to my peers. Writing the simulation and sharing conclusions will demonstrate my ability to implement statistical methods in practice as well as my ability to analyze the results of the simulation.
-
-
-
-TIMELINE: 
-
-* Annotated Bib Assignment - Due 11/9 by Class 
-* Exposition Draft Assignment - Due 11/18 by midnight to Gradescope
-(This will be a good pass on a first draft of this section but you can still edit it afterwards!)
-* Update 1 - Due 11/18 by midnight (see project assignment) - this is an issue you create in the repo
-* Update 2 - Due 11/30 by midnight (see project assignment) - this is an issue you create in the repo
-* Project Draft - Due 12/2 by midnight to Gradescope and repo
-* Peer Review of Draft - Due 12/5 by class - Form and materials in Google drive starting 12/3 morning
-* Final paper and all materials - Due 12/9 by 5 pm to Gradescope and repo 
-* Reflection - Due during finals week, exact date TBD
+This paper explores different bootstrap methods for creating confidence intervals and tests their performance against each other for different types of distributions. This paper will re-introduce the idea of bootstraps and confidence intervals, as well as the theory behind different methods of bootstrapped confidence intervals. Along with the theoretical details of each method, we will provide an example of each bootstrapped confidence interval method using a toy dataset. Then, we will run a simulation that evaluates the performance of a couple of the methods on a variety of sample sizes and types of distributions. 
