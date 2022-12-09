@@ -372,7 +372,7 @@ run_sim_normal <- function(sim_reps) {
     student_contains <- rep(0, sim_reps)
     percentile_contains <- rep(0, sim_reps)
     bca_contains <- rep(0, sim_reps)
-    # 
+    
     n <- sample_sizes[i]
     true_mean <- 0
     # perform 10,000 iterations of bootstraps
