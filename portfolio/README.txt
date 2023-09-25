@@ -1,4 +1,5 @@
 Reports 
+Stat456FinalProject - Report using GLMs - Spring 2023
 Stat495FinalPaper.pdf - Paper on Bootstrapped Confidence Intervals - Fall 2022
 Stat495Hmk5WriteUp.pdf - Mock Report using GLMs and Trees - Fall 2022
 Stat230Report - Multiple regression project on the Effect of Wages - Spring 2021
